@@ -1,41 +1,40 @@
 # Basic
-title: 潘柏信
+title: 小兵禅（陆延杰）的技术博客
 subtitle: 个人站
 description: 欢迎来到我的个人站~
 # 头像里面的标题
-avatarTitle: leopardpan
+avatarTitle: 陆延杰
 # 头像里面的描述
-avatarDesc: iOS / 机器学习
+avatarDesc: 运维开发 / 容器 / 云存储 / 虚拟化
 repository: xiaobingchan/xiaobingchan.github.io
 github_url: https://github.com/xiaobingchan
 url: https://xiaobingchan.github.io
 
 # Comment
 comment:
-    disqus: leopard
+    disqus: 运维开发 / 容器 / 云存储 / 虚拟化
     # gitment: xxx // 需要修改 comments.html中的client_id和client_secret
     # uyan: 2143225  # 有言id,登录有言官网申请
 
 # Social
 social:
-    weibo: 5366874726 
-    github: leopardpan
-    # zhihu: panpanleopard
-    # juejin: xxx
-    jianshu: 2ada30d8d0f7
-    # twitter: 
-    mail: leopardpan@icloud.com
+    weixin: 1755337994 
+    github: xiaobingchan
+    zhihu: lu-yan-jie-31
+    juejin: 5da948c7518825647c51439e
+    jianshu: 9ffcc1aece2f
+    mail: luyanjie4@gmail.com
 
 
 # 百度统计 
 # 使用博客模板请去掉或者更换 id 
 baidu:
-    id: xxxx  
+    id: 63dcbeebcd3e20126f7d54999b5d271b
 
 # Google Analytics
 # 使用博客模板请去掉或者更换 id
 ga:
-    id: xxxx  
+    id: UA-150373352-1  
     host: auto  
 
 

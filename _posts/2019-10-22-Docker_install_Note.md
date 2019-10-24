@@ -47,7 +47,7 @@ $ docker run hello-world
 
 安装docker-ce
 ```  
-# yum -y install /path/to/package.rpm  #（/path/to/package.rpm为Docker）包的绝对路径
+$ yum -y install /path/to/package.rpm  #（/path/to/package.rpm为Docker）包的绝对路径
 ```  
 
 设置Docker开机启动，启动服务
@@ -64,11 +64,9 @@ $ docker pull hello-world
 $ docker run hello-world
 ```
 
-![](/images/posts/20191024233822.png)
-
 升级docker-ce
 ```  
-# yum -y upgrade /path/to/package.rpm
+$ yum -y upgrade /path/to/package.rpm
 ```  
 
 ### 部署方法3：升级最新版

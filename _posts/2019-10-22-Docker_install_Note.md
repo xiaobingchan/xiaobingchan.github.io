@@ -72,10 +72,10 @@ $ yum -y upgrade /path/to/package.rpm
 ### 部署方法3：升级最新版
 
 ```  
-yum -y update
-curl -fsSL https://get.docker.com/ | sh
-systemctl restart docker
-systemctl enable docker
+$ yum -y update
+$ curl -fsSL https://get.docker.com/ | sh
+$ systemctl restart docker
+$ systemctl enable docker
 ```  
 
 ```  

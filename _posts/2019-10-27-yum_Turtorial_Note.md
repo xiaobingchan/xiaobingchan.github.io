@@ -43,9 +43,10 @@ $ vi /etc/yum/pluginconf.d/subscription-manager.conf
 # 将 “enabled=1” 改为 “enabled=0”
 ```    
 
- 　2， yum 报错 “There are no enabled repos.               Run "yum repolist all" to see the repos you have.               You can enable repos with yum-config-manager --enable <repo>”
- 　
- 解决方法：下载阿里云对应的 [repo文件](https://mirrors.aliyun.com/repo/Centos-7.repo/) ，并上传至 /etc/yum.repos.d/ 目录 命名为 CentOS-Base.repo
+ 　2， yum 报错 There are no enabled repos. Run yum repolist all to see the repos you have. You can enable repos with yum-config-manager --enable <repo>
+ 
+ 　解决方法：下载阿里云对应的 [repo文件](https://mirrors.aliyun.com/repo/Centos-7.repo/) ，并上传至 /etc/yum.repos.d/ 目录 命名为 CentOS-Base.repo
+
 ```    
 $ sed -i '/aliyuncs/d' /etc/yum.repos.d/CentOS-Base.repo
 $ sed -i 's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo

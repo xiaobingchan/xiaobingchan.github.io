@@ -10,6 +10,7 @@ tags: 部署
  　众所周知，Redhat和Fedora的软件安装命令是rpm。需要手动寻找安装该软件所需要的一系列依赖关系，yum的诞生很好解决了以上的问题，下面有几个实用的yum小技巧和大家分享。
    
  　0，搭建阿里 yum 源和 扩展源
+ 
 ```  
 wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
 sed -i '/aliyuncs/d' /etc/yum.repos.d/CentOS-Base.repo
@@ -17,7 +18,9 @@ sed -i 's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
 yum clean all
 yum makecach
 ``` 
+ 　
  　安装扩展源
+ 
 ```  
 wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
 sed -i '/aliyuncs/d' /etc/yum.repos.d/epel.repo
@@ -27,11 +30,13 @@ yum install epel-release
 ```  
 
  　1，yum 报错 “This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.”
+
 ```     
 $  [root@bogon ~]# yum install wget
    Loaded plugins: product-id, search-disabled-repos, subscription-manager
    This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
 ```  
+
  　解决方法：
 ```    
 $ vi /etc/yum/pluginconf.d/subscription-manager.conf
@@ -39,7 +44,8 @@ $ vi /etc/yum/pluginconf.d/subscription-manager.conf
 ```    
 
  　2， yum 报错 “There are no enabled repos.               Run "yum repolist all" to see the repos you have.               You can enable repos with yum-config-manager --enable <repo>”
- 　解决方法：下载阿里云对应的 [repo文件](https://mirrors.aliyun.com/repo/Centos-7.repo)，并上传至 /etc/yum.repos.d/ 目录 命名为 CentOS-Base.repo
+ 　
+ 解决方法：下载阿里云对应的 [repo文件](https://mirrors.aliyun.com/repo/Centos-7.repo/) ，并上传至 /etc/yum.repos.d/ 目录 命名为 CentOS-Base.repo
 ```    
 $ sed -i '/aliyuncs/d' /etc/yum.repos.d/CentOS-Base.repo
 $ sed -i 's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
@@ -48,11 +54,14 @@ $ yum makecache
 ```    
 
  　3， yum 报错 “ GPG key retrieval failed: ”
+ 
  　解决方法，yum指令后附带 “--nogpgcheck” ：
 ```    
 $ yum install -y 包名 --nogpgcheck
-```    
+``` 
+   
    或是 CentOS-Base.repo 文件的  gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release 改为真实可用的路径，或是设置 “gpgcheck=0”
+
 
  　4，搭建本地的dvd iso 镜像源
 ```   
@@ -66,6 +75,7 @@ enabled=1
 gpgcheck=0
 
 ```   
+
  　5，构造本地rpm包组成的diy yum源
 ```   
 $ yum install createrepo            # 安装 yum 源制作工具

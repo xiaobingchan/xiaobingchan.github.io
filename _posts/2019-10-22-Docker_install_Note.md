@@ -1,6 +1,6 @@
 ---
 layout: post
-title: Linux搭建部署（升级）最新版Docker
+title: CentOS 7 搭建部署（升级）最新版Docker
 date: 2019-10-23
 tags: 容器
 ---

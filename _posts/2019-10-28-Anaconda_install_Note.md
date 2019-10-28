@@ -8,7 +8,7 @@ tags: 管理工具
 
 ### 介绍
 
- 　Anaconda是一个开源的包、环境管理器，可以用于在同一个机器上安装不同版本的软件包及其依赖，并能够在不同的环境之间切换，参考 [官网简介](https://docs.docker.com/engine/docker-overview/)
+ 　Anaconda是一个开源的包、环境管理器，可以用于在同一个机器上安装不同版本的软件包及其依赖，并能够在不同的环境之间切换，参考 [官网简介](https://www.anaconda.com/)
 
 ### 第1步：下载最新的Anaconda安装包
  　[Anaconda官网下载](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)

@@ -1,6 +1,6 @@
 ---
 layout: post
-title: yum 使用教程
+title: 史上最全 yum 入门使用教程
 date: 2019-10-27
 tags: 部署
 ---
@@ -9,30 +9,50 @@ tags: 部署
 
  　众所周知，Redhat和Fedora的软件安装命令是rpm。需要手动寻找安装该软件所需要的一系列依赖关系，yum的诞生很好解决了以上的问题，下面有几个实用的yum小技巧和大家分享。
    
+   rpm与yum常用命令集合
+```  
+$  rpm -qa | grep jenkins              #  查询 “jenkins” 相关的rpm包
+$  rpm -ql jenkins-2.190.1-1.1.noarch  #  查询某个rpm包的安装位置
+$  rpm -ivh jenkins-2.190.1-1.1.noarch #  安装rpm包
+$  rpm -Uvh jenkins-2.190.1-1.1.noarch #  升级rpm
+$  rpm -e   jenkins-2.190.1-1.1.noarch #  卸载rpm包
+$  rpm --import /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release  # 导入 yum gpg-key 证书
+$  rpm -ivh jenkins-2.190.1-1.1.noarch --nodeps #  忽略依赖关系安装rpm包
+$  rpm -Uvh jenkins-2.190.1-1.1.noarch --nodeps #  忽略依赖关系升级rpm
+$  rpm -e   jenkins-2.190.1-1.1.noarch --nodeps #  忽略依赖关系卸载rpm包
+
+$  yum update            #  yum更新所有包
+$  yum clean all         #  清除yum源缓存
+$  yum makecach          #  制作yum缓存
+$  yum groupinstall "Development Tools"  # 安装程序组
+$  yum search 包名       #  查询yum源是否含有某个包
+$  yum install 包名      #  yum安装某个包
+$  yum list | grep 包名  #  yum检查某个包是否安装在本地
+```     
+   
+   
  　0，搭建阿里 yum 源和 扩展源
  
 ```  
-wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
-sed -i '/aliyuncs/d' /etc/yum.repos.d/CentOS-Base.repo
-sed -i 's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
-yum clean all
-yum makecach
+$  wget -O /etc/yum.repos.d/CentOS-Base.repo https://mirrors.aliyun.com/repo/Centos-7.repo
+$  sed -i '/aliyuncs/d' /etc/yum.repos.d/CentOS-Base.repo
+$  sed -i 's/$releasever/7/g' /etc/yum.repos.d/CentOS-Base.repo
 ``` 
  　
  　安装扩展源
  
 ```  
-wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
-sed -i '/aliyuncs/d' /etc/yum.repos.d/epel.repo
-yum clean all
-yum makecache
-yum install epel-release
+$  wget -O /etc/yum.repos.d/epel.repo http://mirrors.aliyun.com/repo/epel-7.repo
+$  sed -i '/aliyuncs/d' /etc/yum.repos.d/epel.repo
+$  yum clean all
+$  yum makecache
+$  yum install epel-release
 ```  
 
  　1，yum 报错 “This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.”
 
 ```     
-$  [root@bogon ~]# yum install wget
+   [root@bogon ~]# yum install wget
    Loaded plugins: product-id, search-disabled-repos, subscription-manager
    This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
 ```  

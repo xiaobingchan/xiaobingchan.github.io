@@ -13,22 +13,33 @@ tags: 管理工具
 ### 第1步：下载最新的Anaconda安装包
  　[Anaconda官网下载](https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/)
 ```     
+$ yum install -y wget
 $ wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/archive/Anaconda3-5.2.0-Linux-x86_64.sh
 ```    
 
 ### 第2步：安装anaconda
 
 ```  
+$ yum install -y bzip2
 $ bash Anaconda3-5.2.0-Linux-x86_64.sh
 ```  
 
-### 第3步：查看anaconda版本和配置清华源
+
+### 第3步：配置环境变量
+
+```  
+$ vi /etc/profile
+export PATH=$PATH:/root/anaconda3/bin
+$ source /etc/profile
+``` 
+
+### 第4步：查看anaconda版本和配置清华源
 ```  
 $ conda -V
 $ conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
 ```  
 
-### 第4步：创建Python环境和安装pip包依赖
+### 第5步：创建Python环境和安装pip包依赖
 ```  
 $ conda create --name python27 python=2.7 # 创建python 3.5 的环境
 $ conda env list                          # 列出当前anaconda环境

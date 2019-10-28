@@ -1,6 +1,6 @@
 ---
 layout: post
-title: 史上最全 yum 入门使用教程
+title: 史上最全 yum 入门使用教程和常见错误解决办法
 date: 2019-10-27
 tags: 部署
 ---

@@ -25,16 +25,16 @@ tags: 管理工具
 
 
 ```     
-wget --no-check-certificat  https://pypi.python.org/packages/source/s/setuptools/setuptools-2.0.tar.gz
-tar zxf setuptools-2.0.tar.gz
-cd setuptools-2.0
-python setup.py install
-cd  ..
-wget https://files.pythonhosted.org/packages/00/9e/4c83a0950d8bdec0b4ca72afd2f9cea92d08eb7c1a768363f2ea458d08b4/pip-19.2.3.tar.gz --no-check-certificate
-tar -xzvf pip-19.2.3.tar.gz
-cd pip-19.2.3
-python setup.py install
-python -m pip install --upgrade pip
+$ wget --no-check-certificat  https://pypi.python.org/packages/source/s/setuptools/setuptools-2.0.tar.gz
+$ tar zxf setuptools-2.0.tar.gz
+$ cd setuptools-2.0
+$ python setup.py install
+$ cd  ..
+$ wget https://files.pythonhosted.org/packages/00/9e/4c83a0950d8bdec0b4ca72afd2f9cea92d08eb7c1a768363f2ea458d08b4/pip-19.2.3.tar.gz --no-check-certificate
+$ tar -xzvf pip-19.2.3.tar.gz
+$ cd pip-19.2.3
+$ python setup.py install
+$ python -m pip install --upgrade pip
 ```    
 
 ### 2，免编译搭建Go开发环境

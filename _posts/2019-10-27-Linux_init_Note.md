@@ -30,6 +30,7 @@ PING www.baidu.com (182.61.200.7) 56(84) bytes of data.
 
  　1，关闭防火墙
 ```     
+$ setenforce 0
 $ vi /etc/sysconfig/selinux
 # 编辑 /etc/sysconfig/selinux 将 “ SELINUX=enforcing ” 改成 “ SELINUX=disabled ” ，
 注释掉 “ SELINUXTYPE=targeted ”

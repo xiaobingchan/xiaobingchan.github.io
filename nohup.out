@@ -1,0 +1,50 @@
+Start building sites … 
+WARN 2021/04/04 13:08:31 Page.URL is deprecated and will be removed in a future release. Use .Permalink or .RelPermalink. If what you want is the front matter URL value, use .Params.url
+WARN 2021/04/04 13:08:31 Page.UniqueID is deprecated and will be removed in a future release. Use .File.UniqueID
+WARN 2021/04/04 13:08:31 Page.Dir is deprecated and will be removed in a future release. Use .File.Dir
+WARN 2021/04/04 13:08:31 .File.UniqueID on zero object. Wrap it in if or with: {{ with .File }}{{ .UniqueID }}{{ end }}
+WARN 2021/04/04 13:08:31 .File.Dir on zero object. Wrap it in if or with: {{ with .File }}{{ .Dir }}{{ end }}
+
+                   | EN  
+-------------------+-----
+  Pages            | 71  
+  Paginator pages  |  8  
+  Non-page files   |  0  
+  Static files     | 65  
+  Processed images |  0  
+  Aliases          | 17  
+  Sitemaps         |  1  
+  Cleaned          |  0  
+
+Built in 255 ms
+Watching for changes in /root/myblog/test/{content,static,themes}
+Watching for config changes in /root/myblog/test/config.toml
+Environment: "development"
+Serving pages from memory
+Running in Fast Render Mode. For full rebuilds on change: hugo server --disableFastRender
+Web Server is available at //ec2-18-216-109-197.us-east-2.compute.amazonaws.com:80/ (bind address 0.0.0.0)
+Press Ctrl+C to stop
+
+Change detected, rebuilding site.
+2021-04-04 13:17:01.946 +0800
+Source changed "/root/myblog/test/content/post/2018-01-02-nginmesh-install.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-02-03-authentication-and-authorization-of-microservice.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-02-09-docker-without-sudo.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-02-09-vim-tips.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-03-13-use-docker-behind-http-proxy.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-03-29-what-is-service-mesh-and-istio.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-04-11-service-mesh-vs-api-gateway.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-04-16-using-helm-to-deploy-to-kubernetes.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-01-may-day-jiulonghu.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-21-algolia-integration-with-jekyll.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-22-user_authentication_authorization.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-23-external_system_auth.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-23-istio-auto-injection-with-webhook.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-23-service_2_service_auth.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-05-24-set_up_my_ubuntu_desktop.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-06-02-istio08.md": REMOVE
+Source changed "/root/myblog/test/content/post/2018-06-04-introducing-the-istio-v1alpha3-routing-api.md": REMOVE
+WARN 2021/04/04 13:17:01 Page.URL is deprecated and will be removed in a future release. Use .Permalink or .RelPermalink. If what you want is the front matter URL value, use .Params.url
+WARN 2021/04/04 13:17:01 Page.UniqueID is deprecated and will be removed in a future release. Use .File.UniqueID
+WARN 2021/04/04 13:17:01 Page.Dir is deprecated and will be removed in a future release. Use .File.Dir
+Total in 15 ms

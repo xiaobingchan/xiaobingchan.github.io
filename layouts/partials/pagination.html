@@ -1,0 +1,16 @@
+<!-- Pagination -->
+{{ $pag := $.Paginator }}
+{{ if gt $pag.TotalPages 1 }}
+<ul class="pager">
+    {{ if $pag.HasPrev }}
+    <li class="previous">
+        <a href="{{ $pag.Prev.URL }}">&larr; 上一页</a>
+    </li>
+    {{ end }}
+    {{ if $pag.HasNext }}
+    <li class="next">
+        <a href="{{ $pag.Next.URL }}">下一页 &rarr;</a>
+    </li>
+    {{ end }}
+</ul>
+{{ end }}

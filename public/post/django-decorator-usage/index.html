@@ -1,0 +1,1437 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Python装饰器简介" />
+    <meta property="og:title" content="Python装饰器简介" />
+    <meta property="twitter:title" content="Python装饰器简介" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Python装饰器简介-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/django-decorator-usage/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        <a class="tag" href="/tags/%E8%A3%85%E9%A5%B0%E5%99%A8" title="装饰器">
+                            装饰器
+                        </a>
+                        
+                    </div>
+                    <h1>Python装饰器简介</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Monday, November 14, 2016
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>装饰器本质上是一个<code>Python</code>函数，它可以让其他函数在不需要做任何代码变动的前提下增加额外功能，装饰器的返回值也是一个函数对象。它经常用于有切面需求的场景，比如：插入日志、性能测试、事务处理、缓存、权限校验等场景。装饰器是解决这类问题的绝佳设计，有了装饰器，我们就可以抽离出大量与函数功能本身无关的雷同代码并继续重用。概括的讲，<strong>装饰器的作用就是为已经存在的对象添加额外的功能</strong>。</p>
+<h3 id="第一个装饰器">第一个装饰器</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">def</span> <span style="color:#50fa7b">a_new_decorator</span>(a_func):
+
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">wrapTheFunction</span>():
+        <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am doing some boring work before executing a_func()&#34;</span>)
+
+        a_func()
+
+        <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am doing some boring work after executing a_func()&#34;</span>)
+
+    <span style="color:#ff79c6">return</span> wrapTheFunction
+
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">a_function_requiring_decoration</span>():
+    <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am the function which needs some decoration to remove my foul smell&#34;</span>)
+
+a_function_requiring_decoration()
+<span style="color:#6272a4">#outputs: &#34;I am the function which needs some decoration to remove my foul smell&#34;</span>
+
+a_function_requiring_decoration <span style="color:#ff79c6">=</span> a_new_decorator(a_function_requiring_decoration)
+<span style="color:#6272a4">#now a_function_requiring_decoration is wrapped by wrapTheFunction()</span>
+
+a_function_requiring_decoration()
+<span style="color:#6272a4">#outputs:I am doing some boring work before executing a_func()</span>
+<span style="color:#6272a4">#        I am the function which needs some decoration to remove my foul smell</span>
+<span style="color:#6272a4">#        I am doing some boring work after executing a_func()</span>
+</code></pre></div><p>这正是<code>python</code>中装饰器做的事情！它们封装一个函数，并且用这样或者那样的方式来修改它的行为。现在你也许疑惑，我们在代码里并没有使用<code>@</code>符号？那只是一个简短的方式来生成一个被装饰的函数。这里是我们如何使用@来运行之前的代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">@a_new_decorator
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">a_function_requiring_decoration</span>():
+    <span style="color:#f1fa8c">&#34;&#34;&#34;Hey you! Decorate me!&#34;&#34;&#34;</span>
+    <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am the function which needs some decoration to &#34;</span>
+          <span style="color:#f1fa8c">&#34;remove my foul smell&#34;</span>)
+
+a_function_requiring_decoration()
+<span style="color:#6272a4">#outputs: I am doing some boring work before executing a_func()</span>
+<span style="color:#6272a4">#         I am the function which needs some decoration to remove my foul smell</span>
+<span style="color:#6272a4">#         I am doing some boring work after executing a_func()</span>
+
+<span style="color:#6272a4">#the @a_new_decorator is just a short way of saying:</span>
+a_function_requiring_decoration <span style="color:#ff79c6">=</span> a_new_decorator(a_function_requiring_decoration)
+</code></pre></div><h3 id="为什么要用wraps">为什么要用<code>wraps</code></h3>
+<p>现在应该对Python装饰器的工作原理有一个基本的理解。如果我们运行如下代码会存在一个问题：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">print</span>(a_function_requiring_decoration<span style="color:#ff79c6">.</span>__name__)
+<span style="color:#6272a4"># Output: wrapTheFunction</span>
+</code></pre></div><p>这并不是我们想要的！Ouput输出应该是&quot;a_function_requiring_decoration&quot;。这里的函数被warpTheFunction替代了。它重写了我们函数的名字和注释文档(docstring)。幸运的是Python提供给我们一个简单的函数来解决这个问题，那就是functools.wraps。我们修改上一个例子来使用functools.wraps：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">from</span> functools <span style="color:#ff79c6">import</span> wraps
+
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">a_new_decorator</span>(a_func):
+    @wraps(a_func)
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">wrapTheFunction</span>():
+        <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am doing some boring work before executing a_func()&#34;</span>)
+        a_func()
+        <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am doing some boring work after executing a_func()&#34;</span>)
+    <span style="color:#ff79c6">return</span> wrapTheFunction
+
+@a_new_decorator
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">a_function_requiring_decoration</span>():
+    <span style="color:#f1fa8c">&#34;&#34;&#34;Hey yo! Decorate me!&#34;&#34;&#34;</span>
+    <span style="color:#ff79c6">print</span>(<span style="color:#f1fa8c">&#34;I am the function which needs some decoration to &#34;</span>
+          <span style="color:#f1fa8c">&#34;remove my foul smell&#34;</span>)
+
+<span style="color:#ff79c6">print</span>(a_function_requiring_decoration<span style="color:#ff79c6">.</span>__name__)
+<span style="color:#6272a4"># Output: a_function_requiring_decoration</span>
+</code></pre></div><p>现在好多了。我们接下来学习<code>装饰器</code>的一些常用场景。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">from</span> functools <span style="color:#ff79c6">import</span> wraps
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">decorator_name</span>(f):
+    @wraps(f)
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">decorated</span>(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs):
+        <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">not</span> can_run:
+            <span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;Function will not run&#34;</span>
+        <span style="color:#ff79c6">return</span> f(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs)
+    <span style="color:#ff79c6">return</span> decorated
+
+@decorator_name
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">func</span>():
+    <span style="color:#ff79c6">return</span>(<span style="color:#f1fa8c">&#34;Function is running&#34;</span>)
+
+can_run <span style="color:#ff79c6">=</span> True
+<span style="color:#ff79c6">print</span>(func())
+<span style="color:#6272a4"># Output: Function is running</span>
+
+can_run <span style="color:#ff79c6">=</span> False
+<span style="color:#ff79c6">print</span>(func())
+<span style="color:#6272a4"># Output: Function will not run</span>
+</code></pre></div><p>注意：<code>@wraps</code>接受一个函数来进行装饰，并加入了复制函数名称、注释文档、参数列表等等的功能。这可以让我们在装饰器里面访问在装饰之前的函数的<code>属性</code>。</p>
+<h3 id="带参数的装饰器">带参数的装饰器</h3>
+<p>来想想这个问题，难道<code>@wraps</code>不也是个装饰器吗？但是，它接收一个参数，就像任何普通的函数能做的那样。那么，为什么我们不也那样做呢？</p>
+<p>这是因为，当你使用@decorator_name语法时，你是在应用一个以单个函数作为参数的一个包裹函数。记住，<code>Python</code>里每个东西都是一个对象，而且这包括函数！记住了这些，我们可以编写一下能返回一个包裹函数的函数。</p>
+<p>我们来并创建一个包裹函数，能让我们指定一个用于输出的日志文件。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">from</span> functools <span style="color:#ff79c6">import</span> wraps
+
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">logit</span>(logfile<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;out.log&#39;</span>):
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">logging_decorator</span>(func):
+        @wraps(func)
+        <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">wrapped_function</span>(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs):
+            log_string <span style="color:#ff79c6">=</span> func<span style="color:#ff79c6">.</span>__name__ <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#34; was called&#34;</span>
+            <span style="color:#ff79c6">print</span>(log_string)
+            <span style="color:#6272a4"># 打开logfile，并写入内容</span>
+            <span style="color:#ff79c6">with</span> <span style="color:#8be9fd;font-style:italic">open</span>(logfile, <span style="color:#f1fa8c">&#39;a&#39;</span>) <span style="color:#ff79c6">as</span> opened_file:
+                <span style="color:#6272a4"># 现在将日志打到指定的logfile</span>
+                opened_file<span style="color:#ff79c6">.</span>write(log_string <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#39;</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#39;</span>)
+            <span style="color:#ff79c6">return</span> func(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs)
+        <span style="color:#ff79c6">return</span> wrapped_function
+    <span style="color:#ff79c6">return</span> logging_decorator
+
+@logit()
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">myfunc1</span>():
+    <span style="color:#ff79c6">pass</span>
+
+myfunc1()
+<span style="color:#6272a4"># Output: myfunc1 was called</span>
+<span style="color:#6272a4"># 现在一个叫做 out.log 的文件出现了，里面的内容就是上面的字符串</span>
+
+@logit(logfile<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;func2.log&#39;</span>)
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">myfunc2</span>():
+    <span style="color:#ff79c6">pass</span>
+
+myfunc2()
+<span style="color:#6272a4"># Output: myfunc2 was called</span>
+<span style="color:#6272a4"># 现在一个叫做 func2.log 的文件出现了，里面的内容就是上面的字符串</span>
+</code></pre></div><h3 id="装饰器类">装饰器类</h3>
+<p>现在我们有了能用于正式环境的logit<code>装饰器</code>，但当我们应用在某些部分的时候还比较脆弱时，异常也许是需要更紧急关注的事情。比方说有时你只想打日志到一个文件。而有时你想把引起你注意的问题发送到一个<code>email</code>，同时也保留日志，留个记录。这是一个使用继承的场景，但目前为止我们只看到过用来构建装饰器的函数。</p>
+<p>幸运的是，类也可以用来构建装饰器。那我们现在以一个类而不是一个函数的方式，来重新构建logit。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">from</span> functools <span style="color:#ff79c6">import</span> wraps
+
+<span style="color:#ff79c6">class</span> <span style="color:#50fa7b">logit</span>(<span style="color:#8be9fd;font-style:italic">object</span>):
+    <span style="color:#ff79c6">def</span> __init__(self, logfile<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;out.log&#39;</span>):
+        self<span style="color:#ff79c6">.</span>logfile <span style="color:#ff79c6">=</span> logfile
+
+    <span style="color:#ff79c6">def</span> __call__(self, func):
+        @wraps(func)
+        <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">wrapped_function</span>(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs):
+            log_string <span style="color:#ff79c6">=</span> func<span style="color:#ff79c6">.</span>__name__ <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#34; was called&#34;</span>
+            <span style="color:#ff79c6">print</span>(log_string)
+            <span style="color:#6272a4"># 打开logfile并写入</span>
+            <span style="color:#ff79c6">with</span> <span style="color:#8be9fd;font-style:italic">open</span>(self<span style="color:#ff79c6">.</span>logfile, <span style="color:#f1fa8c">&#39;a&#39;</span>) <span style="color:#ff79c6">as</span> opened_file:
+                <span style="color:#6272a4"># 现在将日志打到指定的文件</span>
+                opened_file<span style="color:#ff79c6">.</span>write(log_string <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#39;</span><span style="color:#f1fa8c">\n</span><span style="color:#f1fa8c">&#39;</span>)
+            <span style="color:#6272a4"># 现在，发送一个通知</span>
+            self<span style="color:#ff79c6">.</span>notify()
+            <span style="color:#ff79c6">return</span> func(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs)
+        <span style="color:#ff79c6">return</span> wrapped_function
+
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">notify</span>(self):
+        <span style="color:#6272a4"># logit只打日志，不做别的</span>
+        <span style="color:#ff79c6">pass</span>
+</code></pre></div><p>这个实现有一个附加优势，在于比嵌套函数的方式更加整洁，而且包裹一个函数还是使用跟以前一样的语法：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python">@logit()
+<span style="color:#ff79c6">def</span> <span style="color:#50fa7b">myfunc1</span>():
+    <span style="color:#ff79c6">pass</span>
+</code></pre></div><p>现在，我们给logit创建子类，来添加<code>email</code>的功能(虽然<code>email</code>这个话题不会在这里展开)。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-python" data-lang="python"><span style="color:#ff79c6">class</span> <span style="color:#50fa7b">email_logit</span>(logit):
+    <span style="color:#f1fa8c">&#39;&#39;&#39;
+</span><span style="color:#f1fa8c">    一个logit的实现版本，可以在函数调用时发送email给管理员
+</span><span style="color:#f1fa8c">    &#39;&#39;&#39;</span>
+    <span style="color:#ff79c6">def</span> __init__(self, email<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;admin@myproject.com&#39;</span>, <span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs):
+        self<span style="color:#ff79c6">.</span>email <span style="color:#ff79c6">=</span> email
+        <span style="color:#8be9fd;font-style:italic">super</span>(logit, self)<span style="color:#ff79c6">.</span>__init__(<span style="color:#ff79c6">*</span>args, <span style="color:#ff79c6">**</span>kwargs)
+
+    <span style="color:#ff79c6">def</span> <span style="color:#50fa7b">notify</span>(self):
+        <span style="color:#6272a4"># 发送一封email到self.email</span>
+        <span style="color:#6272a4"># 这里就不做实现了</span>
+        <span style="color:#ff79c6">pass</span>
+
+</code></pre></div><p>从现在起，@email_logit将会和@logit产生同样的效果，但是在打日志的基础上，还会多发送一封邮件给管理员。</p>
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/awk-base-compute/" data-toggle="tooltip" data-placement="top" title="用awk做基本运算">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/kubernetes-monitor-prometheus-grafana/" data-toggle="tooltip" data-placement="top" title="Kubernetes使用Prometheus搭建监控平台">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

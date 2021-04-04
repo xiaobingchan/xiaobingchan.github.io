@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="一文搞懂 Traefik2.1 的使用" />
+    <meta property="og:title" content="一文搞懂 Traefik2.1 的使用" />
+    <meta property="twitter:title" content="一文搞懂 Traefik2.1 的使用" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>一文搞懂 Traefik2.1 的使用-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/traefik-2.1-101/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        <a class="tag" href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                    </div>
+                    <h1>一文搞懂 Traefik2.1 的使用</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Monday, December 30, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#核心概念">核心概念</a></li>
+        <li><a href="#安装">安装</a></li>
+        <li><a href="#acme">ACME</a></li>
+        <li><a href="#中间件">中间件</a></li>
+        <li><a href="#灰度发布">灰度发布</a></li>
+        <li><a href="#流量复制">流量复制</a></li>
+        <li><a href="#tcp">TCP</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="https://github.com/containous/traefik">Traefik</a> 是一个开源的可以使服务发布变得轻松有趣的边缘路由器。它负责接收你系统的请求，然后使用合适的组件来对这些请求进行处理。</p>
+<p>除了众多的功能之外，Traefik 的与众不同之处还在于它会自动发现适合你服务的配置。当 Traefik 在检查你的服务时，会找到服务的相关信息并找到合适的服务来满足对应的请求。</p>
+<p>Traefik 兼容所有主流的集群技术，比如 Kubernetes，Docker，Docker Swarm，AWS，Mesos，Marathon，等等；并且可以同时处理多种方式。（甚至可以用于在裸机上运行的比较旧的软件。）</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-architecture.png" alt="traefik architecture">
+
+</p>
+<p>使用 Traefik，不需要维护或者同步一个独立的配置文件：因为一切都会自动配置，实时操作的（无需重新启动，不会中断连接）。使用 Traefik，你可以花更多的时间在系统的开发和新功能上面，而不是在配置和维护工作状态上面花费大量时间。</p>
+<h2 id="核心概念">核心概念</h2>
+<p>Traefik 是一个边缘路由器，是你整个平台的大门，拦截并路由每个传入的请求：它知道所有的逻辑和规则，这些规则确定哪些服务处理哪些请求；传统的反向代理需要一个配置文件，其中包含路由到你服务的所有可能路由，而 Traefik 会实时检测服务并自动更新路由规则，可以自动服务发现。</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-architecture-overview.png" alt="traefik architecture overview">
+
+</p>
+<p>首先，当启动 Traefik 时，需要定义 <code>entrypoints</code>（入口点），然后，根据连接到这些 entrypoints 的<strong>路由</strong>来分析传入的请求，来查看他们是否与一组<strong>规则</strong>相匹配，如果匹配，则路由可能会将请求通过一系列<strong>中间件</strong>转换过后再转发到你的<strong>服务</strong>上去。在了解 Traefik 之前有几个核心概念我们必须要了解：</p>
+<ul>
+<li><code>Providers</code> 用来自动发现平台上的服务，可以是编排工具、容器引擎或者 key-value 存储等，比如 Docker、Kubernetes、File</li>
+<li><code>Entrypoints</code> 监听传入的流量（端口等…），是网络入口点，它们定义了接收请求的端口（HTTP 或者 TCP）。</li>
+<li><code>Routers</code> 分析请求（host, path, headers, SSL, …），负责将传入请求连接到可以处理这些请求的服务上去。</li>
+<li><code>Services</code> 将请求转发给你的应用（load balancing, …），负责配置如何获取最终将处理传入请求的实际服务。</li>
+<li><code>Middlewares</code> 中间件，用来修改请求或者根据请求来做出一些判断（authentication, rate limiting, headers, &hellip;），中间件被附件到路由上，是一种在请求发送到你的<strong>服务</strong>之前（或者在服务的响应发送到客户端之前）调整请求的一种方法。</li>
+</ul>
+<h2 id="安装">安装</h2>
+<p>由于 Traefik 2.X 版本和之前的 1.X 版本不兼容，我们这里选择功能更加强大的 2.X 版本来和大家进行讲解，我们这里使用的镜像是 <code>traefik:2.1.1</code>。</p>
+<p>在 Traefik 中的配置可以使用两种不同的方式：</p>
+<ul>
+<li>动态配置：完全动态的路由配置</li>
+<li>静态配置：启动配置</li>
+</ul>
+<p><code>静态配置</code>中的元素（这些元素不会经常更改）连接到 providers 并定义 Treafik 将要监听的 entrypoints。</p>
+<blockquote>
+<p>在 Traefik 中有三种方式定义静态配置：在配置文件中、在命令行参数中、通过环境变量传递</p>
+</blockquote>
+<p><code>动态配置</code>包含定义系统如何处理请求的所有配置内容，这些配置是可以改变的，而且是无缝热更新的，没有任何请求中断或连接损耗。</p>
+<p>安装 Traefik 到 Kubernetes 集群中的资源清单文件我这里提前准备好了，直接执行下面的安装命令即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f https://www.qikqiak.com/k8strain/network/manifests/traefik/crd.yaml
+$ kubectl apply -f https://www.qikqiak.com/k8strain/network/manifests/traefik/rbac.yaml
+$ kubectl apply -f https://www.qikqiak.com/k8strain/network/manifests/traefik/deployment.yaml
+$ kubectl apply -f https://www.qikqiak.com/k8strain/network/manifests/traefik/dashboard.yaml
+</code></pre></div><p>其中 <code>deployment.yaml</code> 我这里是固定到 master 节点上的，如果你需要修改可以下载下来做相应的修改即可。我们这里是通过命令行参数来做的静态配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">args</span>:
+- --entryPoints.web.address=:80
+- --entryPoints.websecure.address=:443
+- --api=true
+- --api.dashboard=true
+- --ping=true
+- --providers.kubernetesingress
+- --providers.kubernetescrd
+- --log.level=INFO
+- --accesslog
+</code></pre></div><p>其中前两项配置是来定义 <code>web</code> 和 <code>websecure</code> 这两个入口点的，<code>--api=true</code> 开启,=，就会创建一个名为 <code>api@internal</code> 的特殊 service，在 dashboard 中可以直接使用这个 service 来访问，然后其他比较重要的就是开启 <code>kubernetesingress</code> 和 <code>kubernetescrd</code> 这两个 provider。</p>
+<p><code>dashboard.yaml</code> 中定义的是访问 dashboard 的资源清单文件，可以根据自己的需求修改。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-system                       
+NAME                                  READY   STATUS    RESTARTS   AGE
+traefik-867bd6b9c-lbrlx               1/1     Running   <span style="color:#bd93f9">0</span>          6m17s
+......
+$ kubectl get ingressroute
+NAME                 AGE
+traefik-dashboard    30m
+</code></pre></div><p>部署完成后我们可以通过在本地 <code>/etc/hosts</code> 中添加上域名 <code>traefik.domain.com</code> 的映射即可访问 Traefik 的 Dashboard 页面了：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-2.1.1-dashboard-demo.jpg" alt="traefik dashboard demo">
+
+</p>
+<h2 id="acme">ACME</h2>
+<p>Traefik 通过扩展 CRD 的方式来扩展 Ingress 的功能，除了默认的用 Secret 的方式可以支持应用的 HTTPS 之外，还支持自动生成 HTTPS 证书。</p>
+<p>比如现在我们有一个如下所示的 <code>whoami</code> 应用：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: whoami
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">protocol</span>: TCP
+      <span style="color:#ff79c6">name</span>: web
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: whoami
+---
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: whoami
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: whoami
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">2</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: whoami
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: whoami
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+        - <span style="color:#ff79c6">name</span>: whoami
+          <span style="color:#ff79c6">image</span>: containous/whoami
+          <span style="color:#ff79c6">ports</span>:
+            - <span style="color:#ff79c6">name</span>: web
+              <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+</code></pre></div><p>然后定义一个 IngressRoute 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: simpleingressroute
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - web
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`who.qikqiak.com`) &amp;&amp; PathPrefix(`/notls`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: whoami
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+</code></pre></div><p>通过 <code>entryPoints</code> 指定了我们这个应用的入口点是 <code>web</code>，也就是通过 80 端口访问，然后访问的规则就是要匹配 <code>who.qikqiak.com</code> 这个域名，并且具有 <code>/notls</code> 的路径前缀的请求才会被 <code>whoami</code> 这个 Service 所匹配。我们可以直接创建上面的几个资源对象，然后对域名做对应的解析后，就可以访问应用了：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-whoami-http-demo.png" alt="traefik whoami http demo">
+
+</p>
+<p>在 <code>IngressRoute</code> 对象中我们定义了一些匹配规则，这些规则在 Traefik 中有如下定义方式：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-route-matcher.png" alt="traefik route matcher">
+
+</p>
+<p>如果我们需要用 HTTPS 来访问我们这个应用的话，就需要监听 <code>websecure</code> 这个入口点，也就是通过 443 端口来访问，同样用 HTTPS 访问应用必然就需要证书，这里我们用 <code>openssl</code> 来创建一个自签名的证书：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ openssl req -x509 -nodes -days <span style="color:#bd93f9">365</span> -newkey rsa:2048 -keyout tls.key -out tls.crt -subj <span style="color:#f1fa8c">&#34;/CN=who.qikqiak.com&#34;</span>
+</code></pre></div><p>然后通过 Secret 对象来引用证书文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#6272a4"># 要注意证书文件名称必须是 tls.crt 和 tls.key</span>
+$ kubectl create secret tls who-tls --cert<span style="color:#ff79c6">=</span>tls.crt --key<span style="color:#ff79c6">=</span>tls.key
+secret/who-tls created
+</code></pre></div><p>这个时候我们就可以创建一个 HTTPS 访问应用的 IngressRoute 对象了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: ingressroutetls
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - websecure
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`who.qikqiak.com`) &amp;&amp; PathPrefix(`/tls`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: whoami
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+  <span style="color:#ff79c6">tls</span>:
+    <span style="color:#ff79c6">secretName</span>: who-tls
+</code></pre></div><p>创建完成后就可以通过 HTTPS 来访问应用了，由于我们是自签名的证书，所以证书是不受信任的：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-whoami-https-demo.png" alt="traefik whoami https demo">
+
+</p>
+<p>除了手动提供证书的方式之外 Traefik 还支持使用 <code>Let’s Encrypt</code> 自动生成证书，要使用 <code>Let’s Encrypt</code> 来进行自动化 HTTPS，就需要首先开启 <code>ACME</code>，开启 <code>ACME</code> 需要通过静态配置的方式，也就是说可以通过环境变量、启动参数等方式来提供，我们这里还是直接使用启动参数的形式来开启，在 Traefik 的部署文件中添加如下命令行参数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">args</span>:
+......
+<span style="color:#6272a4"># 使用 dns 验证方式</span>
+- --certificatesResolvers.ali.acme.dnsChallenge.provider=alidns
+<span style="color:#6272a4"># 邮箱配置</span>
+- --certificatesResolvers.ali.acme.email=ych_1024@163.com
+<span style="color:#6272a4"># 保存 ACME 证书的位置</span>
+- --certificatesResolvers.ali.acme.storage=/etc/acme/acme.json
+</code></pre></div><p>ACME 有多种校验方式 <code>tlsChallenge</code>、<code>httpChallenge</code> 和 <code>dnsChallenge</code> 三种验证方式，之前更常用的是 http 这种验证方式，关于这几种验证方式的使用可以查看文档：<a href="https://www.qikqiak.com/traefik-book/https/acme/">https://www.qikqiak.com/traefik-book/https/acme/</a> 了解他们之间的区别。要使用 tls 校验方式的话需要保证 Traefik 的 443 端口是可达的，dns 校验方式可以生成通配符的证书，只需要配置上 DNS 解析服务商的 API 访问密钥即可校验。我们这里用 DNS 校验的方式来为大家说明如何配置 ACME。</p>
+<!-- raw HTML omitted -->
+<p>上面我们通过设置 <code>--certificatesResolvers.ali.acme.dnsChallenge.provider=alidns</code> 参数来指定指定阿里云的 DNS 校验，要使用阿里云的 DNS 校验我们还需要配置3个环境变量：<code>ALICLOUD_ACCESS_KEY</code>、<code>ALICLOUD_SECRET_KEY</code>、<code>ALICLOUD_REGION_ID</code>，分别对应我们平时开发阿里云应用的时候的密钥，可以登录阿里云后台获取，由于这是比较私密的信息，所以我们用 Secret 对象来创建：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create secret generic traefik-alidns-secret --from-literal<span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">ALICLOUD_ACCESS_KEY</span><span style="color:#ff79c6">=</span>&lt;aliyun ak&gt; --from-literal<span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">ALICLOUD_SECRET_KEY</span><span style="color:#ff79c6">=</span>&lt;aliyun sk&gt;--from-literal<span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">ALICLOUD_REGION_ID</span><span style="color:#ff79c6">=</span>cn-beijing -n kube-system
+</code></pre></div><p>创建完成后将这个 Secret 通过环境变量配置到 Traefik 的应用中。还有一个值得注意的是验证通过的证书我们这里存到 <code>/etc/acme/acme.json</code> 文件中，我们一定要将这个文件持久化，否则每次 Traefik 重建后就需要重新认证，而 <code>Let’s Encrypt</code> 本身校验次数是有限制的。最后我们这里完整的 Traefik 的配置资源清单如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: traefik
+  <span style="color:#ff79c6">namespace</span>: kube-system
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: traefik
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: traefik
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: traefik
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">serviceAccountName</span>: traefik
+      <span style="color:#ff79c6">terminationGracePeriodSeconds</span>: <span style="color:#bd93f9">60</span>
+      <span style="color:#ff79c6">tolerations</span>:
+      - <span style="color:#ff79c6">operator</span>: <span style="color:#f1fa8c">&#34;Exists&#34;</span>
+      <span style="color:#ff79c6">nodeSelector</span>:
+        <span style="color:#ff79c6">kubernetes.io/hostname</span>: ydzs-master
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: acme
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /data/k8s/traefik/acme
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">image</span>: traefik:2.1.1
+        <span style="color:#ff79c6">name</span>: traefik
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">name</span>: web
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+          <span style="color:#ff79c6">hostPort</span>: <span style="color:#bd93f9">80</span>
+        - <span style="color:#ff79c6">name</span>: websecure
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">443</span>
+          <span style="color:#ff79c6">hostPort</span>: <span style="color:#bd93f9">443</span>
+        <span style="color:#ff79c6">args</span>:
+        - --entryPoints.web.address=:80
+        - --entryPoints.websecure.address=:443
+        - --api=true
+        - --api.dashboard=true
+        - --ping=true
+        - --providers.kubernetesingress
+        - --providers.kubernetescrd
+        - --log.level=INFO
+        - --accesslog
+        <span style="color:#6272a4"># 使用 dns 验证方式</span>
+        - --certificatesResolvers.ali.acme.dnsChallenge.provider=alidns
+        <span style="color:#6272a4"># 邮箱配置</span>
+        - --certificatesResolvers.ali.acme.email=ych_1024@163.com
+        <span style="color:#6272a4"># 保存 ACME 证书的位置</span>
+        - --certificatesResolvers.ali.acme.storage=/etc/acme/acme.json
+        <span style="color:#6272a4"># 下面是用于测试的ca服务，如果https证书生成成功了，则移除下面参数</span>
+        <span style="color:#6272a4"># - --certificatesresolvers.ali.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory</span>
+        <span style="color:#ff79c6">envFrom</span>:
+        - <span style="color:#ff79c6">secretRef</span>:
+            <span style="color:#ff79c6">name</span>: traefik-alidns-secret
+            <span style="color:#6272a4"># ALICLOUD_ACCESS_KEY</span>
+            <span style="color:#6272a4"># ALICLOUD_SECRET_KEY</span>
+            <span style="color:#6272a4"># ALICLOUD_REGION_ID</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: acme
+          <span style="color:#ff79c6">mountPath</span>: /etc/acme
+        <span style="color:#ff79c6">resources</span>:
+          <span style="color:#ff79c6">requests</span>:
+            <span style="color:#ff79c6">cpu</span>: <span style="color:#f1fa8c">&#34;50m&#34;</span>
+            <span style="color:#ff79c6">memory</span>: <span style="color:#f1fa8c">&#34;50Mi&#34;</span>
+          <span style="color:#ff79c6">limits</span>:
+            <span style="color:#ff79c6">cpu</span>: <span style="color:#f1fa8c">&#34;200m&#34;</span>
+            <span style="color:#ff79c6">memory</span>: <span style="color:#f1fa8c">&#34;100Mi&#34;</span>
+        <span style="color:#ff79c6">securityContext</span>:
+          <span style="color:#ff79c6">allowPrivilegeEscalation</span>: <span style="color:#ff79c6">true</span>
+          <span style="color:#ff79c6">capabilities</span>:
+            <span style="color:#ff79c6">drop</span>:
+            - ALL
+            <span style="color:#ff79c6">add</span>:
+            - NET_BIND_SERVICE
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /ping
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">failureThreshold</span>: <span style="color:#bd93f9">1</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">10</span>
+          <span style="color:#ff79c6">periodSeconds</span>: <span style="color:#bd93f9">10</span>
+          <span style="color:#ff79c6">successThreshold</span>: <span style="color:#bd93f9">1</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">2</span>
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /ping
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">failureThreshold</span>: <span style="color:#bd93f9">3</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">10</span>
+          <span style="color:#ff79c6">periodSeconds</span>: <span style="color:#bd93f9">10</span>
+          <span style="color:#ff79c6">successThreshold</span>: <span style="color:#bd93f9">1</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">2</span>
+</code></pre></div><p>直接更新 Traefik 应用即可。更新完成后现在我们来修改上面我们的 <code>whoami</code> 应用：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: ingressroutetls
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - websecure
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`who.qikqiak.com`) &amp;&amp; PathPrefix(`/tls`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: whoami
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+  <span style="color:#ff79c6">tls</span>:
+    <span style="color:#ff79c6">certResolver</span>: ali
+    <span style="color:#ff79c6">domains</span>:
+    - <span style="color:#ff79c6">main</span>: <span style="color:#f1fa8c">&#34;*.qikqiak.com&#34;</span>
+</code></pre></div><p>其他的都不变，只需要将 tls 部分改成我们定义的 <code>ali</code> 这个证书解析器，如果我们想要生成一个通配符的域名证书的话可以定义 <code>domains</code> 参数来指定，然后更新 IngressRoute 对象，这个时候我们再去用 HTTPS 访问我们的应用（当然需要将域名在阿里云 DNS 上做解析）：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-who-wildcard-domain.png" alt="traefik wildcard domain">
+
+</p>
+<p>我们可以看到访问应用已经是受浏览器信任的证书了，查看证书我们还可以发现该证书是一个通配符的证书。</p>
+<h2 id="中间件">中间件</h2>
+<p>中间件是 Traefik2.0 中一个非常有特色的功能，我们可以根据自己的各种需求去选择不同的中间件来满足服务，Traefik 官方已经内置了许多不同功能的中间件，其中一些可以修改请求，头信息，一些负责重定向，一些添加身份验证等等，而且中间件还可以通过链式组合的方式来适用各种情况。</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-middleware-overview.png" alt="traefik middleware overview">
+
+</p>
+<p>同样比如上面我们定义的 whoami 这个应用，我们可以通过 <code>https://who.qikqiak.com/tls</code> 来访问到应用，但是如果我们用 <code>http</code> 来访问的话呢就不行了，就会404了，因为我们根本就没有简单80端口这个入口点，所以要想通过 <code>http</code> 来访问应用的话自然我们需要监听下 <code>web</code> 这个入口点：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: ingressroutetls-http
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - web
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`who.qikqiak.com`) &amp;&amp; PathPrefix(`/tls`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: whoami
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+</code></pre></div><p>注意这里我们创建的 IngressRoute 的 entryPoints 是 <code>web</code>，然后创建这个对象，这个时候我们就可以通过 http 访问到这个应用了。</p>
+<p>但是我们如果只希望用户通过 https 来访问应用的话呢？按照以前的知识，我们是不是可以让 http 强制跳转到 https 服务去，对的，在 Traefik 中也是可以配置强制跳转的，只是这个功能现在是通过中间件来提供的了。如下所示，我们使用 <code>redirectScheme</code> 中间件来创建提供强制跳转服务：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: Middleware
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: redirect-https
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">redirectScheme</span>:
+    <span style="color:#ff79c6">scheme</span>: https
+</code></pre></div><p>然后将这个中间件附加到 http 的服务上面去，因为 https 的不需要跳转：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: ingressroutetls-http
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - web
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`who.qikqiak.com`) &amp;&amp; PathPrefix(`/tls`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: whoami
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+    <span style="color:#ff79c6">middlewares</span>: 
+    - <span style="color:#ff79c6">name</span>: redirect-https
+</code></pre></div><p>这个时候我们再去访问 http 服务可以发现就会自动跳转到 https 去了。关于更多中间件的用法可以查看文档 <a href="https://www.qikqiak.com/traefik-book/middlewares/overview/">Traefik Docs</a>。</p>
+<h2 id="灰度发布">灰度发布</h2>
+<p>Traefik2.0 的一个更强大的功能就是灰度发布，灰度发布我们有时候也会称为金丝雀发布（Canary），主要就是让一部分测试的服务也参与到线上去，经过测试观察看是否符号上线要求。</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-canary-demo.jpg" alt="canary deployment">
+
+</p>
+<p>比如现在我们有两个名为 <code>appv1</code> 和 <code>appv2</code> 的服务，我们希望通过 Traefik 来控制我们的流量，将 3⁄4 的流量路由到 appv1，1/4 的流量路由到 appv2 去，这个时候就可以利用 Traefik2.0 中提供的**带权重的轮询（WRR）**来实现该功能，首先在 Kubernetes 集群中部署上面的两个服务。为了对比结果我们这里提供的两个服务一个是 whoami，一个是 nginx，方便测试。</p>
+<p>appv1 服务的资源清单如下所示：（appv1.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: appv1
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: appv1
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">use</span>: test
+        <span style="color:#ff79c6">app</span>: appv1
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: whoami
+        <span style="color:#ff79c6">image</span>: containous/whoami
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+          <span style="color:#ff79c6">name</span>: portv1
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: appv1
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: appv1
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: http
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+    <span style="color:#ff79c6">targetPort</span>: portv1
+</code></pre></div><p>appv2 服务的资源清单如下所示：（appv2.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: appv2
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: appv2
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">use</span>: test
+        <span style="color:#ff79c6">app</span>: appv2
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: nginx
+        <span style="color:#ff79c6">image</span>: nginx
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+          <span style="color:#ff79c6">name</span>: portv2
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: appv2
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: appv2
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: http
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+    <span style="color:#ff79c6">targetPort</span>: portv2
+</code></pre></div><p>直接创建上面两个服务：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f appv1.yaml
+$ kubectl apply -f appv2.yaml
+<span style="color:#6272a4"># 通过下面的命令可以查看服务是否运行成功</span>
+$ kubectl get pods -l <span style="color:#8be9fd;font-style:italic">use</span><span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">test</span>
+NAME                     READY   STATUS    RESTARTS   AGE
+appv1-58f856c665-shm9j   1/1     Running   <span style="color:#bd93f9">0</span>          12s
+appv2-ff5db55cf-qjtrf    1/1     Running   <span style="color:#bd93f9">0</span>          12s
+</code></pre></div><p>在 Traefik2.1 中新增了一个 <code>TraefikService</code> 的 CRD 资源，我们可以直接利用这个对象来配置 WRR，之前的版本需要通过 File Provider，比较麻烦，新建一个描述 WRR 的资源清单：(wrr.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: TraefikService
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: app-wrr
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">weighted</span>:
+    <span style="color:#ff79c6">services</span>:
+      - <span style="color:#ff79c6">name</span>: appv1
+        <span style="color:#ff79c6">weight</span>: <span style="color:#bd93f9">3</span>  <span style="color:#6272a4"># 定义权重</span>
+        <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+        <span style="color:#ff79c6">kind</span>: Service  <span style="color:#6272a4"># 可选，默认就是 Service</span>
+      - <span style="color:#ff79c6">name</span>: appv2
+        <span style="color:#ff79c6">weight</span>: <span style="color:#bd93f9">1</span>
+        <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+</code></pre></div><p>然后为我们的灰度发布的服务创建一个 IngressRoute 资源对象：(ingressroute.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: wrringressroute
+  <span style="color:#ff79c6">namespace</span>: default
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - web
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: Host(`wrr.qikqiak.com`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: app-wrr
+      <span style="color:#ff79c6">kind</span>: TraefikService
+</code></pre></div><p>不过需要注意的是现在我们配置的 Service 不再是直接的 Kubernetes 对象了，而是上面我们定义的 TraefikService 对象，直接创建上面的两个资源对象，这个时候我们对域名 <code>wrr.qikqiak.com</code> 做上解析，去浏览器中连续访问 4 次，我们可以观察到 appv1 这应用会收到 3 次请求，而 appv2 这个应用只收到 1 次请求，符合上面我们的 <code>3:1</code> 的权重配置。</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-wrr-demo.png" alt="traefik wrr demo">
+
+</p>
+<h2 id="流量复制">流量复制</h2>
+<p>除了灰度发布之外，Traefik 2.0 还引入了流量镜像服务，是一种可以将流入流量复制并同时将其发送给其他服务的方法，镜像服务可以获得给定百分比的请求同时也会忽略这部分请求的响应。</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-mirror.png" alt="traefik mirror">
+
+</p>
+<p>同样的在 2.0 中只能通过 FileProvider 进行配置，在 2.1 版本中我们已经可以通过 <code>TraefikService</code> 资源对象来进行配置了，现在我们部署两个 whoami 的服务，资源清单文件如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: v1
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">protocol</span>: TCP
+      <span style="color:#ff79c6">name</span>: web
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: v1
+---
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: v1
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: v1
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: v1
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: v1
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+        - <span style="color:#ff79c6">name</span>: v1
+          <span style="color:#ff79c6">image</span>: nginx
+          <span style="color:#ff79c6">ports</span>:
+            - <span style="color:#ff79c6">name</span>: web
+              <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: v2
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">protocol</span>: TCP
+      <span style="color:#ff79c6">name</span>: web
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: v2
+---
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: v2
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: v2
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: v2
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: v2
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+        - <span style="color:#ff79c6">name</span>: v2
+          <span style="color:#ff79c6">image</span>: nginx
+          <span style="color:#ff79c6">ports</span>:
+            - <span style="color:#ff79c6">name</span>: web
+              <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+</code></pre></div><p>直接创建上面的资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                                      READY   STATUS    RESTARTS   AGE
+v1-77cfb86999-wfbl2                       1/1     Running   <span style="color:#bd93f9">0</span>          94s
+v2-6f45d498b7-g6qjt                       1/1     Running   <span style="color:#bd93f9">0</span>          91s
+$ kubectl get svc 
+NAME            TYPE        CLUSTER-IP      EXTERNAL-IP   PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>     AGE
+v1              ClusterIP   10.96.218.173   &lt;none&gt;        80/TCP      99s
+v2              ClusterIP   10.99.98.48     &lt;none&gt;        80/TCP      96s
+</code></pre></div><p>现在我们创建一个 IngressRoute 对象，将服务 v1 的流量复制 50% 到服务 v2，如下资源对象所示：(mirror-ingress-route.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: TraefikService
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: app-mirror
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">mirroring</span>:
+    <span style="color:#ff79c6">name</span>: v1 <span style="color:#6272a4"># 发送 100% 的请求到 K8S 的 Service &#34;v1&#34;</span>
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+    <span style="color:#ff79c6">mirrors</span>:
+    - <span style="color:#ff79c6">name</span>: v2 <span style="color:#6272a4"># 然后复制 50% 的请求到 v2</span>
+      <span style="color:#ff79c6">percent</span>: <span style="color:#bd93f9">50</span>
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRoute
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mirror-ingress-route
+  <span style="color:#ff79c6">namespace</span>: default
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+  - web
+  <span style="color:#ff79c6">routes</span>:   
+  - <span style="color:#ff79c6">match</span>: Host(`mirror.qikqiak.com`)
+    <span style="color:#ff79c6">kind</span>: Rule
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: app-mirror
+      <span style="color:#ff79c6">kind</span>: TraefikService <span style="color:#6272a4"># 使用声明的 TraefikService 服务，而不是 K8S 的 Service</span>
+</code></pre></div><p>然后直接创建这个资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f mirror-ingress-route.yaml 
+ingressroute.traefik.containo.us/mirror-ingress-route created
+traefikservice.traefik.containo.us/mirroring-example created
+</code></pre></div><p>这个时候我们在浏览器中去连续访问4次 <code>mirror.qikqiak.com</code> 可以发现有一半的请求也出现在了 <code>v2</code> 这个服务中：
+
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-mirror-demo.png" alt="traefik mirror demo">
+
+</p>
+<h2 id="tcp">TCP</h2>
+<p>另外 Traefik2.0 已经支持了 TCP 服务的，下面我们以 mongo 为例来了解下 Traefik 是如何支持 TCP 服务得。</p>
+<h3 id="简单-tcp-服务">简单 TCP 服务</h3>
+<p>首先部署一个普通的 mongo 服务，资源清单文件如下所示：（mongo.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mongo-traefik
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: mongo-traefik
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: mongo-traefik
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: mongo-traefik
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: mongo
+        <span style="color:#ff79c6">image</span>: mongo:4.0
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">27017</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mongo-traefik
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: mongo-traefik
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">27017</span>
+</code></pre></div><p>直接创建 mongo 应用：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f mongo.yaml
+deployment.apps/mongo-traefik created
+service/mongo-traefik created
+</code></pre></div><p>创建成功后就可以来为 mongo 服务配置一个路由了。由于 Traefik 中使用 TCP 路由配置需要 <code>SNI</code>，而 <code>SNI</code> 又是依赖 <code>TLS</code> 的，所以我们需要配置证书才行，如果没有证书的话，我们可以使用通配符 <code>*</code> 进行配置，我们这里创建一个 <code>IngressRouteTCP</code> 类型的 CRD 对象（前面我们就已经安装了对应的 CRD 资源）：(mongo-ingressroute-tcp.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRouteTCP
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mongo-traefik-tcp
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - mongo
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: HostSNI(`*`)
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: mongo-traefik
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">27017</span>
+</code></pre></div><p>要注意的是这里的 <code>entryPoints</code> 部分，是根据我们启动的 Traefik 的静态配置中的 entryPoints 来决定的，我们当然可以使用前面我们定义得 80 和 443 这两个入口点，但是也可以可以自己添加一个用于 mongo 服务的专门入口点：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">......
+- <span style="color:#ff79c6">image</span>: traefik:2.1.1
+  <span style="color:#ff79c6">name</span>: traefik
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: web
+    <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+    <span style="color:#ff79c6">hostPort</span>: <span style="color:#bd93f9">80</span>
+  - <span style="color:#ff79c6">name</span>: websecure
+    <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">443</span>
+    <span style="color:#ff79c6">hostPort</span>: <span style="color:#bd93f9">443</span>
+  - <span style="color:#ff79c6">name</span>: mongo
+    <span style="color:#ff79c6">hostPort</span>: <span style="color:#bd93f9">27017</span>
+    <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">27017</span>
+  <span style="color:#ff79c6">args</span>:
+  - --entryPoints.web.address=:80
+  - --entryPoints.websecure.address=:443
+  - --entryPoints.mongo.address=:27017
+  ......
+</code></pre></div><p>这里给入口点添加 <code>hostPort</code> 是为了能够通过节点的端口访问到服务，关于 entryPoints 入口点的更多信息，可以查看文档 <a href="https://www.qikqiak.com/traefik-book/routing/entrypoints/">entrypoints</a> 了解更多信息。</p>
+<!-- raw HTML omitted -->
+<p>然后更新 Traefik 后我们就可以直接创建上面的资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo-ingressroute-tcp.yaml
+ingressroutetcp.traefik.containo.us/mongo-traefik-tcp created
+</code></pre></div><p>创建完成后，同样我们可以去 Traefik 的 Dashboard 页面上查看是否生效：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/network/traefik-tcp-mongo-1.png" alt="traefik-tcp-mongo-1">
+
+</p>
+<p>然后我们配置一个域名 <code>mongo.local</code> 解析到 Traefik 所在的节点，然后通过 27017 端口来连接 mongo 服务：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo --host mongo.local --port <span style="color:#bd93f9">27017</span>
+mongo<span style="color:#ff79c6">(</span>75243,0x1075295c0<span style="color:#ff79c6">)</span> malloc: *** malloc_zone_unregister<span style="color:#ff79c6">()</span> failed <span style="color:#ff79c6">for</span> 0x7fffa56f4000
+MongoDB shell version: 2.6.1
+connecting to: mongo.local:27017/test
+&gt; show dbs
+admin   0.000GB
+config  0.000GB
+<span style="color:#8be9fd;font-style:italic">local</span>   0.000GB
+</code></pre></div><p>到这里我们就完成了将 mongo（TCP）服务暴露给外部用户了。</p>
+<h3 id="带-tls-证书的-tcp">带 TLS 证书的 TCP</h3>
+<p>上面我们部署的 mongo 是一个普通的服务，然后用 Traefik 代理的，但是有时候为了安全 mongo 服务本身还会使用 TLS 证书的形式提供服务，下面是用来生成 mongo tls 证书的脚本文件：（generate-certificates.sh）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#ff79c6">#!/bin/bash
+</span><span style="color:#ff79c6"></span><span style="color:#6272a4">#</span>
+<span style="color:#6272a4"># From https://medium.com/@rajanmaharjan/secure-your-mongodb-connections-ssl-tls-92e2addb3c89</span>
+
+<span style="color:#8be9fd;font-style:italic">set</span> -eu -o pipefail
+
+<span style="color:#8be9fd;font-style:italic">DOMAINS</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">1</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+<span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">2</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+<span style="color:#ff79c6">[</span> -d <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> <span style="color:#ff79c6">]</span>
+<span style="color:#8be9fd;font-style:italic">CURRENT_DIR</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">$(</span><span style="color:#8be9fd;font-style:italic">cd</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">$(</span>dirname <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">0</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">)</span><span style="color:#f1fa8c">&#34;</span> <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">pwd</span> -P<span style="color:#ff79c6">)</span><span style="color:#f1fa8c">&#34;</span>
+
+<span style="color:#8be9fd;font-style:italic">GENERATION_DIRNAME</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">$(</span><span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">DOMAINS</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> | cut -d, -f1<span style="color:#ff79c6">)</span><span style="color:#f1fa8c">&#34;</span>
+
+rm -rf <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">GENERATION_DIRNAME</span>:?<span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/certs&#34;</span>
+
+<span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;== Checking Requirements...&#34;</span>
+<span style="color:#8be9fd;font-style:italic">command</span> -v go &gt;/dev/null 2&gt;&amp;<span style="color:#bd93f9">1</span> <span style="color:#ff79c6">||</span> <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;Golang is required&#34;</span>
+<span style="color:#8be9fd;font-style:italic">command</span> -v minica &gt;/dev/null 2&gt;&amp;<span style="color:#bd93f9">1</span> <span style="color:#ff79c6">||</span> go get github.com/jsha/minica &gt;/dev/null
+
+<span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;== Generating Certificates for the following domains: </span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">DOMAINS</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">...&#34;</span>
+<span style="color:#8be9fd;font-style:italic">cd</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+minica --ca-cert <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CURRENT_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/minica.pem&#34;</span> --ca-key<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CURRENT_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/minica-key.pem&#34;</span> --domains<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">DOMAINS</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span>
+mv <span style="color:#f1fa8c">&#34;</span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">GENERATION_DIRNAME</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">&#34;</span> <span style="color:#f1fa8c">&#34;certs&#34;</span>
+cat certs/key.pem certs/cert.pem &gt; certs/mongo.pem
+
+<span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;== Certificates Generated in the directory </span><span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">CERTS_DIR</span><span style="color:#f1fa8c">}</span><span style="color:#f1fa8c">/certs&#34;</span>
+</code></pre></div><p>将上面证书放置到 certs 目录下面，然后我们新建一个 <code>02-tls-mongo</code> 的目录，在该目录下面执行如下命令来生成证书：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ bash ../certs/generate-certificates.sh mongo.local .
+<span style="color:#ff79c6">==</span> Checking Requirements...
+<span style="color:#ff79c6">==</span> Generating Certificates <span style="color:#ff79c6">for</span> the following domains: mongo.local...
+</code></pre></div><p>最后的目录如下所示，在 <code>02-tls-mongo</code> 目录下面会生成包含证书的 certs 目录：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ tree .
+.
+├── 01-mongo
+│   ├── mongo-ingressroute-tcp.yaml
+│   └── mongo.yaml
+├── 02-tls-mongo
+│   └── certs
+│       ├── cert.pem
+│       ├── key.pem
+│       └── mongo.pem
+└── certs
+    ├── generate-certificates.sh
+    ├── minica-key.pem
+    └── minica.pem
+</code></pre></div><p>在 <code>02-tls-mongo/certs</code> 目录下面执行如下命令通过 Secret 来包含证书内容：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create secret tls traefik-mongo-certs --cert<span style="color:#ff79c6">=</span>cert.pem --key<span style="color:#ff79c6">=</span>key.pem
+secret/traefik-mongo-certs created
+</code></pre></div><p>然后重新更新 <code>IngressRouteTCP</code> 对象，增加 TLS 配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRouteTCP
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mongo-traefik-tcp
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - mongo
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: HostSNI(`mongo.local`)
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: mongo-traefik
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">27017</span>
+  <span style="color:#ff79c6">tls</span>: 
+    <span style="color:#ff79c6">secretName</span>: traefik-mongo-certs
+</code></pre></div><p>同样更新后，现在我们直接去访问应用就会被 hang 住，因为我们没有提供证书：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo --host mongo.local --port <span style="color:#bd93f9">27017</span>
+MongoDB shell version: 2.6.1
+connecting to: mongo1.local:27017/test
+</code></pre></div><p>这个时候我们可以带上证书来进行连接：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo --host mongo.local --port <span style="color:#bd93f9">27017</span> --ssl --sslCAFile<span style="color:#ff79c6">=</span>../certs/minica.pem --sslPEMKeyFile<span style="color:#ff79c6">=</span>./certs/mongo.pem
+MongoDB shell version v4.0.3
+connecting to: mongodb://mongo.local:27017/
+Implicit session: session <span style="color:#ff79c6">{</span> <span style="color:#f1fa8c">&#34;id&#34;</span> : UUID<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;e7409ef6-8ebe-4c5a-9642-42059bdb477b&#34;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">}</span>
+MongoDB server version: 4.0.14
+......
+&gt; show dbs;
+admin   0.000GB
+config  0.000GB
+<span style="color:#8be9fd;font-style:italic">local</span>   0.000GB
+</code></pre></div><p>可以看到现在就可以连接成功了，这样就完成了一个使用 TLS 证书代理 TCP 服务的功能，这个时候如果我们使用其他的域名去进行连接就会报错了，因为现在我们指定的是特定的 HostSNI：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo --host mongo.k8s.local --port <span style="color:#bd93f9">27017</span> --ssl --sslCAFile<span style="color:#ff79c6">=</span>../certs/minica.pem --sslPEMKeyFile<span style="color:#ff79c6">=</span>./certs/mongo.pem
+MongoDB shell version v4.0.3
+connecting to: mongodb://mongo.k8s.local:27017/
+2019-12-29T15:03:52.424+0800 E NETWORK  <span style="color:#ff79c6">[</span>js<span style="color:#ff79c6">]</span> SSL peer certificate validation failed: Certificate trust failure: CSSMERR_TP_NOT_TRUSTED; connection rejected
+2019-12-29T15:03:52.429+0800 E QUERY    <span style="color:#ff79c6">[</span>js<span style="color:#ff79c6">]</span> Error: couldn&#39;t connect to server mongo.qikqiak.com:27017, connection attempt failed: SSLHandshakeFailed: SSL peer certificate validation failed: Certificate trust failure: CSSMERR_TP_NOT_TRUSTED; connection rejected :
+connect@src/mongo/shell/mongo.js:257:13
+@<span style="color:#ff79c6">(</span>connect<span style="color:#ff79c6">)</span>:1:6
+exception: connect failed
+</code></pre></div><p>当然我们也可以使用 <code>ACME</code> 来为我们提供一个合法的证书，这样在连接的使用就不需要指定证书了，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: traefik.containo.us/v1alpha1
+<span style="color:#ff79c6">kind</span>: IngressRouteTCP
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mongo-traefik-tcp
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">entryPoints</span>:
+    - mongo
+  <span style="color:#ff79c6">routes</span>:
+  - <span style="color:#ff79c6">match</span>: HostSNI(`mongo.qikqiak.com`)
+    <span style="color:#ff79c6">services</span>:
+    - <span style="color:#ff79c6">name</span>: mongo-traefik
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">27017</span>
+  <span style="color:#ff79c6">tls</span>:
+    <span style="color:#ff79c6">certResolver</span>: ali
+    <span style="color:#ff79c6">domains</span>:
+    - <span style="color:#ff79c6">main</span>: <span style="color:#f1fa8c">&#34;*.qikqiak.com&#34;</span>
+</code></pre></div><p>这样当我们连接的时候就只需要如下的命令即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ mongo --host mongo.qikqiak.com --port <span style="color:#bd93f9">27017</span> --ssl
+</code></pre></div><!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/recording-rules-on-prometheus/" data-toggle="tooltip" data-placement="top" title="Prometheus 记录规则的使用">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/custom-kube-scheduler/" data-toggle="tooltip" data-placement="top" title="自定义 Kubernetes 调度器">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

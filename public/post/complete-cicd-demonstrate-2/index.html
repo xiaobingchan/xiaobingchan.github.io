@@ -1,0 +1,1729 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)" />
+    <meta property="og:title" content="基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)" />
+    <meta property="twitter:title" content="基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/complete-cicd-demonstrate-2/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/jenkins" title="Jenkins">
+                            Jenkins
+                        </a>
+                        
+                        <a class="tag" href="/tags/gitlab" title="Gitlab">
+                            Gitlab
+                        </a>
+                        
+                        <a class="tag" href="/tags/harbor" title="Harbor">
+                            Harbor
+                        </a>
+                        
+                        <a class="tag" href="/tags/helm" title="Helm">
+                            Helm
+                        </a>
+                        
+                        <a class="tag" href="/tags/docker" title="Docker">
+                            Docker
+                        </a>
+                        
+                        <a class="tag" href="/tags/pipeline" title="Pipeline">
+                            Pipeline
+                        </a>
+                        
+                        <a class="tag" href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                    </div>
+                    <h1>基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Saturday, May 4, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#pipeline">Pipeline</a></li>
+        <li><a href="#相关链接">相关链接：</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="/post/complete-cicd-demonstrate-1/">上节课我们完成了最基本的流水线流程</a>，接下来的工作就是来实现之前的具体 Pipeline 脚本了。</p>
+<h2 id="pipeline">Pipeline</h2>
+<p>第一个阶段：单元测试，我们可以在这个阶段是运行一些单元测试或者静态代码分析的脚本，我们这里直接忽略。</p>
+<p>第二个阶段：代码编译打包，我们可以看到我们是在一个<code>maven</code>的容器中来执行的，所以我们只需要在该容器中获取到代码，然后在代码目录下面执行 maven 打包命令即可，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">  stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;代码编译打包&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#ff79c6">try</span> <span style="color:#ff79c6">{</span>
+      container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;maven&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        echo <span style="color:#f1fa8c">&#34;2. 代码编译打包阶段&#34;</span>
+        sh <span style="color:#f1fa8c">&#34;mvn clean package -Dmaven.test.skip=true&#34;</span>
+      <span style="color:#ff79c6">}</span>
+    <span style="color:#ff79c6">}</span> <span style="color:#ff79c6">catch</span> <span style="color:#ff79c6">(</span>exc<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      println <span style="color:#f1fa8c">&#34;构建失败 - ${currentBuild.fullDisplayName}&#34;</span>
+      <span style="color:#ff79c6">throw</span><span style="color:#ff79c6">(</span>exc<span style="color:#ff79c6">)</span>
+    <span style="color:#ff79c6">}</span>
+  <span style="color:#ff79c6">}</span>
+</code></pre></div><p>第三个阶段：构建 Docker 镜像，要构建 Docker 镜像，就需要提供镜像的名称和 tag，要推送到 Harbor 仓库，就需要提供登录的用户名和密码，所以我们这里使用到了<code>withCredentials</code>方法，在里面可以提供一个<code>credentialsId</code>为<code>dockerhub</code>的认证信息，如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;构建 Docker 镜像&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+  withCredentials<span style="color:#ff79c6">([[</span>$class<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;UsernamePasswordMultiBinding&#39;</span><span style="color:#ff79c6">,</span>
+    <span style="color:#8be9fd;font-style:italic">credentialsId:</span> <span style="color:#f1fa8c">&#39;dockerhub&#39;</span><span style="color:#ff79c6">,</span>
+    <span style="color:#8be9fd;font-style:italic">usernameVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_USER&#39;</span><span style="color:#ff79c6">,</span>
+    <span style="color:#8be9fd;font-style:italic">passwordVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_PASSWORD&#39;</span><span style="color:#ff79c6">]])</span> <span style="color:#ff79c6">{</span>
+      container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;docker&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        echo <span style="color:#f1fa8c">&#34;3. 构建 Docker 镜像阶段&#34;</span>
+        sh <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">          docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+</span><span style="color:#f1fa8c">          docker build -t ${image}:${imageTag} .
+</span><span style="color:#f1fa8c">          docker push ${image}:${imageTag}
+</span><span style="color:#f1fa8c">          &#34;&#34;&#34;</span>
+      <span style="color:#ff79c6">}</span>
+  <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>其中 ${image} 和 ${imageTag} 我们可以在上面定义成全局变量：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd">def</span> imageTag <span style="color:#ff79c6">=</span> sh<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">script:</span> <span style="color:#f1fa8c">&#34;git rev-parse --short HEAD&#34;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">returnStdout:</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">).</span><span style="color:#50fa7b">trim</span><span style="color:#ff79c6">()</span>
+<span style="color:#8be9fd">def</span> dockerRegistryUrl <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;registry.qikqiak.com&#34;</span>
+<span style="color:#8be9fd">def</span> imageEndpoint <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;course/polling-app-server&#34;</span>
+<span style="color:#8be9fd">def</span> image <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;${dockerRegistryUrl}/${imageEndpoint}&#34;</span>
+</code></pre></div><p>docker 的用户名和密码信息则需要通过<code>凭据</code>来进行添加，进入 jenkins 首页 -&gt; 左侧菜单<code>凭据</code> -&gt; <code>添加凭据</code>，选择用户名和密码类型的，其中 ID 一定要和上面的<code>credentialsId</code>的值保持一致：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/6uXfeq.jpg" alt="add docker hub credential">
+
+</p>
+<p>第四个阶段：运行 kubectl 工具，其实在我们当前使用的流水线中是用不到 kubectl 工具的，那么为什么我们这里要使用呢？这还不是因为我们暂时还没有去写应用的 Helm Chart 包吗？所以我们先去用原始的 YAML 文件来编写应用部署的资源清单文件，这也是我们写出 Chart 包前提，因为只有知道了应用如何部署才可能知道 Chart 包如何编写，所以我们先编写应用部署资源清单。</p>
+<p>首先当然就是 Deployment 控制器了，如下所示：（k8s.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: polling-server
+  <span style="color:#ff79c6">namespace</span>: course
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: polling-server
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">strategy</span>:
+    <span style="color:#ff79c6">rollingUpdate</span>:
+      <span style="color:#ff79c6">maxSurge</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">maxUnavailable</span>: <span style="color:#bd93f9">1</span>
+    <span style="color:#ff79c6">type</span>: RollingUpdate
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: polling-server
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">restartPolicy</span>: Always
+      <span style="color:#ff79c6">imagePullSecrets</span>:
+        - <span style="color:#ff79c6">name</span>: myreg
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">image</span>: &lt;IMAGE&gt;:&lt;IMAGE_TAG&gt;
+        <span style="color:#ff79c6">name</span>: polling-server
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">name</span>: api
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: DB_HOST
+          <span style="color:#ff79c6">value</span>: mysql
+        - <span style="color:#ff79c6">name</span>: DB_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;3306&#34;</span>
+        - <span style="color:#ff79c6">name</span>: DB_NAME
+          <span style="color:#ff79c6">value</span>: polling_app
+        - <span style="color:#ff79c6">name</span>: DB_USER
+          <span style="color:#ff79c6">value</span>: polling
+        - <span style="color:#ff79c6">name</span>: DB_PASSWORD
+          <span style="color:#ff79c6">value</span>: polling321
+
+---
+
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: polling-server
+  <span style="color:#ff79c6">namespace</span>: course
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: polling-server
+  <span style="color:#ff79c6">type</span>:  ClusterIP
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: api-port
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+    <span style="color:#ff79c6">targetPort</span>:  api
+
+---
+<span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mysql
+  <span style="color:#ff79c6">namespace</span>: course
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: mysql
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">restartPolicy</span>: Always
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: mysql
+        <span style="color:#ff79c6">image</span>: mysql:5.7
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">3306</span>
+          <span style="color:#ff79c6">name</span>: dbport
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: MYSQL_ROOT_PASSWORD
+          <span style="color:#ff79c6">value</span>: rootPassW0rd
+        - <span style="color:#ff79c6">name</span>: MYSQL_DATABASE
+          <span style="color:#ff79c6">value</span>: polling_app
+        - <span style="color:#ff79c6">name</span>: MYSQL_USER
+          <span style="color:#ff79c6">value</span>: polling
+        - <span style="color:#ff79c6">name</span>: MYSQL_PASSWORD
+          <span style="color:#ff79c6">value</span>: polling321
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: db
+          <span style="color:#ff79c6">mountPath</span>: /var/lib/mysql
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: db
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /var/lib/mysql
+
+---
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: mysql
+  <span style="color:#ff79c6">namespace</span>: course
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: mysql
+  <span style="color:#ff79c6">type</span>:  ClusterIP
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: dbport
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">3306</span>
+    <span style="color:#ff79c6">targetPort</span>: dbport
+</code></pre></div><p>可以看到我们上面的 YAML 文件中添加使用的镜像是用标签代替的：<code>&lt;IMAGE&gt;:&lt;IMAGE_TAG&gt;</code>，这是因为我们的镜像地址是动态的，下依赖我们在上一个阶段打包出来的镜像地址的，所以我们这里用标签代替，然后将标签替换成真正的值即可，另外为了保证应用的稳定性，我们还在应用中添加了健康检查，所以需要在代码中添加一个健康检查的 Controller：（src/main/java/com/example/polls/controller/StatusController.java）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-java" data-lang="java"><span style="color:#ff79c6">package</span> com.example.polls.controller<span style="color:#ff79c6">;</span>
+
+<span style="color:#ff79c6">import</span> org.springframework.web.bind.annotation.*<span style="color:#ff79c6">;</span>
+
+@RestController
+@RequestMapping<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;/api/_status/healthz&#34;</span><span style="color:#ff79c6">)</span>
+<span style="color:#8be9fd;font-style:italic">public</span> <span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">StatusController</span> <span style="color:#ff79c6">{</span>
+
+    @GetMapping
+    <span style="color:#8be9fd;font-style:italic">public</span> String <span style="color:#50fa7b">healthCheck</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#ff79c6">return</span> <span style="color:#f1fa8c">&#34;UP&#34;</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>最后就是环境变量了，还记得前面我们更改了资源文件中数据库的配置吗？（src/main/resources/application.properties）因为要尽量通用，我们在部署应用的时候很有可能已经有一个外部的数据库服务了，所以这个时候通过环境变量传入进来即可。另外由于我们这里使用的是私有镜像仓库，所以需要在集群中提前创建一个对应的 Secret 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create secret docker-registry myreg --docker-server<span style="color:#ff79c6">=</span>registry.qikqiak.com --docker-username<span style="color:#ff79c6">=</span>DOCKER_USER --docker-password<span style="color:#ff79c6">=</span>DOCKER_PASSWORD --docker-email<span style="color:#ff79c6">=</span>DOCKER_EMAIL --namespace course
+</code></pre></div><p>在代码根目录下面创建一个 manifests 的目录，用来存放上面的资源清单文件，正常来说是不是我们只需要在镜像构建成功后，将上面的 k8s.yaml 文件中的镜像标签替换掉就 OK，所以这一步的动作如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;运行 Kubectl&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+  container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;kubectl&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    echo <span style="color:#f1fa8c">&#34;查看 K8S 集群 Pod 列表&#34;</span>
+    sh <span style="color:#f1fa8c">&#34;kubectl get pods&#34;</span>
+    sh <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">      sed -i &#34;s/&lt;IMAGE&gt;/${image}&#34; manifests/k8s.yaml
+</span><span style="color:#f1fa8c">      sed -i &#34;s/&lt;IMAGE_TAG&gt;/${imageTag}&#34; manifests/k8s.yaml
+</span><span style="color:#f1fa8c">      kubectl apply -f k8s.yaml
+</span><span style="color:#f1fa8c">    &#34;&#34;&#34;</span>
+  <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>第五阶段：运行 Helm 工具，就是直接使用 Helm 来部署应用了，现在有了上面的基本的资源对象了，要创建 Chart 模板就相对容易了，Chart 模板仓库地址：<a href="https://github.com/cnych/polling-helm">https://github.com/cnych/polling-helm</a>，我们可以根据<code>values.yaml</code>文件来进行自定义安装，模板中我们定义了可以指定使用外部数据库服务或者内部独立的数据库服务，具体的我们可以去看模板中的定义。首先我们可以先使用这个模板在集群中来测试下。首先在集群中 Clone 上面的 Chart 模板：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone https://github.com/cnych/polling-helm.git
+</code></pre></div><p>然后我们使用内部的数据库服务，新建一个 custom.yaml 文件来覆盖 values.yaml 文件中的值：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">persistence</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">persistentVolumeClaim</span>:
+    <span style="color:#ff79c6">database</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;database&#34;</span>
+
+<span style="color:#ff79c6">database</span>:
+  <span style="color:#ff79c6">type</span>: internal
+  <span style="color:#ff79c6">internal</span>:
+    <span style="color:#ff79c6">database</span>: <span style="color:#f1fa8c">&#34;polling&#34;</span>
+    <span style="color:#6272a4"># 数据库用户</span>
+    <span style="color:#ff79c6">username</span>: <span style="color:#f1fa8c">&#34;polling&#34;</span>
+    <span style="color:#6272a4"># 数据库用户密码</span>
+    <span style="color:#ff79c6">password</span>: <span style="color:#f1fa8c">&#34;polling321&#34;</span>
+</code></pre></div><p>可以看到我们这里使用了一个名为<code>database</code>的 StorgeClass 对象，所以还得创建先创建这个资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: storage.k8s.io/v1
+<span style="color:#ff79c6">kind</span>: StorageClass
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: database
+<span style="color:#ff79c6">provisioner</span>: fuseim.pri/ifs
+</code></pre></div><p>然后我们就可以在 Chart 根目录下面安装应用，执行下面的命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm upgrade --install polling -f custom.yaml . --namespace course
+Release <span style="color:#f1fa8c">&#34;polling&#34;</span> does not exist. Installing it now.
+NAME:   polling
+LAST DEPLOYED: Sat May  <span style="color:#bd93f9">4</span> 23:31:42 <span style="color:#bd93f9">2019</span>
+NAMESPACE: course
+STATUS: DEPLOYED
+
+RESOURCES:
+<span style="color:#ff79c6">==</span>&gt; v1/Pod<span style="color:#ff79c6">(</span>related<span style="color:#ff79c6">)</span>
+NAME                                  READY  STATUS             RESTARTS  AGE
+polling-polling-api-6b699478d6-lqwhw  0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+polling-polling-ui-587bbfb7b5-xr2ff   0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+polling-polling-database-0            0/1    Pending            <span style="color:#bd93f9">0</span>         <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Secret
+NAME                      TYPE    DATA  AGE
+polling-polling-database  Opaque  <span style="color:#bd93f9">1</span>     <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Service
+NAME                      TYPE       CLUSTER-IP     EXTERNAL-IP  PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>   AGE
+polling-polling-api       ClusterIP  10.109.19.220  &lt;none&gt;       8080/TCP  0s
+polling-polling-database  ClusterIP  10.98.136.190  &lt;none&gt;       3306/TCP  0s
+polling-polling-ui        ClusterIP  10.108.170.43  &lt;none&gt;       80/TCP    <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1beta2/Deployment
+NAME                 DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+polling-polling-api  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+polling-polling-ui   <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/StatefulSet
+NAME                      DESIRED  CURRENT  AGE
+polling-polling-database  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1beta1/Ingress
+NAME                     HOSTS              ADDRESS  PORTS  AGE
+polling-polling-ingress  ui.polling.domain  <span style="color:#bd93f9">80</span>       0s
+
+
+NOTES:
+1. Get the application URL by running these commands:
+  http://ui.polling.domain
+
+You have new mail in /var/spool/mail/root
+</code></pre></div><blockquote>
+<p>注意我们这里安装也是使用的<code>helm upgrade</code>命令，这样有助于安装和更新的时候命令统一。</p>
+</blockquote>
+<p>安装完成后，查看下 Pod 的运行状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n course
+NAME                                   READY     STATUS    RESTARTS   AGE
+polling-polling-api-6b699478d6-lqwhw   1/1       Running   <span style="color:#bd93f9">0</span>          3m
+polling-polling-database-0             1/1       Running   <span style="color:#bd93f9">0</span>          3m
+polling-polling-ui-587bbfb7b5-xr2ff    1/1       Running   <span style="color:#bd93f9">0</span>          3m
+</code></pre></div><p>然后我们可以在本地<code>/etc/hosts</code>里面加上<code>http://ui.polling.domain</code>的的映射，这样我们就可以通过这个域名来访问我们安装的应用了，可以注册、登录、发表投票内容了：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/oblr3.png" alt="polling app">
+
+</p>
+<p>这样我们就完成了使用 Helm Chart 安装应用的过程，但是现在我们使用的包还是直接使用的 git 仓库中的，平常我们正常安装的时候都是使用的 Chart 仓库中的包，所以我们需要将该 Chart 包上传到一个仓库中去，比较幸运的是我们的 Harbor 也是支持 Helm Chart 包的。我们可以选择手动通过 Harbor 的 Dashboard 将 Chart 包进行上传，也可以通过使用<code>Helm Push</code>插件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm plugin install https://github.com/chartmuseum/helm-push
+Downloading and installing helm-push v0.7.1 ...
+https://github.com/chartmuseum/helm-push/releases/download/v0.7.1/helm-push_0.7.1_linux_amd64.tar.gz
+
+Installed plugin: push
+</code></pre></div><p>当然我们需要首先将 Harbor 提供的仓库添加到 helm repo 中，由于是私有仓库，所以在添加的时候我们需要添加用户名和密码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm repo add course https://registry.qikqiak.com/chartrepo/course --username<span style="color:#ff79c6">=</span>&lt;harbor用户名&gt; --password<span style="color:#ff79c6">=</span>&lt;harbor密码&gt;
+<span style="color:#f1fa8c">&#34;course&#34;</span> has been added to your repositories
+</code></pre></div><p>这里的 repo 的地址是<code>&lt;Harbor URL&gt;/chartrepo/&lt;Harbor中项目名称&gt;</code>，Harbor 中每个项目是分开的 repo，如果不提供项目名称，则默认使用<code>library</code>这个项目。</p>
+<blockquote>
+<p>需要注意的是如果你的 Harbor 是采用的自建的 https 证书，这里就需要提供 ca 证书和私钥文件了，否则会出现证书校验失败的错误<code>x509: certificate signed by unknown authority</code>。我们这里是通过<code>cert-manager</code>为 Harbor 提供的一个信任的 https 证书，所以没有指定 ca 证书相关的参数。</p>
+</blockquote>
+<p>然后我们将上面的<code>polling-helm</code>这个 Chart 包上传到 Harbor 仓库中去：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm push polling-helm course
+Pushing polling-0.1.0.tgz to course...
+Done.
+</code></pre></div><p>这个时候我们登录的 Harbor 仓库中去，查看 course 这个项目下面的<code>Helm Charts</code>就可以发现多了一个 polling 的应用了：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/96e57.png" alt="helm chart">
+
+</p>
+<p>我们也可以在右下角看到有添加仓库和安装 Chart 的相关命令。</p>
+<p>到这里 Helm 相关的工作就准备好了。那么我们如何在 Jenkins Pipeline 中去使用 Helm 呢？我们可以回顾下，我们平时的一个 CI/CD 的流程：开发代码 -&gt; 提交代码 -&gt; 触发镜像构建 -&gt; 修改镜像tag -&gt; 推送到镜像仓库中去 -&gt; 然后更改 YAML 文件镜像版本 -&gt; 使用 kubectl 工具更新应用。</p>
+<p>现在我们是不是直接使用 Helm 了，就不需要去手动更改 YAML 文件了，也不需要使用 kubectl 工具来更新应用了，而是只需要去覆盖下 helm 中的镜像版本，直接 upgrade 是不是就可以达到应用更新的结果了。我们可以去查看下 chart 包的 values.yaml 文件中关于 api 服务的定义：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">api</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: cnych/polling-api
+    <span style="color:#ff79c6">tag</span>: <span style="color:#bd93f9">0.0.7</span>
+    <span style="color:#ff79c6">pullPolicy</span>: IfNotPresent
+</code></pre></div><p>我们是不是只需要将上面关于 api 服务使用的镜像用我们这里 Jenkins 构建后的替换掉就可以了，这样我们更改上面的最后<code>运行 Helm</code>的阶段如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy">stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;运行 Helm&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+  container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;helm&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    echo <span style="color:#f1fa8c">&#34;更新 polling 应用&#34;</span>
+    sh <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">      helm upgrade --install polling polling --set persistence.persistentVolumeClaim.database.storageClass=database --set database.type=internal --set database.internal.database=polling --set database.internal.username=polling --set database.internal.password=polling321 --set api.image.repository=${image} --set api.image.tag=${imageTag} --set imagePullSecrets[0].name=myreg --namespace course
+</span><span style="color:#f1fa8c">    &#34;&#34;&#34;</span>
+  <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>当然我们可以将需要更改的值都放入一个 YAML 之中来进行修改，我们这里通过<code>--set</code>来覆盖对应的值，这样整个 API 服务的完整 Jenkinsfile 文件如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd">def</span> label <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;slave-${UUID.randomUUID().toString()}&#34;</span>
+
+<span style="color:#8be9fd">def</span> <span style="color:#50fa7b">helmLint</span><span style="color:#ff79c6">(</span>String chartDir<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    println <span style="color:#f1fa8c">&#34;校验 chart 模板&#34;</span>
+    sh <span style="color:#f1fa8c">&#34;helm lint ${chartDir}&#34;</span>
+<span style="color:#ff79c6">}</span>
+
+<span style="color:#8be9fd">def</span> <span style="color:#50fa7b">helmInit</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">{</span>
+  println <span style="color:#f1fa8c">&#34;初始化 helm client&#34;</span>
+  sh <span style="color:#f1fa8c">&#34;helm init --client-only --stable-repo-url https://mirror.azure.cn/kubernetes/charts/&#34;</span>
+<span style="color:#ff79c6">}</span>
+
+<span style="color:#8be9fd">def</span> <span style="color:#50fa7b">helmRepo</span><span style="color:#ff79c6">(</span>Map args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+  println <span style="color:#f1fa8c">&#34;添加 course repo&#34;</span>
+  sh <span style="color:#f1fa8c">&#34;helm repo add --username ${args.username} --password ${args.password} course https://registry.qikqiak.com/chartrepo/course&#34;</span>
+
+  println <span style="color:#f1fa8c">&#34;更新 repo&#34;</span>
+  sh <span style="color:#f1fa8c">&#34;helm repo update&#34;</span>
+
+  println <span style="color:#f1fa8c">&#34;获取 Chart 包&#34;</span>
+  sh <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">    helm fetch course/polling
+</span><span style="color:#f1fa8c">    tar -xzvf polling-0.1.0.tgz
+</span><span style="color:#f1fa8c">    &#34;&#34;&#34;</span>
+<span style="color:#ff79c6">}</span>
+
+<span style="color:#8be9fd">def</span> <span style="color:#50fa7b">helmDeploy</span><span style="color:#ff79c6">(</span>Map args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    helmInit<span style="color:#ff79c6">()</span>
+    helmRepo<span style="color:#ff79c6">(</span>args<span style="color:#ff79c6">)</span>
+
+    <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">(</span>args<span style="color:#ff79c6">.</span><span style="color:#50fa7b">dry_run</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        println <span style="color:#f1fa8c">&#34;Debug 应用&#34;</span>
+        sh <span style="color:#f1fa8c">&#34;helm upgrade --dry-run --debug --install ${args.name} ${args.chartDir} --set persistence.persistentVolumeClaim.database.storageClass=database --set api.image.repository=${args.image} --set api.image.tag=${args.tag} --set imagePullSecrets[0].name=myreg --namespace=${args.namespace}&#34;</span>
+    <span style="color:#ff79c6">}</span> <span style="color:#ff79c6">else</span> <span style="color:#ff79c6">{</span>
+        println <span style="color:#f1fa8c">&#34;部署应用&#34;</span>
+        sh <span style="color:#f1fa8c">&#34;helm upgrade --install ${args.name} ${args.chartDir} --set persistence.persistentVolumeClaim.database.storageClass=database --set api.image.repository=${args.image} --set api.image.tag=${args.tag} --set imagePullSecrets[0].name=myreg --namespace=${args.namespace}&#34;</span>
+        echo <span style="color:#f1fa8c">&#34;应用 ${args.name} 部署成功. 可以使用 helm status ${args.name} 查看应用状态&#34;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+
+
+podTemplate<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">label:</span> label<span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">containers:</span> <span style="color:#ff79c6">[</span>
+  containerTemplate<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">name:</span> <span style="color:#f1fa8c">&#39;maven&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">image:</span> <span style="color:#f1fa8c">&#39;maven:3.6-alpine&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">command:</span> <span style="color:#f1fa8c">&#39;cat&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">ttyEnabled:</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">),</span>
+  containerTemplate<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">name:</span> <span style="color:#f1fa8c">&#39;docker&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">image:</span> <span style="color:#f1fa8c">&#39;docker&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">command:</span> <span style="color:#f1fa8c">&#39;cat&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">ttyEnabled:</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">),</span>
+  containerTemplate<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">name:</span> <span style="color:#f1fa8c">&#39;helm&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">image:</span> <span style="color:#f1fa8c">&#39;cnych/helm&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">command:</span> <span style="color:#f1fa8c">&#39;cat&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">ttyEnabled:</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">)</span>
+<span style="color:#ff79c6">],</span> <span style="color:#8be9fd;font-style:italic">volumes:</span> <span style="color:#ff79c6">[</span>
+  hostPathVolume<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">mountPath:</span> <span style="color:#f1fa8c">&#39;/root/.m2&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">hostPath:</span> <span style="color:#f1fa8c">&#39;/var/run/m2&#39;</span><span style="color:#ff79c6">),</span>
+  hostPathVolume<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">mountPath:</span> <span style="color:#f1fa8c">&#39;/home/jenkins/.kube&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">hostPath:</span> <span style="color:#f1fa8c">&#39;/root/.kube&#39;</span><span style="color:#ff79c6">),</span>
+  hostPathVolume<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">mountPath:</span> <span style="color:#f1fa8c">&#39;/var/run/docker.sock&#39;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">hostPath:</span> <span style="color:#f1fa8c">&#39;/var/run/docker.sock&#39;</span><span style="color:#ff79c6">)</span>
+<span style="color:#ff79c6">])</span> <span style="color:#ff79c6">{</span>
+  node<span style="color:#ff79c6">(</span>label<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd">def</span> myRepo <span style="color:#ff79c6">=</span> checkout scm
+    <span style="color:#8be9fd">def</span> gitCommit <span style="color:#ff79c6">=</span> myRepo<span style="color:#ff79c6">.</span><span style="color:#50fa7b">GIT_COMMIT</span>
+    <span style="color:#8be9fd">def</span> gitBranch <span style="color:#ff79c6">=</span> myRepo<span style="color:#ff79c6">.</span><span style="color:#50fa7b">GIT_BRANCH</span>
+    <span style="color:#8be9fd">def</span> imageTag <span style="color:#ff79c6">=</span> sh<span style="color:#ff79c6">(</span><span style="color:#8be9fd;font-style:italic">script:</span> <span style="color:#f1fa8c">&#34;git rev-parse --short HEAD&#34;</span><span style="color:#ff79c6">,</span> <span style="color:#8be9fd;font-style:italic">returnStdout:</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">).</span><span style="color:#50fa7b">trim</span><span style="color:#ff79c6">()</span>
+    <span style="color:#8be9fd">def</span> dockerRegistryUrl <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;registry.qikqiak.com&#34;</span>
+    <span style="color:#8be9fd">def</span> imageEndpoint <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;course/polling-api&#34;</span>
+    <span style="color:#8be9fd">def</span> image <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;${dockerRegistryUrl}/${imageEndpoint}&#34;</span>
+
+    stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;单元测试&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      echo <span style="color:#f1fa8c">&#34;1.测试阶段&#34;</span>
+    <span style="color:#ff79c6">}</span>
+    stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;代码编译打包&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      <span style="color:#ff79c6">try</span> <span style="color:#ff79c6">{</span>
+        container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;maven&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+          echo <span style="color:#f1fa8c">&#34;2. 代码编译打包阶段&#34;</span>
+          sh <span style="color:#f1fa8c">&#34;mvn clean package -Dmaven.test.skip=true&#34;</span>
+        <span style="color:#ff79c6">}</span>
+      <span style="color:#ff79c6">}</span> <span style="color:#ff79c6">catch</span> <span style="color:#ff79c6">(</span>exc<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        println <span style="color:#f1fa8c">&#34;构建失败 - ${currentBuild.fullDisplayName}&#34;</span>
+        <span style="color:#ff79c6">throw</span><span style="color:#ff79c6">(</span>exc<span style="color:#ff79c6">)</span>
+      <span style="color:#ff79c6">}</span>
+    <span style="color:#ff79c6">}</span>
+    stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;构建 Docker 镜像&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      withCredentials<span style="color:#ff79c6">([[</span>$class<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;UsernamePasswordMultiBinding&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">credentialsId:</span> <span style="color:#f1fa8c">&#39;dockerhub&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">usernameVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_USER&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">passwordVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_PASSWORD&#39;</span><span style="color:#ff79c6">]])</span> <span style="color:#ff79c6">{</span>
+          container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;docker&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+            echo <span style="color:#f1fa8c">&#34;3. 构建 Docker 镜像阶段&#34;</span>
+            sh <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">              docker login ${dockerRegistryUrl} -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+</span><span style="color:#f1fa8c">              docker build -t ${image}:${imageTag} .
+</span><span style="color:#f1fa8c">              docker push ${image}:${imageTag}
+</span><span style="color:#f1fa8c">              &#34;&#34;&#34;</span>
+          <span style="color:#ff79c6">}</span>
+      <span style="color:#ff79c6">}</span>
+    <span style="color:#ff79c6">}</span>
+    stage<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;运行 Helm&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      withCredentials<span style="color:#ff79c6">([[</span>$class<span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#39;UsernamePasswordMultiBinding&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">credentialsId:</span> <span style="color:#f1fa8c">&#39;dockerhub&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">usernameVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_USER&#39;</span><span style="color:#ff79c6">,</span>
+        <span style="color:#8be9fd;font-style:italic">passwordVariable:</span> <span style="color:#f1fa8c">&#39;DOCKER_HUB_PASSWORD&#39;</span><span style="color:#ff79c6">]])</span> <span style="color:#ff79c6">{</span>
+          container<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;helm&#39;</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+            <span style="color:#6272a4">// todo，也可以做一些其他的分支判断是否要直接部署
+</span><span style="color:#6272a4"></span>            echo <span style="color:#f1fa8c">&#34;4. [INFO] 开始 Helm 部署&#34;</span>
+            helmDeploy<span style="color:#ff79c6">(</span>
+                dry_run     <span style="color:#ff79c6">:</span> <span style="color:#ff79c6">false</span><span style="color:#ff79c6">,</span>
+                name        <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;polling&#34;</span><span style="color:#ff79c6">,</span>
+                chartDir    <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;polling&#34;</span><span style="color:#ff79c6">,</span>
+                namespace   <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;course&#34;</span><span style="color:#ff79c6">,</span>
+                tag         <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;${imageTag}&#34;</span><span style="color:#ff79c6">,</span>
+                image       <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;${image}&#34;</span><span style="color:#ff79c6">,</span>
+                username    <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;${DOCKER_HUB_USER}&#34;</span><span style="color:#ff79c6">,</span>
+                password    <span style="color:#ff79c6">:</span> <span style="color:#f1fa8c">&#34;${DOCKER_HUB_PASSWORD}&#34;</span>
+            <span style="color:#ff79c6">)</span>
+            echo <span style="color:#f1fa8c">&#34;[INFO] Helm 部署应用成功...&#34;</span>
+          <span style="color:#ff79c6">}</span>
+      <span style="color:#ff79c6">}</span>
+    <span style="color:#ff79c6">}</span>
+  <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>由于我们没有将 chart 包放入到 API 服务的代码仓库中，这是因为我们这里使用的 chart 包涉及到两个应用，一个 API 服务，一个是前端展示的服务，所以我们这里是通过脚本里面去主动获取到 chart 包来进行安装的，如果 chart 包跟随代码仓库一起管理当然就要简单许多了。</p>
+<p>现在我们去更新 Jenkinsfile 文件，然后提交到 gitlab 中，然后去观察下 Jenkins 中的构建是否成功，我们重点观察下 Helm 阶段：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/yfilp.png" alt="jenkins helm console">
+
+</p>
+<p>当然我们还可以去做一些必要的判断工作，比如根据分支判断是否需要自动部署等等，同样也可以切换到 Blue Occean 界面查看构建结果。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/sq24p.jpg" alt="jenkins blue occean">
+
+</p>
+<p>现在大家可以尝试去修改下代码，然后提交代码到 gitlab 上，观察下 Jenkins 是否能够自动帮我们完成整个 CI/CD 的过程。</p>
+<p>作业：现在还有一个前端展示的项目：<a href="https://github.com/cnych/polling-app-client">https://github.com/cnych/polling-app-client</a>，大家针对这个项目使用上面的 gitlab + jenkins + harbor + helm 来完成一个 Jenkins Pipeline 流水线的编写，尝试去修改下前端页面内容，看是否能够生效。</p>
+<h2 id="相关链接">相关链接：</h2>
+<ul>
+<li><a href="https://github.com/cnych/polling-helm">https://github.com/cnych/polling-helm</a></li>
+<li><a href="https://github.com/cnych/polling-app-server">https://github.com/cnych/polling-app-server</a></li>
+<li><a href="https://github.com/cnych/polling-app-client">https://github.com/cnych/polling-app-client</a></li>
+</ul>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/helm-chart-tips-and-tricks/" data-toggle="tooltip" data-placement="top" title="Helm Chart 模板开发技巧">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/groovy-simple-tutorial/" data-toggle="tooltip" data-placement="top" title="Groovy 简明教程">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

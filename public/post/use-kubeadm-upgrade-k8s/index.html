@@ -1,0 +1,1517 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="使用 kubeadm 更新 kubernetes 集群" />
+    <meta property="og:title" content="使用 kubeadm 更新 kubernetes 集群" />
+    <meta property="twitter:title" content="使用 kubeadm 更新 kubernetes 集群" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>使用 kubeadm 更新 kubernetes 集群-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/use-kubeadm-upgrade-k8s/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                    </div>
+                    <h1>使用 kubeadm 更新 kubernetes 集群</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Saturday, May 18, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#更新集群">更新集群</a></li>
+        <li><a href="#更新-kubelet">更新 kubelet</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>由于课程中的集群版本是 v1.10.0，这个版本相对有点旧了，最新版本都已经 v1.14.x 了，为了尽量保证课程内容的更新度，所以我们需要将集群版本更新。我们的集群是使用的 kubeadm 搭建的，我们知道使用 kubeadm 搭建的集群来更新是非常方便的，但是由于我们这里版本跨度太大，不能直接从 1.10.x 更新到 1.14.x，kubeadm 的更新是不支持跨多个主版本的，所以我们现在是 1.10，只能更新到 1.11 版本了，然后再重 1.11 更新到 1.12&hellip;&hellip; 不过版本更新的方式方法基本上都是一样的，所以后面要更新的话也挺简单了，下面我们就先将集群更新到 v1.11.0 版本。</p>
+<h2 id="更新集群">更新集群</h2>
+<p>首先我们保留 kubeadm config 文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubeadm config view
+api:
+  advertiseAddress: 10.151.30.11
+  bindPort: <span style="color:#bd93f9">6443</span>
+  controlPlaneEndpoint: <span style="color:#f1fa8c">&#34;&#34;</span>
+auditPolicy:
+  logDir: /var/log/kubernetes/audit
+  logMaxAge: <span style="color:#bd93f9">2</span>
+  path: <span style="color:#f1fa8c">&#34;&#34;</span>
+authorizationModes:
+- Node
+- RBAC
+certificatesDir: /etc/kubernetes/pki
+cloudProvider: <span style="color:#f1fa8c">&#34;&#34;</span>
+criSocket: /var/run/dockershim.sock
+etcd:
+  caFile: <span style="color:#f1fa8c">&#34;&#34;</span>
+  certFile: <span style="color:#f1fa8c">&#34;&#34;</span>
+  dataDir: /var/lib/etcd
+  endpoints: null
+  image: <span style="color:#f1fa8c">&#34;&#34;</span>
+  keyFile: <span style="color:#f1fa8c">&#34;&#34;</span>
+imageRepository: k8s.gcr.io
+kubeProxy:
+  config:
+    bindAddress: 0.0.0.0
+    clientConnection:
+      acceptContentTypes: <span style="color:#f1fa8c">&#34;&#34;</span>
+      burst: <span style="color:#bd93f9">10</span>
+      contentType: application/vnd.kubernetes.protobuf
+      kubeconfig: /var/lib/kube-proxy/kubeconfig.conf
+      qps: <span style="color:#bd93f9">5</span>
+    clusterCIDR: 10.244.0.0/16
+    configSyncPeriod: 15m0s
+    conntrack:
+      max: null
+      maxPerCore: <span style="color:#bd93f9">32768</span>
+      min: <span style="color:#bd93f9">131072</span>
+      tcpCloseWaitTimeout: 1h0m0s
+      tcpEstablishedTimeout: 24h0m0s
+    enableProfiling: <span style="color:#8be9fd;font-style:italic">false</span>
+    healthzBindAddress: 0.0.0.0:10256
+    hostnameOverride: <span style="color:#f1fa8c">&#34;&#34;</span>
+    iptables:
+      masqueradeAll: <span style="color:#8be9fd;font-style:italic">false</span>
+      masqueradeBit: <span style="color:#bd93f9">14</span>
+      minSyncPeriod: 0s
+      syncPeriod: 30s
+    ipvs:
+      minSyncPeriod: 0s
+      scheduler: <span style="color:#f1fa8c">&#34;&#34;</span>
+      syncPeriod: 30s
+    metricsBindAddress: 127.0.0.1:10249
+    mode: <span style="color:#f1fa8c">&#34;&#34;</span>
+    nodePortAddresses: null
+    oomScoreAdj: -999
+    portRange: <span style="color:#f1fa8c">&#34;&#34;</span>
+    resourceContainer: /kube-proxy
+    udpIdleTimeout: 250ms
+kubeletConfiguration: <span style="color:#ff79c6">{}</span>
+kubernetesVersion: v1.10.0
+networking:
+  dnsDomain: cluster.local
+  podSubnet: 10.244.0.0/16
+  serviceSubnet: 10.96.0.0/12
+nodeName: ydzs-master
+privilegedPods: <span style="color:#8be9fd;font-style:italic">false</span>
+token: <span style="color:#f1fa8c">&#34;&#34;</span>
+tokenGroups:
+- system:bootstrappers:kubeadm:default-node-token
+tokenTTL: 24h0m0s
+tokenUsages:
+- signing
+- authentication
+unifiedControlPlaneImage: <span style="color:#f1fa8c">&#34;&#34;</span>
+</code></pre></div><p>将上面的imageRepository值更改为：gcr.azk8s.cn/google_containers，然后保存内容到文件 kubeadm-config.yaml 中（当然如果你的集群可以获取到 grc.io 的镜像可以不用更改）。</p>
+<p>然后更新 kubeadm:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ yum makecache fast <span style="color:#ff79c6">&amp;&amp;</span> yum install -y kubeadm-1.11.0-0 kubectl-1.11.0-0
+$ kubeadm version
+kubeadm version: &amp;version.Info<span style="color:#ff79c6">{</span>Major:<span style="color:#f1fa8c">&#34;1&#34;</span>, Minor:<span style="color:#f1fa8c">&#34;11&#34;</span>, GitVersion:<span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;91e7b4fd31fcd3d5f436da26c980becec37ceefe&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, BuildDate:<span style="color:#f1fa8c">&#34;2018-06-27T20:14:41Z&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.10.2&#34;</span>, Compiler:<span style="color:#f1fa8c">&#34;gc&#34;</span>, Platform:<span style="color:#f1fa8c">&#34;linux/amd64&#34;</span><span style="color:#ff79c6">}</span>
+</code></pre></div><blockquote>
+<p>因为 kubeadm upgrade plan 命令执行过程中会去 dl.k8s.io 获取版本信息，这个地址是需要科学方法才能访问的，所以我们可以先将 kubeadm 更新到目标版本，然后就可以查看到目标版本升级的一些信息了。</p>
+</blockquote>
+<p>执行 upgrade plan 命令查看是否可以升级：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubeadm upgrade plan
+<span style="color:#ff79c6">[</span>preflight<span style="color:#ff79c6">]</span> Running pre-flight checks.
+<span style="color:#ff79c6">[</span>upgrade<span style="color:#ff79c6">]</span> Making sure the cluster is healthy:
+<span style="color:#ff79c6">[</span>upgrade/config<span style="color:#ff79c6">]</span> Making sure the configuration is correct:
+<span style="color:#ff79c6">[</span>upgrade/config<span style="color:#ff79c6">]</span> Reading configuration from the cluster...
+<span style="color:#ff79c6">[</span>upgrade/config<span style="color:#ff79c6">]</span> FYI: You can look at this config file with <span style="color:#f1fa8c">&#39;kubectl -n kube-system get cm kubeadm-config -oyaml&#39;</span>
+I0518 18:50:12.844665    <span style="color:#bd93f9">9676</span> feature_gate.go:230<span style="color:#ff79c6">]</span> feature gates: &amp;<span style="color:#ff79c6">{</span>map<span style="color:#ff79c6">[]}</span>
+<span style="color:#ff79c6">[</span>upgrade<span style="color:#ff79c6">]</span> Fetching available versions to upgrade to
+<span style="color:#ff79c6">[</span>upgrade/versions<span style="color:#ff79c6">]</span> Cluster version: v1.10.0
+<span style="color:#ff79c6">[</span>upgrade/versions<span style="color:#ff79c6">]</span> kubeadm version: v1.11.0
+<span style="color:#ff79c6">[</span>upgrade/versions<span style="color:#ff79c6">]</span> WARNING: Couldn<span style="color:#f1fa8c">&#39;t fetch latest stable version from the internet: unable to get URL &#34;https://dl.k8s.io/release/stable.txt&#34;: Get https://dl.k8s.io/release/stable.txt: dial tcp 35.201.71.162:443: i/o timeout
+</span><span style="color:#f1fa8c">[upgrade/versions] WARNING: Falling back to current kubeadm version as latest stable version
+</span><span style="color:#f1fa8c">[upgrade/versions] WARNING: Couldn&#39;</span>t fetch latest version in the v1.10 series from the internet: unable to get URL <span style="color:#f1fa8c">&#34;https://dl.k8s.io/release/stable-1.10.txt&#34;</span>: Get https://dl.k8s.io/release/stable-1.10.txt: dial tcp 35.201.71.162:443: i/o timeout
+
+Components that must be upgraded manually after you have upgraded the control plane with <span style="color:#f1fa8c">&#39;kubeadm upgrade apply&#39;</span>:
+COMPONENT   CURRENT       AVAILABLE
+Kubelet     <span style="color:#bd93f9">3</span> x v1.10.0   v1.11.0
+
+Upgrade to the latest stable version:
+
+COMPONENT            CURRENT   AVAILABLE
+API Server           v1.10.0   v1.11.0
+Controller Manager   v1.10.0   v1.11.0
+Scheduler            v1.10.0   v1.11.0
+Kube Proxy           v1.10.0   v1.11.0
+CoreDNS                        1.1.3
+Kube DNS             1.14.8
+Etcd                 3.1.12    3.2.18
+
+You can now apply the upgrade by executing the following command:
+
+	kubeadm upgrade apply v1.11.0
+
+_____________________________________________________________________
+
+</code></pre></div><p>我们可以先使用 dry-run 命令查看升级信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubeadm upgrade apply v1.11.0 --config kubeadm-config.yaml --dry-run
+</code></pre></div><blockquote>
+<p>注意要通过<code>--config</code>指定上面保存的配置文件，该配置文件信息包含了上一个版本的集群信息以及修改搞得镜像地址。</p>
+</blockquote>
+<p>查看了上面的升级信息确认无误后就可以执行升级操作了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubeadm upgrade apply v1.11.0 --config kubeadm-config.yaml
+kubeadm upgrade apply v1.11.0 --config kubeadm-config.yaml
+<span style="color:#ff79c6">[</span>preflight<span style="color:#ff79c6">]</span> Running pre-flight checks.
+I0518 18:57:29.134722   <span style="color:#bd93f9">12284</span> feature_gate.go:230<span style="color:#ff79c6">]</span> feature gates: &amp;<span style="color:#ff79c6">{</span>map<span style="color:#ff79c6">[]}</span>
+<span style="color:#ff79c6">[</span>upgrade<span style="color:#ff79c6">]</span> Making sure the cluster is healthy:
+<span style="color:#ff79c6">[</span>upgrade/config<span style="color:#ff79c6">]</span> Making sure the configuration is correct:
+<span style="color:#ff79c6">[</span>upgrade/config<span style="color:#ff79c6">]</span> Reading configuration options from a file: kubeadm-config.yaml
+I0518 18:57:29.179231   <span style="color:#bd93f9">12284</span> feature_gate.go:230<span style="color:#ff79c6">]</span> feature gates: &amp;<span style="color:#ff79c6">{</span>map<span style="color:#ff79c6">[]}</span>
+<span style="color:#ff79c6">[</span>upgrade/apply<span style="color:#ff79c6">]</span> Respecting the --cri-socket flag that is <span style="color:#8be9fd;font-style:italic">set</span> with higher priority than the config file.
+<span style="color:#ff79c6">[</span>upgrade/version<span style="color:#ff79c6">]</span> You have chosen to change the cluster version to <span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>
+<span style="color:#ff79c6">[</span>upgrade/versions<span style="color:#ff79c6">]</span> Cluster version: v1.10.0
+<span style="color:#ff79c6">[</span>upgrade/versions<span style="color:#ff79c6">]</span> kubeadm version: v1.11.0
+<span style="color:#ff79c6">[</span>upgrade/confirm<span style="color:#ff79c6">]</span> Are you sure you want to proceed with the upgrade? <span style="color:#ff79c6">[</span>y/N<span style="color:#ff79c6">]</span>: y
+<span style="color:#ff79c6">[</span>upgrade/prepull<span style="color:#ff79c6">]</span> Will prepull images <span style="color:#ff79c6">for</span> components <span style="color:#ff79c6">[</span>kube-apiserver kube-controller-manager kube-scheduler etcd<span style="color:#ff79c6">]</span>
+<span style="color:#ff79c6">[</span>upgrade/apply<span style="color:#ff79c6">]</span> Upgrading your Static Pod-hosted control plane to version <span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>...
+Static pod: kube-apiserver-ydzs-master hash: 3abd7df4382a9b60f60819f84de40e11
+Static pod: kube-controller-manager-ydzs-master hash: 1a0f3ccde96238d31012390b61109573
+Static pod: kube-scheduler-ydzs-master hash: 2acb197d598c4730e3f5b159b241a81b
+
+
+</code></pre></div><p>隔一段时间看到如下信息就证明集群升级成功了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">......
+<span style="color:#ff79c6">[</span>bootstraptoken<span style="color:#ff79c6">]</span> configured RBAC rules to allow the csrapprover controller automatically approve CSRs from a Node Bootstrap Token
+<span style="color:#ff79c6">[</span>bootstraptoken<span style="color:#ff79c6">]</span> configured RBAC rules to allow certificate rotation <span style="color:#ff79c6">for</span> all node client certificates in the cluster
+<span style="color:#ff79c6">[</span>addons<span style="color:#ff79c6">]</span> Applied essential addon: CoreDNS
+
+
+<span style="color:#ff79c6">[</span>addons<span style="color:#ff79c6">]</span> Applied essential addon: kube-proxy
+
+<span style="color:#ff79c6">[</span>upgrade/successful<span style="color:#ff79c6">]</span> SUCCESS! Your cluster was upgraded to <span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>. Enjoy!
+
+<span style="color:#ff79c6">[</span>upgrade/kubelet<span style="color:#ff79c6">]</span> Now that your control plane is upgraded, please proceed with upgrading your kubelets <span style="color:#ff79c6">if</span> you haven&#39;t already <span style="color:#ff79c6">done</span> so.
+</code></pre></div><p>由于上面我们已经更新过 kubectl 了，现在我们用 kubectl 来查看下版本信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl version
+Client Version: version.Info<span style="color:#ff79c6">{</span>Major:<span style="color:#f1fa8c">&#34;1&#34;</span>, Minor:<span style="color:#f1fa8c">&#34;11&#34;</span>, GitVersion:<span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;91e7b4fd31fcd3d5f436da26c980becec37ceefe&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, BuildDate:<span style="color:#f1fa8c">&#34;2018-06-27T20:17:28Z&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.10.2&#34;</span>, Compiler:<span style="color:#f1fa8c">&#34;gc&#34;</span>, Platform:<span style="color:#f1fa8c">&#34;linux/amd64&#34;</span><span style="color:#ff79c6">}</span>
+Server Version: version.Info<span style="color:#ff79c6">{</span>Major:<span style="color:#f1fa8c">&#34;1&#34;</span>, Minor:<span style="color:#f1fa8c">&#34;11&#34;</span>, GitVersion:<span style="color:#f1fa8c">&#34;v1.11.0&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;91e7b4fd31fcd3d5f436da26c980becec37ceefe&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, BuildDate:<span style="color:#f1fa8c">&#34;2018-06-27T20:08:34Z&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.10.2&#34;</span>, Compiler:<span style="color:#f1fa8c">&#34;gc&#34;</span>, Platform:<span style="color:#f1fa8c">&#34;linux/amd64&#34;</span><span style="color:#ff79c6">}</span>
+</code></pre></div><p>可以看到现在 Server 端和 Client 端都已经是 v1.11.0 版本了，然后查看下 Pod 信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-system
+NAME                                             READY     STATUS    RESTARTS   AGE
+authproxy-oauth2-proxy-798cff85fc-pc8x5          1/1       Running   <span style="color:#bd93f9">0</span>          34d
+cert-manager-796fb45d79-wcrfp                    1/1       Running   <span style="color:#bd93f9">2</span>          34d
+coredns-7f6746b7f-2cs2x                          1/1       Running   <span style="color:#bd93f9">0</span>          5m
+coredns-7f6746b7f-clphf                          1/1       Running   <span style="color:#bd93f9">0</span>          5m
+etcd-ydzs-master                                 1/1       Running   <span style="color:#bd93f9">0</span>          10m
+kube-apiserver-ydzs-master                       1/1       Running   <span style="color:#bd93f9">0</span>          7m
+kube-controller-manager-ydzs-master              1/1       Running   <span style="color:#bd93f9">0</span>          7m
+kube-flannel-ds-amd64-jxzq9                      1/1       Running   <span style="color:#bd93f9">8</span>          64d
+kube-flannel-ds-amd64-r56r9                      1/1       Running   <span style="color:#bd93f9">3</span>          64d
+kube-flannel-ds-amd64-xw9fx                      1/1       Running   <span style="color:#bd93f9">2</span>          64d
+kube-proxy-gqvdg                                 1/1       Running   <span style="color:#bd93f9">0</span>          3m
+kube-proxy-sn7xb                                 1/1       Running   <span style="color:#bd93f9">0</span>          3m
+kube-proxy-vbrr7                                 1/1       Running   <span style="color:#bd93f9">0</span>          2m
+kube-scheduler-ydzs-master                       1/1       Running   <span style="color:#bd93f9">0</span>          6m
+nginx-ingress-controller-587b4c68bf-vsqgm        1/1       Running   <span style="color:#bd93f9">2</span>          34d
+nginx-ingress-default-backend-64fd9fd685-lmxhw   1/1       Running   <span style="color:#bd93f9">1</span>          34d
+tiller-deploy-847cfb9744-5cvh8                   1/1       Running   <span style="color:#bd93f9">0</span>          4d
+</code></pre></div><h2 id="更新-kubelet">更新 kubelet</h2>
+<p>可以看到我们之前的 kube-dns 服务已经被 coredns 取代了，这是因为在 v1.11.0 版本后就默认使用 coredns 了，我们也可以访问下集群中的服务看是否有影响，然后查看下集群的 Node 信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get nodes
+NAME          STATUS    ROLES     AGE       VERSION
+ydzs-master   Ready     master    64d       v1.10.0
+ydzs-node1    Ready     &lt;none&gt;    64d       v1.10.0
+ydzs-node2    Ready     &lt;none&gt;    64d       v1.10.0
+</code></pre></div><p>可以看到版本并没有更新，这是因为节点上的 kubelet 还没有更新的，我们可以通过 kubelet 查看下版本：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubelet --version
+Kubernetes v1.10.0
+</code></pre></div><p>这个时候我们去手动更新下 kubelet：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ yum install -y kubelet-1.11.0-0
+<span style="color:#6272a4"># 安装完成后查看下版本</span>
+$ kubelet --version
+Kubernetes v1.11.0
+<span style="color:#6272a4"># 然后重启 kubelet 服务</span>
+$ systemctl daemon-reload
+$ systemctl restart kubelet
+$ kubectl get nodes
+NAME          STATUS     ROLES     AGE       VERSION
+ydzs-master   Ready   master    64d       v1.11.0
+ydzs-node1    Ready      &lt;none&gt;    64d       v1.10.0
+ydzs-node2    Ready      &lt;none&gt;    64d       v1.10.0
+</code></pre></div><p>注意事项：</p>
+<ul>
+<li>如果节点上 swap 没有关掉重启 kubelet 服务会报错，所以最好是关掉 swap，执行命令：<code>swapoff -a</code> 即可。</li>
+<li>1.11.0 版本的 kubelet 默认使用的<code>pod-infra-container-image</code>镜像名称为：<code>k8s.gcr.io/pause:3.1</code>，所以最好先提前查看下集群节点上是否有这个镜像，因为我们之前 1.10.0 版本的集群默认的名字为<code>k8s.gcr.io/pause-amd64:3.1</code>，所以如果节点上还是之前的 pause 镜像的话，需要先重新打下镜像 tag：</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker tag k8s.gcr.io/pause-amd64:3.1 k8s.gcr.io/pause:3.1
+</code></pre></div><p>没有的话可以提前下载到节点上也可以通过配置参数进行指定，在文件<code>/var/lib/kubelet/kubeadm-flags.env</code>中添加如下参数信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#8be9fd;font-style:italic">KUBELET_KUBEADM_ARGS</span><span style="color:#ff79c6">=</span>--cgroup-driver<span style="color:#ff79c6">=</span>cgroupfs --cni-bin-dir<span style="color:#ff79c6">=</span>/opt/cni/bin --cni-conf-dir<span style="color:#ff79c6">=</span>/etc/cni/net.d --network-plugin<span style="color:#ff79c6">=</span>cni --pod-infra-container-image<span style="color:#ff79c6">=</span>cnych/pause-amd64:3.1
+</code></pre></div><p>可以看到我们更新了 kubelet 的节点版本信息已经更新了，同样的方式去把另外两个节点 kubelet 更新即可。</p>
+<blockquote>
+<p>另外需要注意的是最好在节点上的 kubelet 更新之前将节点设置为不可调度，更新完成后再设置回来，可以避免不必要的错误。</p>
+</blockquote>
+<p>最后看下升级后的集群：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get nodes
+NAME          STATUS    ROLES     AGE       VERSION
+ydzs-master   Ready     master    64d       v1.11.0
+ydzs-node1    Ready     &lt;none&gt;    64d       v1.11.0
+ydzs-node2    Ready     &lt;none&gt;    64d       v1.11.0
+</code></pre></div><p>到这里我们的集群就升级成功了，我们可以用同样的方法将集群升级到 v1.12.x、v1.13.x、v1.14.x 版本，而且升级过程中是不会影响到现有业务的。</p>
+<p>更新集群后遇到一个问题是，其中一个节点上的 Pod 的 IP 没有使用 cni0 网桥的网段，而是使用的 docker0 的网段，比较奇怪，我们使用的 CNI 模式，而且查看了 Flannel 的相关配置参数都没有问题的，重新将虚拟网络设备重置了，然后重启该节点的 Pod 后:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ifconfig cni0 down
+$ ip link delete cni0
+$ ifconfig flannel.1 down
+$ ip link delete flannel.1
+$ rm -rf /var/lib/cni/
+</code></pre></div><p>更奇怪的是 cni0 网桥死活创建不出来了，最后是重新使用 kubeadm reset 了，重新加入集群才解决这个问题：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubeadm reset
+<span style="color:#6272a4"># 使用下面命令获取加入节点的命令</span>
+$ kubeadm token create --print-join-command
+I0523 23:28:11.496418   <span style="color:#bd93f9">18560</span> feature_gate.go:230<span style="color:#ff79c6">]</span> feature gates: &amp;<span style="color:#ff79c6">{</span>map<span style="color:#ff79c6">[]}</span>
+kubeadm join 10.151.30.11:6443 --token r7ilky.ppyy90a4ernkq7pj --discovery-token-ca-cert-hash sha256:e605d6877e7cfaebef38c8f3d4649204e189d0d02b23f997e4e65f17bebe3fa7
+</code></pre></div><p>重新执行上面的 join 命令，重新加入节点后恢复正常。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/kubelet-sync-node-status/" data-toggle="tooltip" data-placement="top" title="Kubelet 状态更新机制">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/install-metrics-server/" data-toggle="tooltip" data-placement="top" title="Metrics Server 安装">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

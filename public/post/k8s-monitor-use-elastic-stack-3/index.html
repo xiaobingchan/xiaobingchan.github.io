@@ -1,0 +1,1549 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="使用 Elastic 技术栈构建 K8S 全栈监控(3/4)" />
+    <meta property="og:title" content="使用 Elastic 技术栈构建 K8S 全栈监控(3/4)" />
+    <meta property="twitter:title" content="使用 Elastic 技术栈构建 K8S 全栈监控(3/4)" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>使用 Elastic 技术栈构建 K8S 全栈监控(3/4)-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/k8s-monitor-use-elastic-stack-3/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/filebeat" title="filebeat">
+                            filebeat
+                        </a>
+                        
+                    </div>
+                    <h1>使用 Elastic 技术栈构建 K8S 全栈监控(3/4)</h1>
+                    <h2 class="subheading">使用 Filebeat 采集 Kubernetes 集群日志</h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Thursday, July 9, 2020
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents"></nav>
+                
+                <p>在本节中我们将要安装配置 <a href="https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-overview.html">Filebeat</a> 来收集 Kubernetes 集群中的日志数据，然后发送到 ElasticSearch 去中，Filebeat 是一个轻量级的日志采集代理，还可以配置特定的<a href="https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-modules.html">模块</a>来解析和可视化应用（比如数据库、Nginx 等）的日志格式。</p>
+<p>和 Metricbeat 类似，Filebeat 也需要一个配置文件来设置和 ElasticSearch 的链接信息、和 Kibana 的连接已经日志采集和解析的方式。</p>
+<p>如下所示的 ConfigMap 资源对象就是我们这里用于日志采集的配置信息（可以从<a href="https://www.elastic.co/guide/en/beats/filebeat/current/filebeat-reference-yml.html">官方网站</a>上获取完整的可配置信息）:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#6272a4"># filebeat.settings.configmap.yml</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ConfigMap
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">namespace</span>: elastic
+  <span style="color:#ff79c6">name</span>: filebeat-config
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: filebeat
+<span style="color:#ff79c6">data</span>:
+  <span style="color:#ff79c6">filebeat.yml</span>: |-<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    filebeat.inputs:
+</span><span style="color:#f1fa8c">    - type: container
+</span><span style="color:#f1fa8c">      enabled: true
+</span><span style="color:#f1fa8c">      paths:
+</span><span style="color:#f1fa8c">      - /var/log/containers/*.log
+</span><span style="color:#f1fa8c">      processors:
+</span><span style="color:#f1fa8c">      - add_kubernetes_metadata:
+</span><span style="color:#f1fa8c">          in_cluster: true
+</span><span style="color:#f1fa8c">          host: ${NODE_NAME}
+</span><span style="color:#f1fa8c">          matchers:
+</span><span style="color:#f1fa8c">          - logs_path:
+</span><span style="color:#f1fa8c">              logs_path: &#34;/var/log/containers/&#34;
+</span><span style="color:#f1fa8c">    
+</span><span style="color:#f1fa8c">    filebeat.autodiscover:
+</span><span style="color:#f1fa8c">      providers:
+</span><span style="color:#f1fa8c">        - type: kubernetes
+</span><span style="color:#f1fa8c">          templates:
+</span><span style="color:#f1fa8c">            - condition.equals:
+</span><span style="color:#f1fa8c">                kubernetes.labels.app: mongo
+</span><span style="color:#f1fa8c">              config:
+</span><span style="color:#f1fa8c">                - module: mongodb
+</span><span style="color:#f1fa8c">                  enabled: true
+</span><span style="color:#f1fa8c">                  log:
+</span><span style="color:#f1fa8c">                    input:
+</span><span style="color:#f1fa8c">                      type: docker
+</span><span style="color:#f1fa8c">                      containers.ids:
+</span><span style="color:#f1fa8c">                        - ${data.kubernetes.container.id}
+</span><span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    processors:
+</span><span style="color:#f1fa8c">      - drop_event:
+</span><span style="color:#f1fa8c">          when.or:
+</span><span style="color:#f1fa8c">              - and:
+</span><span style="color:#f1fa8c">                  - regexp:
+</span><span style="color:#f1fa8c">                      message: &#39;^\d+\.\d+\.\d+\.\d+ &#39;
+</span><span style="color:#f1fa8c">                  - equals:
+</span><span style="color:#f1fa8c">                      fileset.name: error
+</span><span style="color:#f1fa8c">              - and:
+</span><span style="color:#f1fa8c">                  - not:
+</span><span style="color:#f1fa8c">                      regexp:
+</span><span style="color:#f1fa8c">                          message: &#39;^\d+\.\d+\.\d+\.\d+ &#39;
+</span><span style="color:#f1fa8c">                  - equals:
+</span><span style="color:#f1fa8c">                      fileset.name: access
+</span><span style="color:#f1fa8c">      - add_cloud_metadata:
+</span><span style="color:#f1fa8c">      - add_kubernetes_metadata:
+</span><span style="color:#f1fa8c">          matchers:
+</span><span style="color:#f1fa8c">          - logs_path:
+</span><span style="color:#f1fa8c">              logs_path: &#34;/var/log/containers/&#34;
+</span><span style="color:#f1fa8c">      - add_docker_metadata:
+</span><span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    output.elasticsearch:
+</span><span style="color:#f1fa8c">      hosts: [&#39;${ELASTICSEARCH_HOST:elasticsearch}:${ELASTICSEARCH_PORT:9200}&#39;]
+</span><span style="color:#f1fa8c">      username: ${ELASTICSEARCH_USERNAME}
+</span><span style="color:#f1fa8c">      password: ${ELASTICSEARCH_PASSWORD}
+</span><span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    setup.kibana:
+</span><span style="color:#f1fa8c">      host: &#39;${KIBANA_HOST:kibana}:${KIBANA_PORT:5601}&#39;
+</span><span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    setup.dashboards.enabled: true
+</span><span style="color:#f1fa8c">    setup.template.enabled: true
+</span><span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    setup.ilm:
+</span><span style="color:#f1fa8c">      policy_file: /etc/indice-lifecycle.json</span>    
+---
+</code></pre></div><p>我们配置采集 <code>/var/log/containers/</code> 下面的所有日志数据，并且使用 <code>inCluster</code> 的模式访问 Kubernetes 的 APIServer，获取日志数据的 Meta 信息，将日志直接发送到  Elasticsearch。</p>
+<p>此外还通过 <code>policy_file</code> 定义了 indice 的回收策略：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#6272a4"># filebeat.indice-lifecycle.configmap.yml</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ConfigMap
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">namespace</span>: elastic
+  <span style="color:#ff79c6">name</span>: filebeat-indice-lifecycle
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: filebeat
+<span style="color:#ff79c6">data</span>:
+  <span style="color:#ff79c6">indice-lifecycle.json</span>: |-<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    {
+</span><span style="color:#f1fa8c">      &#34;policy&#34;: {
+</span><span style="color:#f1fa8c">        &#34;phases&#34;: {
+</span><span style="color:#f1fa8c">          &#34;hot&#34;: {
+</span><span style="color:#f1fa8c">            &#34;actions&#34;: {
+</span><span style="color:#f1fa8c">              &#34;rollover&#34;: {
+</span><span style="color:#f1fa8c">                &#34;max_size&#34;: &#34;5GB&#34; ,
+</span><span style="color:#f1fa8c">                &#34;max_age&#34;: &#34;1d&#34;
+</span><span style="color:#f1fa8c">              }
+</span><span style="color:#f1fa8c">            }
+</span><span style="color:#f1fa8c">          },
+</span><span style="color:#f1fa8c">          &#34;delete&#34;: {
+</span><span style="color:#f1fa8c">            &#34;min_age&#34;: &#34;30d&#34;,
+</span><span style="color:#f1fa8c">            &#34;actions&#34;: {
+</span><span style="color:#f1fa8c">              &#34;delete&#34;: {}
+</span><span style="color:#f1fa8c">            }
+</span><span style="color:#f1fa8c">          }
+</span><span style="color:#f1fa8c">        }
+</span><span style="color:#f1fa8c">      }
+</span><span style="color:#f1fa8c">    }</span>    
+---
+</code></pre></div><p>同样为了采集每个节点上的日志数据，我们这里使用一个 DaemonSet 控制器，使用上面的配置来采集节点的日志。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#6272a4">#filebeat.daemonset.yml</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: DaemonSet
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">namespace</span>: elastic
+  <span style="color:#ff79c6">name</span>: filebeat
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: filebeat
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: filebeat
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: filebeat
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">serviceAccountName</span>: filebeat
+      <span style="color:#ff79c6">terminationGracePeriodSeconds</span>: <span style="color:#bd93f9">30</span>
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: filebeat
+        <span style="color:#ff79c6">image</span>: docker.elastic.co/beats/filebeat:7.8.0
+        <span style="color:#ff79c6">args</span>: [
+          <span style="color:#f1fa8c">&#34;-c&#34;</span>, <span style="color:#f1fa8c">&#34;/etc/filebeat.yml&#34;</span>,
+          <span style="color:#f1fa8c">&#34;-e&#34;</span>,
+        ]
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: ELASTICSEARCH_HOST
+          <span style="color:#ff79c6">value</span>: elasticsearch-client.elastic.svc.cluster.local
+        - <span style="color:#ff79c6">name</span>: ELASTICSEARCH_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;9200&#34;</span>
+        - <span style="color:#ff79c6">name</span>: ELASTICSEARCH_USERNAME
+          <span style="color:#ff79c6">value</span>: elastic
+        - <span style="color:#ff79c6">name</span>: ELASTICSEARCH_PASSWORD
+          <span style="color:#ff79c6">valueFrom</span>:
+            <span style="color:#ff79c6">secretKeyRef</span>:
+              <span style="color:#ff79c6">name</span>: elasticsearch-pw-elastic
+              <span style="color:#ff79c6">key</span>: password
+        - <span style="color:#ff79c6">name</span>: KIBANA_HOST
+          <span style="color:#ff79c6">value</span>: kibana.elastic.svc.cluster.local
+        - <span style="color:#ff79c6">name</span>: KIBANA_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;5601&#34;</span>
+        - <span style="color:#ff79c6">name</span>: NODE_NAME
+          <span style="color:#ff79c6">valueFrom</span>:
+            <span style="color:#ff79c6">fieldRef</span>:
+              <span style="color:#ff79c6">fieldPath</span>: spec.nodeName
+        <span style="color:#ff79c6">securityContext</span>:
+          <span style="color:#ff79c6">runAsUser</span>: <span style="color:#bd93f9">0</span>
+        <span style="color:#ff79c6">resources</span>:
+          <span style="color:#ff79c6">limits</span>:
+            <span style="color:#ff79c6">memory</span>: 200Mi
+          <span style="color:#ff79c6">requests</span>:
+            <span style="color:#ff79c6">cpu</span>: 100m
+            <span style="color:#ff79c6">memory</span>: 100Mi
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: config
+          <span style="color:#ff79c6">mountPath</span>: /etc/filebeat.yml
+          <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+          <span style="color:#ff79c6">subPath</span>: filebeat.yml
+        - <span style="color:#ff79c6">name</span>: filebeat-indice-lifecycle
+          <span style="color:#ff79c6">mountPath</span>: /etc/indice-lifecycle.json
+          <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+          <span style="color:#ff79c6">subPath</span>: indice-lifecycle.json
+        - <span style="color:#ff79c6">name</span>: data
+          <span style="color:#ff79c6">mountPath</span>: /usr/share/filebeat/data
+        - <span style="color:#ff79c6">name</span>: varlog
+          <span style="color:#ff79c6">mountPath</span>: /var/log
+          <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+        - <span style="color:#ff79c6">name</span>: varlibdockercontainers
+          <span style="color:#ff79c6">mountPath</span>: /var/lib/docker/containers
+          <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+        - <span style="color:#ff79c6">name</span>: dockersock
+          <span style="color:#ff79c6">mountPath</span>: /var/run/docker.sock
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: config
+        <span style="color:#ff79c6">configMap</span>:
+          <span style="color:#ff79c6">defaultMode</span>: <span style="color:#bd93f9">0600</span>
+          <span style="color:#ff79c6">name</span>: filebeat-config
+      - <span style="color:#ff79c6">name</span>: filebeat-indice-lifecycle
+        <span style="color:#ff79c6">configMap</span>:
+          <span style="color:#ff79c6">defaultMode</span>: <span style="color:#bd93f9">0600</span>
+          <span style="color:#ff79c6">name</span>: filebeat-indice-lifecycle
+      - <span style="color:#ff79c6">name</span>: varlog
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /var/log
+      - <span style="color:#ff79c6">name</span>: varlibdockercontainers
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /var/lib/docker/containers
+      - <span style="color:#ff79c6">name</span>: dockersock
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /var/run/docker.sock
+      - <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /var/lib/filebeat-data
+          <span style="color:#ff79c6">type</span>: DirectoryOrCreate
+---
+</code></pre></div><p>我们这里使用的是 Kubeadm 搭建的集群，默认 Master 节点是有污点的，所以如果还想采集 Master 节点的日志，还必须加上对应的容忍，我这里不采集就没有添加容忍了。</p>
+<!-- raw HTML omitted -->
+<p>此外由于需要获取日志在 Kubernetes 集群中的 Meta 信息，比如 Pod 名称、所在的命名空间等，所以 Filebeat 需要访问 APIServer，自然就需要对应的 RBAC 权限了，所以还需要进行权限声明：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#6272a4"># filebeat.permission.yml</span>
+---
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1beta1
+<span style="color:#ff79c6">kind</span>: ClusterRoleBinding
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: filebeat
+<span style="color:#ff79c6">subjects</span>:
+- <span style="color:#ff79c6">kind</span>: ServiceAccount
+  <span style="color:#ff79c6">name</span>: filebeat
+  <span style="color:#ff79c6">namespace</span>: elastic
+<span style="color:#ff79c6">roleRef</span>:
+  <span style="color:#ff79c6">kind</span>: ClusterRole
+  <span style="color:#ff79c6">name</span>: filebeat
+  <span style="color:#ff79c6">apiGroup</span>: rbac.authorization.k8s.io
+---
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1beta1
+<span style="color:#ff79c6">kind</span>: ClusterRole
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: filebeat
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: filebeat
+<span style="color:#ff79c6">rules</span>:
+- <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+  <span style="color:#ff79c6">resources</span>:
+  - namespaces
+  - pods
+  <span style="color:#ff79c6">verbs</span>:
+  - get
+  - watch
+  - list
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ServiceAccount
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">namespace</span>: elastic
+  <span style="color:#ff79c6">name</span>: filebeat
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: filebeat
+---
+</code></pre></div><p>然后直接安装部署上面的几个资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ kubectl apply  -f filebeat.settings.configmap.yml <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>                 -f filebeat.indice-lifecycle.configmap.yml <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>                 -f filebeat.daemonset.yml <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>                 -f filebeat.permissions.yml 
+
+configmap/filebeat-config created
+configmap/filebeat-indice-lifecycle created
+daemonset.apps/filebeat created
+clusterrolebinding.rbac.authorization.k8s.io/filebeat created
+clusterrole.rbac.authorization.k8s.io/filebeat created
+serviceaccount/filebeat created
+</code></pre></div><p>当所有的 Filebeat 和 Logstash 的 Pod 都变成 Running 状态后，证明部署完成。现在我们就可以进入到 Kibana 页面中去查看日志了。左侧菜单 Observability → Logs</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200703152916.png" alt="">
+
+</p>
+<p>此外还可以从上节我们提到的 Metrics 页面进入查看 Pod 的日志：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200703153140.png" alt="">
+
+</p>
+<p>点击 <code>Kubernetes Pod logs</code> 获取需要查看的 Pod 日志：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200703153311.png" alt="">
+
+</p>
+<p>如果集群中要采集的日志数据量太大，直接将数据发送给 ElasticSearch，对 ES 压力比较大，这种情况一般可以加一个类似于 Kafka 这样的中间件来缓冲下，或者通过 Logstash 来收集 Filebeat 的日志。</p>
+<p>这里我们就完成了使用 Filebeat 采集 Kubernetes 集群的日志，在下篇文章中，我们继续学习如何使用 Elastic APM 来追踪 Kubernetes 集群应用。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/k8s-monitor-use-elastic-stack-4/" data-toggle="tooltip" data-placement="top" title="使用 Elastic 技术栈构建 K8S 全栈监控(4/4)">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/k8s-monitor-use-elastic-stack-2/" data-toggle="tooltip" data-placement="top" title="使用 Elastic 技术栈构建 K8S 全栈监控(2/4)">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

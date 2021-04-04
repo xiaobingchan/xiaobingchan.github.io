@@ -1,0 +1,1610 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Kubernetes使用Prometheus搭建监控平台" />
+    <meta property="og:title" content="Kubernetes使用Prometheus搭建监控平台" />
+    <meta property="twitter:title" content="Kubernetes使用Prometheus搭建监控平台" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Kubernetes使用Prometheus搭建监控平台-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/kubernetes-monitor-prometheus-grafana/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        <a class="tag" href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        <a class="tag" href="/tags/influxdb" title="influxdb">
+                            influxdb
+                        </a>
+                        
+                    </div>
+                    <h1>Kubernetes使用Prometheus搭建监控平台</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Tuesday, October 17, 2017
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#prometheus-简介">Prometheus 简介</a></li>
+        <li><a href="#安装prometheus">安装Prometheus</a></li>
+        <li><a href="#查询监控数据">查询监控数据</a></li>
+        <li><a href="#安装grafana">安装Grafana</a></li>
+        <li><a href="#总结">总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>最近在测试环境搭建了<code>Kubernetes</code>集群环境，迁移了部分测试环境的应用，由于测试集群性能不是很好，有时会遇到集群资源不够的情况，一般情况下我们是直接通过Dashboard的资源统计图标进行观察的，但是很显然如果要上到生产环境，就需要更自动化的方式来对集群、Pod甚至容器进行监控了。<code>Kubernetes</code>内置了一套监控方案：influxdb+grafana+heapster。但由于之前我们的应用的业务监控使用的是<code>Prometheus</code>，所以这里准备使用<code>Prometheus</code>来完成k8s的集群监控。</p>
+<p>欢迎大家加入我们的知识星球：<code>Kubernetes</code>。
+
+  <img src="/img/xq.png" alt="知识星球">
+
+</p>
+<p>扫描下面的二维码(或微信搜索<code>k8s技术圈</code>)关注我们的微信公众帐号，在微信公众帐号中回复 <strong>加群</strong> 即可加入到我们的 kubernetes 讨论群里面共同学习。
+
+  <img src="/img/posts/qrcode_for_gh_d6dd87b6ceb4_430.jpg" alt="qrcode">
+
+</p>
+<h2 id="prometheus-简介">Prometheus 简介</h2>
+<p><code>Prometheus</code>是SoundCloud开源的一款开源软件。它的实现参考了Google内部的监控实现，与源自Google的Kubernetes结合起来非常合适。另外相比influxdb的方案，性能更加突出，而且还内置了报警功能。它针对大规模的集群环境设计了拉取式的数据采集方式，你只需要在你的应用里面实现一个<code>metrics</code>接口，然后把这个接口告诉<code>Prometheus</code>就可以完成数据采集了。</p>
+<h2 id="安装prometheus">安装Prometheus</h2>
+<p>首先我们使用<code>ConfigMap</code>的形式来设置<code>Prometheus</code>的配置文件，如下</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ConfigMap
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: prometheus-config
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">data</span>:
+  <span style="color:#ff79c6">prometheus.yml</span>: |<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    global:
+</span><span style="color:#f1fa8c">      scrape_interval: 30s
+</span><span style="color:#f1fa8c">      scrape_timeout: 30s
+</span><span style="color:#f1fa8c">    scrape_configs:
+</span><span style="color:#f1fa8c">    - job_name: &#39;prometheus&#39;
+</span><span style="color:#f1fa8c">      static_configs:
+</span><span style="color:#f1fa8c">        - targets: [&#39;localhost:9090&#39;]
+</span><span style="color:#f1fa8c">    - job_name: &#39;kubernetes-nodes-cadvisor&#39;
+</span><span style="color:#f1fa8c">      tls_config:
+</span><span style="color:#f1fa8c">        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+</span><span style="color:#f1fa8c">      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+</span><span style="color:#f1fa8c">      kubernetes_sd_configs:
+</span><span style="color:#f1fa8c">      - api_servers:
+</span><span style="color:#f1fa8c">        - &#39;https://10.43.0.1&#39;
+</span><span style="color:#f1fa8c">        in_cluster: true
+</span><span style="color:#f1fa8c">        role: node
+</span><span style="color:#f1fa8c">      relabel_configs:
+</span><span style="color:#f1fa8c">      - action: labelmap
+</span><span style="color:#f1fa8c">        regex: __meta_kubernetes_node_label_(.+)
+</span><span style="color:#f1fa8c">      - source_labels: [__meta_kubernetes_role]
+</span><span style="color:#f1fa8c">        action: replace
+</span><span style="color:#f1fa8c">        target_label: kubernetes_role
+</span><span style="color:#f1fa8c">      - source_labels: [__address__]
+</span><span style="color:#f1fa8c">        regex: &#39;(.*):10250&#39;
+</span><span style="color:#f1fa8c">        replacement: &#39;${1}:4194&#39;
+</span><span style="color:#f1fa8c">        target_label: __address__
+</span><span style="color:#f1fa8c">    - job_name: &#39;kubernetes-apiserver-cadvisor&#39;
+</span><span style="color:#f1fa8c">      tls_config:
+</span><span style="color:#f1fa8c">        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+</span><span style="color:#f1fa8c">      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+</span><span style="color:#f1fa8c">      kubernetes_sd_configs:
+</span><span style="color:#f1fa8c">      - api_servers:
+</span><span style="color:#f1fa8c">        - &#39;https://10.43.0.1&#39;
+</span><span style="color:#f1fa8c">        in_cluster: true
+</span><span style="color:#f1fa8c">        role: apiserver
+</span><span style="color:#f1fa8c">      relabel_configs:
+</span><span style="color:#f1fa8c">      - action: labelmap
+</span><span style="color:#f1fa8c">        regex: __meta_kubernetes_node_label_(.+)
+</span><span style="color:#f1fa8c">      - source_labels: [__meta_kubernetes_role]
+</span><span style="color:#f1fa8c">        action: replace
+</span><span style="color:#f1fa8c">        target_label: kubernetes_role
+</span><span style="color:#f1fa8c">      - source_labels: [__address__]
+</span><span style="color:#f1fa8c">        regex: &#39;(.*):10250&#39;
+</span><span style="color:#f1fa8c">        replacement: &#39;${1}:10255&#39;
+</span><span style="color:#f1fa8c">        target_label: __address__
+</span><span style="color:#f1fa8c">    - job_name: &#39;kubernetes-node-exporter&#39;
+</span><span style="color:#f1fa8c">      tls_config:
+</span><span style="color:#f1fa8c">        ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+</span><span style="color:#f1fa8c">      bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
+</span><span style="color:#f1fa8c">      kubernetes_sd_configs:
+</span><span style="color:#f1fa8c">      - api_servers:
+</span><span style="color:#f1fa8c">        - &#39;https://10.43.0.1&#39;
+</span><span style="color:#f1fa8c">        in_cluster: true
+</span><span style="color:#f1fa8c">        role: node
+</span><span style="color:#f1fa8c">      relabel_configs:
+</span><span style="color:#f1fa8c">      - action: labelmap
+</span><span style="color:#f1fa8c">        regex: __meta_kubernetes_node_label_(.+)
+</span><span style="color:#f1fa8c">      - source_labels: [__meta_kubernetes_role]
+</span><span style="color:#f1fa8c">        action: replace
+</span><span style="color:#f1fa8c">        target_label: kubernetes_role
+</span><span style="color:#f1fa8c">      - source_labels: [__address__]
+</span><span style="color:#f1fa8c">        regex: &#39;(.*):10250&#39;
+</span><span style="color:#f1fa8c">        replacement: &#39;${1}:31672&#39;
+</span><span style="color:#f1fa8c">        target_label: __address__</span>    
+</code></pre></div><p>将以上配置文件保存为<code>prometheus-config.yaml</code>，然后执行命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f prometheus-config.yaml
+</code></pre></div><p>注意：</p>
+<ul>
+<li><code>job_name=kubernetes-apiserver-cadvisor</code>需要将10250端口替换成10255，10255端口是<code>kubelet</code>实现的<code>metrics</code>，可以在节点上面curl查看内容，<code>curl http://&lt;node_ip&gt;:10255/metrics</code></li>
+<li><code>job_name=kubernetes-nodes-cadvisor</code>需要将10250端口替换成4194，4194同样是kubernetes集成的容器监控服务，在k8s 1.7版本之前的用10255端口即可，但是1.7版本后<code>cadvisor</code>监控的数据没有集成到<code>kubelet</code>的实现里面去了，<a href="https://github.com/kubernetes/kubernetes/issues/48483">这里一定要注意</a></li>
+<li><code>job_name=kubernetes-node-exporter</code>中替换10250的端口是31672，该端口是<code>node-exporter</code>暴露的<code>NodePort</code>端口，这里需要根据实际情况填写。</li>
+</ul>
+<p>先部署<code>node-exporter</code>，为了能够收集每个节点的信息，所以我们这里使用<code>DaemonSet</code>的形式部署PODS：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: DaemonSet
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: node-exporter
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">k8s-app</span>: node-exporter
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">k8s-app</span>: node-exporter
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">image</span>: prom/node-exporter
+        <span style="color:#ff79c6">name</span>: node-exporter
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">9100</span>
+          <span style="color:#ff79c6">protocol</span>: TCP
+          <span style="color:#ff79c6">name</span>: http
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">k8s-app</span>: node-exporter
+  <span style="color:#ff79c6">name</span>: node-exporter
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: http
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">9100</span>
+    <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">31672</span>
+    <span style="color:#ff79c6">protocol</span>: TCP
+  <span style="color:#ff79c6">type</span>: NodePort
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">k8s-app</span>: node-exporter
+</code></pre></div><p>将以上文件保存为<code>node-exporter.yaml</code>，然后执行命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f node-exporter.yaml
+</code></pre></div><p>接下来通过<code>Deployment</code>部署<code>Prometheus</code>,yaml文件如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: prometheus-deployment
+  <span style="color:#ff79c6">name</span>: prometheus
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: prometheus
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">image</span>: prom/prometheus:v1.0.1
+        <span style="color:#ff79c6">name</span>: prometheus
+        <span style="color:#ff79c6">command</span>:
+        - <span style="color:#f1fa8c">&#34;/bin/prometheus&#34;</span>
+        <span style="color:#ff79c6">args</span>:
+        - <span style="color:#f1fa8c">&#34;-config.file=/etc/prometheus/prometheus.yml&#34;</span>
+        - <span style="color:#f1fa8c">&#34;-storage.local.path=/prometheus&#34;</span>
+        - <span style="color:#f1fa8c">&#34;-storage.local.retention=24h&#34;</span>
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">9090</span>
+          <span style="color:#ff79c6">protocol</span>: TCP
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">mountPath</span>: <span style="color:#f1fa8c">&#34;/prometheus&#34;</span>
+          <span style="color:#ff79c6">name</span>: data
+          <span style="color:#ff79c6">subPath</span>: prometheus
+        - <span style="color:#ff79c6">mountPath</span>: <span style="color:#f1fa8c">&#34;/etc/prometheus&#34;</span>
+          <span style="color:#ff79c6">name</span>: config-volume
+        <span style="color:#ff79c6">resources</span>:
+          <span style="color:#ff79c6">requests</span>:
+            <span style="color:#ff79c6">cpu</span>: 100m
+            <span style="color:#ff79c6">memory</span>: 100Mi
+          <span style="color:#ff79c6">limits</span>:
+            <span style="color:#ff79c6">cpu</span>: 200m
+            <span style="color:#ff79c6">memory</span>: 1Gi
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">emptyDir</span>: {}
+      - <span style="color:#ff79c6">configMap</span>:
+          <span style="color:#ff79c6">name</span>: prometheus-config
+        <span style="color:#ff79c6">name</span>: config-volume
+</code></pre></div><p>将以上文件保存为<code>prometheus-deploy.yaml</code>，然后执行命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f prometheus-deploy.yaml
+</code></pre></div><p>接下来暴露服务以便可以访问<code>Prometheus</code>的UI界面，你可以通过<code>kubectl port-forward</code>将它暴露在本地：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ <span style="color:#8be9fd;font-style:italic">POD</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">`</span>kubectl get pod -l <span style="color:#8be9fd;font-style:italic">app</span><span style="color:#ff79c6">=</span>prometheus -n kube-ops -o go-template --template <span style="color:#f1fa8c">&#39;{{range .items}}{{.metadata.name}}{{end}}&#39;</span><span style="color:#f1fa8c">`</span>
+$ kubectl port-forward <span style="color:#8be9fd;font-style:italic">$POD</span> 9090:9090
+</code></pre></div><p>然后用浏览器访问<code>http://localhost:9090</code>就可以访问到Prometheus的界面了。</p>
+<p>我这里通过<code>ingress</code>暴露到外网，yaml文件如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Ingress
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: traefik-default-ingress
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">kubernetes.io/ingress.class</span>: <span style="color:#f1fa8c">&#34;traefik&#34;</span>
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">tls</span>:
+    - <span style="color:#ff79c6">secretName</span>: traefik-ssl
+  <span style="color:#ff79c6">rules</span>:
+  - <span style="color:#ff79c6">host</span>: prometheus.local  <span style="color:#6272a4"># 替换成你的域名</span>
+    <span style="color:#ff79c6">http</span>:
+      <span style="color:#ff79c6">paths</span>:
+      - <span style="color:#ff79c6">path</span>: /
+        <span style="color:#ff79c6">backend</span>:
+          <span style="color:#ff79c6">serviceName</span>: prometheus
+          <span style="color:#ff79c6">servicePort</span>: <span style="color:#bd93f9">9090</span>
+</code></pre></div><p>将以上文件保存为<code>prometheus-ingress.yaml</code>，然后执行命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f prometheus-ingress.yaml
+</code></pre></div><p>然后就可以通过上面<code>traefik</code>中配置的域名进行访问了，可以切换到<code>Status</code>下面的<code>targets</code>查看我们采集的数据是否正常：
+
+  <img src="/img/posts/1508237027871.jpg" alt="Prometheus Targets">
+
+
+可以根据<code>targets</code>下面的提示信息对采集失败的数据进行修正。</p>
+<h2 id="查询监控数据">查询监控数据</h2>
+<p><code>Prometheus</code>提供了API的方式进行数据查询，同样可以使用query语言进行复杂的查询任务，在上面的WEB界面上提供了基本的查询和图形化的展示功能。</p>
+<p>比如查询每个<code>POD</code>的CPU使用情况，查询条件如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">sum by <span style="color:#ff79c6">(</span>pod_name<span style="color:#ff79c6">)(</span> rate<span style="color:#ff79c6">(</span>container_cpu_usage_seconds_total<span style="color:#ff79c6">{</span>image!<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;&#34;</span>, pod_name!<span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;&#34;</span><span style="color:#ff79c6">}[</span>1m<span style="color:#ff79c6">]</span> <span style="color:#ff79c6">)</span> <span style="color:#ff79c6">)</span>
+</code></pre></div><p>注意其中的<code>pod_name</code>和<code>image</code>要根据自己采集的数据进行区分。</p>
+<p>
+  <img src="/img/posts/1508237868056.jpg" alt="CPU使用">
+
+</p>
+<p>更多的查询条件可以参考<a href="https://prometheus.io/docs/introduction/overview/">Prometheus的文档</a>，将来也会逐步介绍，这里就不详细展开了。</p>
+<p>这样通过在<code>Kubernetes</code>上部署<code>Prometheus</code>，在不修改集群的任何配置情况下实现了集群的基本监控功能。</p>
+<h2 id="安装grafana">安装Grafana</h2>
+<p><code>Prometheus</code>以及获取到了我们采集的数据，现在我们需要一个更加强大的图标展示工具，毫无疑问选择<code>grafana</code>，同样的，在<code>Kubernetes</code>环境下面进行安装，yaml文件如下:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: grafana
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">k8s-app</span>: grafana
+        <span style="color:#ff79c6">task</span>: monitoring
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: grafana
+        <span style="color:#ff79c6">image</span>: gcr.io/google_containers/heapster-grafana-amd64:v4.4.3
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">3000</span>
+          <span style="color:#ff79c6">protocol</span>: TCP
+        <span style="color:#ff79c6">resources</span>:
+          <span style="color:#ff79c6">limits</span>:
+            <span style="color:#ff79c6">cpu</span>: 200m
+            <span style="color:#ff79c6">memory</span>: 256Mi
+          <span style="color:#ff79c6">requests</span>:
+            <span style="color:#ff79c6">cpu</span>: 100m
+            <span style="color:#ff79c6">memory</span>: 100Mi
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: ca-certificates
+          <span style="color:#ff79c6">mountPath</span>: /etc/ssl/certs
+          <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+        - <span style="color:#ff79c6">name</span>: grafana-data
+          <span style="color:#ff79c6">mountPath</span>: /var
+          <span style="color:#ff79c6">subPath</span>: grafana
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: INFLUXDB_HOST
+          <span style="color:#ff79c6">value</span>: influxdb
+        - <span style="color:#ff79c6">name</span>: INFLUXDB_SERVICE_URL
+          <span style="color:#ff79c6">value</span>: http://influxdb.kube-ops.svc.cluster.local:8086
+        - <span style="color:#ff79c6">name</span>: GF_SERVER_HTTP_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;3000&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GF_AUTH_BASIC_ENABLED
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;false&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GF_AUTH_ANONYMOUS_ENABLED
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GF_AUTH_ANONYMOUS_ORG_ROLE
+          <span style="color:#ff79c6">value</span>: Admin
+        - <span style="color:#ff79c6">name</span>: GF_SERVER_ROOT_URL
+          <span style="color:#6272a4"># If you&#39;re only using the API Server proxy, set this value instead:</span>
+          <span style="color:#6272a4"># value: /api/v1/proxy/namespaces/kube-system/services/monitoring-grafana/</span>
+          <span style="color:#ff79c6">value</span>: /
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: ca-certificates
+        <span style="color:#ff79c6">hostPath</span>:
+          <span style="color:#ff79c6">path</span>: /etc/ssl/certs
+      - <span style="color:#ff79c6">name</span>: grafana-data
+        <span style="color:#ff79c6">emptyDir</span>: {}
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">kubernetes.io/cluster-service</span>: <span style="color:#f1fa8c">&#39;true&#39;</span>
+    <span style="color:#ff79c6">kubernetes.io/name</span>: grafana
+  <span style="color:#ff79c6">name</span>: grafana
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">3000</span>
+    <span style="color:#ff79c6">targetPort</span>: <span style="color:#bd93f9">3000</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">k8s-app</span>: grafana
+</code></pre></div><p>将以上文件保存为<code>grafana.yaml</code>，然后执行命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f grafana.yaml
+</code></pre></div><p>同样的你可以选择使用<code>kubectl port-forward</code>把端口暴露在本地，或者用<code>ingress</code>将服务暴露在外网进行访问。
+访问<code>grafana</code>WEB界面，将我们上面的<code>Prometheus</code>添加到<code>grafana</code>数据源中去
+
+  <img src="/img/posts/1508238528462.jpg" alt="grafana数据源">
+
+</p>
+<p>然后添加我们的<code>Dashboard</code>，推荐使用<a href="https://grafana.com/dashboards/162">https://grafana.com/dashboards/162</a>，可以下载该页面的dashboard的json文件，然后直接导入到<code>grafana</code>中去，但是需要注意其中的一些参数，需要根据<code>prometheus</code>中采集到实际数据进行填写，比如我们这里采集到容器名是<code>name</code>，而不是<code>io_kubernetes_container_name</code>,最终展示界面如下：
+
+  <img src="/img/posts/1508238899864.jpg" alt="kubernetes monitor dashboard">
+
+</p>
+<h2 id="总结">总结</h2>
+<p>未来将进一步完善<code>Prometheus</code>的使用：</p>
+<ul>
+<li>增加更多的监控数据源</li>
+<li><a href="/post/alertmanager-of-prometheus-in-practice/">使用AlertManager实现异常提醒</a>（DONE）</li>
+</ul>
+<blockquote>
+<p>上面用的<code>yaml</code>文件可以到<code>github</code>上查看<a href="https://github.com/cnych/k8s-repo/tree/master/prometheus">https://github.com/cnych/k8s-repo/tree/master/prometheus</a></p>
+</blockquote>
+<p>欢迎大家加入我们的知识星球：<code>Kubernetes</code>。
+
+  <img src="/img/xq.png" alt="知识星球">
+
+</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/django-decorator-usage/" data-toggle="tooltip" data-placement="top" title="Python装饰器简介">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/kubernetes-rollout-update/" data-toggle="tooltip" data-placement="top" title="Kubernetes Deployment滚动升级">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

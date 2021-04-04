@@ -1,0 +1,1982 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on 青年夏日IT</title>
+    <link>https://qnxr.xyz/tags/</link>
+    <description>Recent content in Tags on 青年夏日IT</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 13 Feb 2021 00:00:00 +0000</lastBuildDate><atom:link href="https://qnxr.xyz/tags/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Kubernetes</title>
+      <link>https://qnxr.xyz/tags/kubernetes/</link>
+      <pubDate>Sat, 13 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubernetes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Service API</title>
+      <link>https://qnxr.xyz/tags/service-api/</link>
+      <pubDate>Sat, 13 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/service-api/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>traefik</title>
+      <link>https://qnxr.xyz/tags/traefik/</link>
+      <pubDate>Sat, 13 Feb 2021 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/traefik/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>coredns</title>
+      <link>https://qnxr.xyz/tags/coredns/</link>
+      <pubDate>Fri, 27 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/coredns/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>网络</title>
+      <link>https://qnxr.xyz/tags/%E7%BD%91%E7%BB%9C/</link>
+      <pubDate>Thu, 26 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E7%BD%91%E7%BB%9C/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>go</title>
+      <link>https://qnxr.xyz/tags/go/</link>
+      <pubDate>Sun, 08 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/go/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Helm</title>
+      <link>https://qnxr.xyz/tags/helm/</link>
+      <pubDate>Sun, 08 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/helm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kustomize</title>
+      <link>https://qnxr.xyz/tags/kustomize/</link>
+      <pubDate>Sun, 08 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kustomize/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>yaml</title>
+      <link>https://qnxr.xyz/tags/yaml/</link>
+      <pubDate>Sun, 08 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/yaml/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ingress</title>
+      <link>https://qnxr.xyz/tags/ingress/</link>
+      <pubDate>Fri, 06 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ingress/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>service</title>
+      <link>https://qnxr.xyz/tags/service/</link>
+      <pubDate>Thu, 05 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/service/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Kafka</title>
+      <link>https://qnxr.xyz/tags/kafka/</link>
+      <pubDate>Sun, 01 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kafka/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Pod</title>
+      <link>https://qnxr.xyz/tags/pod/</link>
+      <pubDate>Sun, 01 Nov 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pod/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Docker</title>
+      <link>https://qnxr.xyz/tags/docker/</link>
+      <pubDate>Thu, 08 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/docker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>KinD</title>
+      <link>https://qnxr.xyz/tags/kind/</link>
+      <pubDate>Thu, 08 Oct 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kind/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>goland</title>
+      <link>https://qnxr.xyz/tags/goland/</link>
+      <pubDate>Mon, 28 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/goland/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>golang</title>
+      <link>https://qnxr.xyz/tags/golang/</link>
+      <pubDate>Mon, 28 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/golang/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vscode</title>
+      <link>https://qnxr.xyz/tags/vscode/</link>
+      <pubDate>Mon, 28 Sep 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/vscode/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubeadm</title>
+      <link>https://qnxr.xyz/tags/kubeadm/</link>
+      <pubDate>Wed, 26 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubeadm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>证书</title>
+      <link>https://qnxr.xyz/tags/%E8%AF%81%E4%B9%A6/</link>
+      <pubDate>Wed, 26 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E8%AF%81%E4%B9%A6/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>grafana</title>
+      <link>https://qnxr.xyz/tags/grafana/</link>
+      <pubDate>Wed, 19 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/grafana/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>loki</title>
+      <link>https://qnxr.xyz/tags/loki/</link>
+      <pubDate>Wed, 19 Aug 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/loki/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Argo</title>
+      <link>https://qnxr.xyz/tags/argo/</link>
+      <pubDate>Wed, 15 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/argo/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>devops</title>
+      <link>https://qnxr.xyz/tags/devops/</link>
+      <pubDate>Wed, 15 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/devops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gitlab</title>
+      <link>https://qnxr.xyz/tags/gitlab/</link>
+      <pubDate>Wed, 15 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/gitlab/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gitops</title>
+      <link>https://qnxr.xyz/tags/gitops/</link>
+      <pubDate>Wed, 15 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/gitops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>APM</title>
+      <link>https://qnxr.xyz/tags/apm/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/apm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>elastic</title>
+      <link>https://qnxr.xyz/tags/elastic/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/elastic/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>filebeat</title>
+      <link>https://qnxr.xyz/tags/filebeat/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/filebeat/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kibana</title>
+      <link>https://qnxr.xyz/tags/kibana/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kibana/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>metricbeat</title>
+      <link>https://qnxr.xyz/tags/metricbeat/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/metricbeat/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>OpenTracing</title>
+      <link>https://qnxr.xyz/tags/opentracing/</link>
+      <pubDate>Thu, 09 Jul 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/opentracing/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>prometheus</title>
+      <link>https://qnxr.xyz/tags/prometheus/</link>
+      <pubDate>Mon, 29 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/prometheus/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ops</title>
+      <link>https://qnxr.xyz/tags/ops/</link>
+      <pubDate>Sat, 20 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ops/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>sealed</title>
+      <link>https://qnxr.xyz/tags/sealed/</link>
+      <pubDate>Sat, 20 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/sealed/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>secrets</title>
+      <link>https://qnxr.xyz/tags/secrets/</link>
+      <pubDate>Sat, 20 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/secrets/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pv</title>
+      <link>https://qnxr.xyz/tags/pv/</link>
+      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pvc</title>
+      <link>https://qnxr.xyz/tags/pvc/</link>
+      <pubDate>Sun, 14 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pvc/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>wsl</title>
+      <link>https://qnxr.xyz/tags/wsl/</link>
+      <pubDate>Fri, 12 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/wsl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>alertmanager</title>
+      <link>https://qnxr.xyz/tags/alertmanager/</link>
+      <pubDate>Sat, 06 Jun 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/alertmanager/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tekton</title>
+      <link>https://qnxr.xyz/tags/tekton/</link>
+      <pubDate>Fri, 29 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/tekton/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>jenkins</title>
+      <link>https://qnxr.xyz/tags/jenkins/</link>
+      <pubDate>Wed, 20 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/jenkins/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>shared library</title>
+      <link>https://qnxr.xyz/tags/shared-library/</link>
+      <pubDate>Wed, 20 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/shared-library/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>共享库</title>
+      <link>https://qnxr.xyz/tags/%E5%85%B1%E4%BA%AB%E5%BA%93/</link>
+      <pubDate>Wed, 20 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%85%B1%E4%BA%AB%E5%BA%93/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>efk</title>
+      <link>https://qnxr.xyz/tags/efk/</link>
+      <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/efk/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>elk</title>
+      <link>https://qnxr.xyz/tags/elk/</link>
+      <pubDate>Thu, 14 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/elk/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>okteto</title>
+      <link>https://qnxr.xyz/tags/okteto/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/okteto/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pycharm</title>
+      <link>https://qnxr.xyz/tags/pycharm/</link>
+      <pubDate>Wed, 13 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pycharm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>微服务</title>
+      <link>https://qnxr.xyz/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/</link>
+      <pubDate>Mon, 11 May 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dockerfile</title>
+      <link>https://qnxr.xyz/tags/dockerfile/</link>
+      <pubDate>Thu, 30 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/dockerfile/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ElasticSearch</title>
+      <link>https://qnxr.xyz/tags/elasticsearch/</link>
+      <pubDate>Tue, 28 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/elasticsearch/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>fluentd</title>
+      <link>https://qnxr.xyz/tags/fluentd/</link>
+      <pubDate>Tue, 28 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/fluentd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cdk8s</title>
+      <link>https://qnxr.xyz/tags/cdk8s/</link>
+      <pubDate>Fri, 24 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cdk8s/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>python</title>
+      <link>https://qnxr.xyz/tags/python/</link>
+      <pubDate>Fri, 24 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/python/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>hpa</title>
+      <link>https://qnxr.xyz/tags/hpa/</link>
+      <pubDate>Tue, 07 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/hpa/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>envoy</title>
+      <link>https://qnxr.xyz/tags/envoy/</link>
+      <pubDate>Fri, 03 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/envoy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Istio</title>
+      <link>https://qnxr.xyz/tags/istio/</link>
+      <pubDate>Fri, 03 Apr 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/istio/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ingress-nginx</title>
+      <link>https://qnxr.xyz/tags/ingress-nginx/</link>
+      <pubDate>Mon, 30 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ingress-nginx/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>nginx</title>
+      <link>https://qnxr.xyz/tags/nginx/</link>
+      <pubDate>Mon, 30 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/nginx/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>operator</title>
+      <link>https://qnxr.xyz/tags/operator/</link>
+      <pubDate>Fri, 27 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/operator/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>descheduler</title>
+      <link>https://qnxr.xyz/tags/descheduler/</link>
+      <pubDate>Mon, 16 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/descheduler/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>scheduler</title>
+      <link>https://qnxr.xyz/tags/scheduler/</link>
+      <pubDate>Mon, 16 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/scheduler/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kui</title>
+      <link>https://qnxr.xyz/tags/kui/</link>
+      <pubDate>Thu, 12 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kui/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubevious</title>
+      <link>https://qnxr.xyz/tags/kubevious/</link>
+      <pubDate>Tue, 10 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubevious/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cobra</title>
+      <link>https://qnxr.xyz/tags/cobra/</link>
+      <pubDate>Mon, 09 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cobra/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>changelog</title>
+      <link>https://qnxr.xyz/tags/changelog/</link>
+      <pubDate>Wed, 04 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/changelog/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>课程</title>
+      <link>https://qnxr.xyz/tags/%E8%AF%BE%E7%A8%8B/</link>
+      <pubDate>Wed, 04 Mar 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E8%AF%BE%E7%A8%8B/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>consul</title>
+      <link>https://qnxr.xyz/tags/consul/</link>
+      <pubDate>Wed, 19 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/consul/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vault</title>
+      <link>https://qnxr.xyz/tags/vault/</link>
+      <pubDate>Wed, 19 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/vault/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>spinnaker</title>
+      <link>https://qnxr.xyz/tags/spinnaker/</link>
+      <pubDate>Tue, 18 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/spinnaker/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cli</title>
+      <link>https://qnxr.xyz/tags/cli/</link>
+      <pubDate>Fri, 14 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cli/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>github</title>
+      <link>https://qnxr.xyz/tags/github/</link>
+      <pubDate>Fri, 14 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/github/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rolling-update</title>
+      <link>https://qnxr.xyz/tags/rolling-update/</link>
+      <pubDate>Tue, 11 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/rolling-update/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rules</title>
+      <link>https://qnxr.xyz/tags/rules/</link>
+      <pubDate>Sat, 14 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/rules/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>blackbox</title>
+      <link>https://qnxr.xyz/tags/blackbox/</link>
+      <pubDate>Fri, 13 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/blackbox/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>haproxy</title>
+      <link>https://qnxr.xyz/tags/haproxy/</link>
+      <pubDate>Sat, 07 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/haproxy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kong</title>
+      <link>https://qnxr.xyz/tags/kong/</link>
+      <pubDate>Sat, 07 Dec 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kong/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>oam</title>
+      <link>https://qnxr.xyz/tags/oam/</link>
+      <pubDate>Mon, 25 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/oam/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rudr</title>
+      <link>https://qnxr.xyz/tags/rudr/</link>
+      <pubDate>Mon, 25 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/rudr/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Capabilities</title>
+      <link>https://qnxr.xyz/tags/capabilities/</link>
+      <pubDate>Mon, 18 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/capabilities/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Gloo</title>
+      <link>https://qnxr.xyz/tags/gloo/</link>
+      <pubDate>Fri, 15 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/gloo/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ceph</title>
+      <link>https://qnxr.xyz/tags/ceph/</link>
+      <pubDate>Mon, 11 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ceph/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>rook</title>
+      <link>https://qnxr.xyz/tags/rook/</link>
+      <pubDate>Mon, 11 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/rook/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>k8s技术圈</title>
+      <link>https://qnxr.xyz/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88/</link>
+      <pubDate>Sat, 09 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>知识星球</title>
+      <link>https://qnxr.xyz/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83/</link>
+      <pubDate>Sat, 09 Nov 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>灰度</title>
+      <link>https://qnxr.xyz/tags/%E7%81%B0%E5%BA%A6/</link>
+      <pubDate>Fri, 25 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E7%81%B0%E5%BA%A6/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>https</title>
+      <link>https://qnxr.xyz/tags/https/</link>
+      <pubDate>Wed, 16 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/https/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tcp</title>
+      <link>https://qnxr.xyz/tags/tcp/</link>
+      <pubDate>Mon, 14 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/tcp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>jetbrains</title>
+      <link>https://qnxr.xyz/tags/jetbrains/</link>
+      <pubDate>Sun, 06 Oct 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/jetbrains/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>websocket</title>
+      <link>https://qnxr.xyz/tags/websocket/</link>
+      <pubDate>Fri, 27 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/websocket/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>inlets</title>
+      <link>https://qnxr.xyz/tags/inlets/</link>
+      <pubDate>Wed, 25 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/inlets/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>psp</title>
+      <link>https://qnxr.xyz/tags/psp/</link>
+      <pubDate>Sun, 15 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/psp/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>RBAC</title>
+      <link>https://qnxr.xyz/tags/rbac/</link>
+      <pubDate>Sun, 15 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/rbac/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>workflow</title>
+      <link>https://qnxr.xyz/tags/workflow/</link>
+      <pubDate>Tue, 10 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/workflow/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Mash</title>
+      <link>https://qnxr.xyz/tags/mash/</link>
+      <pubDate>Thu, 05 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/mash/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Octant</title>
+      <link>https://qnxr.xyz/tags/octant/</link>
+      <pubDate>Tue, 03 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/octant/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vmware</title>
+      <link>https://qnxr.xyz/tags/vmware/</link>
+      <pubDate>Tue, 03 Sep 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/vmware/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>calico</title>
+      <link>https://qnxr.xyz/tags/calico/</link>
+      <pubDate>Tue, 27 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/calico/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ipvs</title>
+      <link>https://qnxr.xyz/tags/ipvs/</link>
+      <pubDate>Tue, 27 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ipvs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CD</title>
+      <link>https://qnxr.xyz/tags/cd/</link>
+      <pubDate>Sat, 24 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ci</title>
+      <link>https://qnxr.xyz/tags/ci/</link>
+      <pubDate>Sat, 24 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ci/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pipeline</title>
+      <link>https://qnxr.xyz/tags/pipeline/</link>
+      <pubDate>Sat, 24 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pipeline/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>KubeSphere</title>
+      <link>https://qnxr.xyz/tags/kubesphere/</link>
+      <pubDate>Tue, 13 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubesphere/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>drone</title>
+      <link>https://qnxr.xyz/tags/drone/</link>
+      <pubDate>Wed, 07 Aug 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/drone/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>admission</title>
+      <link>https://qnxr.xyz/tags/admission/</link>
+      <pubDate>Fri, 05 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/admission/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>webhook</title>
+      <link>https://qnxr.xyz/tags/webhook/</link>
+      <pubDate>Fri, 05 Jul 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/webhook/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dex</title>
+      <link>https://qnxr.xyz/tags/dex/</link>
+      <pubDate>Fri, 28 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/dex/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubectl</title>
+      <link>https://qnxr.xyz/tags/kubectl/</link>
+      <pubDate>Fri, 28 Jun 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubectl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>101</title>
+      <link>https://qnxr.xyz/tags/101/</link>
+      <pubDate>Wed, 29 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/101/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>metrics-server</title>
+      <link>https://qnxr.xyz/tags/metrics-server/</link>
+      <pubDate>Wed, 22 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/metrics-server/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubelet</title>
+      <link>https://qnxr.xyz/tags/kubelet/</link>
+      <pubDate>Sat, 18 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubelet/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Groovy</title>
+      <link>https://qnxr.xyz/tags/groovy/</link>
+      <pubDate>Mon, 13 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/groovy/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>java</title>
+      <link>https://qnxr.xyz/tags/java/</link>
+      <pubDate>Mon, 13 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/java/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>harbor</title>
+      <link>https://qnxr.xyz/tags/harbor/</link>
+      <pubDate>Sat, 04 May 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/harbor/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>iptables</title>
+      <link>https://qnxr.xyz/tags/iptables/</link>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/iptables/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Netfilter</title>
+      <link>https://qnxr.xyz/tags/netfilter/</link>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/netfilter/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>tcpdump</title>
+      <link>https://qnxr.xyz/tags/tcpdump/</link>
+      <pubDate>Sat, 27 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/tcpdump/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>OSS</title>
+      <link>https://qnxr.xyz/tags/oss/</link>
+      <pubDate>Thu, 25 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/oss/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>图床</title>
+      <link>https://qnxr.xyz/tags/%E5%9B%BE%E5%BA%8A/</link>
+      <pubDate>Thu, 25 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%9B%BE%E5%BA%8A/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>微博</title>
+      <link>https://qnxr.xyz/tags/%E5%BE%AE%E5%8D%9A/</link>
+      <pubDate>Thu, 25 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%BE%AE%E5%8D%9A/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>阿里云</title>
+      <link>https://qnxr.xyz/tags/%E9%98%BF%E9%87%8C%E4%BA%91/</link>
+      <pubDate>Thu, 25 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E9%98%BF%E9%87%8C%E4%BA%91/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>highlight</title>
+      <link>https://qnxr.xyz/tags/highlight/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/highlight/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>keynote</title>
+      <link>https://qnxr.xyz/tags/keynote/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/keynote/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Mac</title>
+      <link>https://qnxr.xyz/tags/mac/</link>
+      <pubDate>Wed, 24 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/mac/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Hugo</title>
+      <link>https://qnxr.xyz/tags/hugo/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/hugo/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Pipes</title>
+      <link>https://qnxr.xyz/tags/pipes/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pipes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>webpack</title>
+      <link>https://qnxr.xyz/tags/webpack/</link>
+      <pubDate>Wed, 17 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/webpack/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Adsense</title>
+      <link>https://qnxr.xyz/tags/adsense/</link>
+      <pubDate>Mon, 15 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/adsense/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>oauth</title>
+      <link>https://qnxr.xyz/tags/oauth/</link>
+      <pubDate>Sun, 14 Apr 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/oauth/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>培训</title>
+      <link>https://qnxr.xyz/tags/%E5%9F%B9%E8%AE%AD/</link>
+      <pubDate>Mon, 18 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%9F%B9%E8%AE%AD/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>redis</title>
+      <link>https://qnxr.xyz/tags/redis/</link>
+      <pubDate>Thu, 07 Mar 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/redis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>metaclass</title>
+      <link>https://qnxr.xyz/tags/metaclass/</link>
+      <pubDate>Tue, 19 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/metaclass/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>AI</title>
+      <link>https://qnxr.xyz/tags/ai/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ai/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>机器学习</title>
+      <link>https://qnxr.xyz/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</link>
+      <pubDate>Mon, 18 Feb 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>django</title>
+      <link>https://qnxr.xyz/tags/django/</link>
+      <pubDate>Tue, 29 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/django/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>mysql</title>
+      <link>https://qnxr.xyz/tags/mysql/</link>
+      <pubDate>Tue, 29 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/mysql/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>deployment</title>
+      <link>https://qnxr.xyz/tags/deployment/</link>
+      <pubDate>Thu, 24 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/deployment/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CKA</title>
+      <link>https://qnxr.xyz/tags/cka/</link>
+      <pubDate>Tue, 15 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cka/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dns</title>
+      <link>https://qnxr.xyz/tags/dns/</link>
+      <pubDate>Fri, 11 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/dns/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>jvm</title>
+      <link>https://qnxr.xyz/tags/jvm/</link>
+      <pubDate>Sat, 05 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/jvm/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>StorageClass</title>
+      <link>https://qnxr.xyz/tags/storageclass/</link>
+      <pubDate>Thu, 20 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/storageclass/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>etcd</title>
+      <link>https://qnxr.xyz/tags/etcd/</link>
+      <pubDate>Tue, 18 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/etcd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>日志</title>
+      <link>https://qnxr.xyz/tags/%E6%97%A5%E5%BF%97/</link>
+      <pubDate>Fri, 14 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%97%A5%E5%BF%97/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>api</title>
+      <link>https://qnxr.xyz/tags/api/</link>
+      <pubDate>Fri, 07 Dec 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/api/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>wayne</title>
+      <link>https://qnxr.xyz/tags/wayne/</link>
+      <pubDate>Mon, 19 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/wayne/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>AlertManger</title>
+      <link>https://qnxr.xyz/tags/alertmanger/</link>
+      <pubDate>Sat, 17 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/alertmanger/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>monitor</title>
+      <link>https://qnxr.xyz/tags/monitor/</link>
+      <pubDate>Mon, 05 Nov 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/monitor/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>affinity</title>
+      <link>https://qnxr.xyz/tags/affinity/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/affinity/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>nodeSelector</title>
+      <link>https://qnxr.xyz/tags/nodeselector/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/nodeselector/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>亲和性</title>
+      <link>https://qnxr.xyz/tags/%E4%BA%B2%E5%92%8C%E6%80%A7/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E4%BA%B2%E5%92%8C%E6%80%A7/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>容忍</title>
+      <link>https://qnxr.xyz/tags/%E5%AE%B9%E5%BF%8D/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%AE%B9%E5%BF%8D/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>污点</title>
+      <link>https://qnxr.xyz/tags/%E6%B1%A1%E7%82%B9/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%B1%A1%E7%82%B9/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>调度</title>
+      <link>https://qnxr.xyz/tags/%E8%B0%83%E5%BA%A6/</link>
+      <pubDate>Thu, 18 Oct 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E8%B0%83%E5%BA%A6/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>并发</title>
+      <link>https://qnxr.xyz/tags/%E5%B9%B6%E5%8F%91/</link>
+      <pubDate>Mon, 17 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%B9%B6%E5%8F%91/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Qos</title>
+      <link>https://qnxr.xyz/tags/qos/</link>
+      <pubDate>Fri, 07 Sep 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/qos/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CloudNative</title>
+      <link>https://qnxr.xyz/tags/cloudnative/</link>
+      <pubDate>Fri, 31 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cloudnative/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>k8s</title>
+      <link>https://qnxr.xyz/tags/k8s/</link>
+      <pubDate>Wed, 29 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/k8s/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>发音</title>
+      <link>https://qnxr.xyz/tags/%E5%8F%91%E9%9F%B3/</link>
+      <pubDate>Sun, 19 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%8F%91%E9%9F%B3/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>kubends</title>
+      <link>https://qnxr.xyz/tags/kubends/</link>
+      <pubDate>Wed, 08 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/kubends/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>blueocean</title>
+      <link>https://qnxr.xyz/tags/blueocean/</link>
+      <pubDate>Thu, 02 Aug 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/blueocean/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>slave</title>
+      <link>https://qnxr.xyz/tags/slave/</link>
+      <pubDate>Sun, 29 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/slave/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ConfigMap</title>
+      <link>https://qnxr.xyz/tags/configmap/</link>
+      <pubDate>Tue, 24 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/configmap/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>nfs</title>
+      <link>https://qnxr.xyz/tags/nfs/</link>
+      <pubDate>Thu, 19 Jul 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/nfs/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>secret</title>
+      <link>https://qnxr.xyz/tags/secret/</link>
+      <pubDate>Wed, 20 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/secret/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CronJob</title>
+      <link>https://qnxr.xyz/tags/cronjob/</link>
+      <pubDate>Sat, 09 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cronjob/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Job</title>
+      <link>https://qnxr.xyz/tags/job/</link>
+      <pubDate>Sat, 09 Jun 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/job/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ubuntu</title>
+      <link>https://qnxr.xyz/tags/ubuntu/</link>
+      <pubDate>Thu, 24 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ubuntu/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Microservice</title>
+      <link>https://qnxr.xyz/tags/microservice/</link>
+      <pubDate>Wed, 23 May 2018 18:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/microservice/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Security</title>
+      <link>https://qnxr.xyz/tags/security/</link>
+      <pubDate>Wed, 23 May 2018 18:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/security/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Bitcoin</title>
+      <link>https://qnxr.xyz/tags/bitcoin/</link>
+      <pubDate>Mon, 21 May 2018 11:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/bitcoin/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Jekyll:q</title>
+      <link>https://qnxr.xyz/tags/jekyllq/</link>
+      <pubDate>Mon, 21 May 2018 11:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/jekyllq/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Travel</title>
+      <link>https://qnxr.xyz/tags/travel/</link>
+      <pubDate>Tue, 01 May 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/travel/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>实战</title>
+      <link>https://qnxr.xyz/tags/%E5%AE%9E%E6%88%98/</link>
+      <pubDate>Mon, 16 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%AE%9E%E6%88%98/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>API Gateway</title>
+      <link>https://qnxr.xyz/tags/api-gateway/</link>
+      <pubDate>Wed, 11 Apr 2018 09:32:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/api-gateway/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>service Mesh</title>
+      <link>https://qnxr.xyz/tags/service-mesh/</link>
+      <pubDate>Wed, 11 Apr 2018 09:32:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/service-mesh/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>一点知识</title>
+      <link>https://qnxr.xyz/tags/%E4%B8%80%E7%82%B9%E7%9F%A5%E8%AF%86/</link>
+      <pubDate>Mon, 02 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E4%B8%80%E7%82%B9%E7%9F%A5%E8%AF%86/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>上线</title>
+      <link>https://qnxr.xyz/tags/%E4%B8%8A%E7%BA%BF/</link>
+      <pubDate>Mon, 02 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E4%B8%8A%E7%BA%BF/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>海马学院</title>
+      <link>https://qnxr.xyz/tags/%E6%B5%B7%E9%A9%AC%E5%AD%A6%E9%99%A2/</link>
+      <pubDate>Mon, 02 Apr 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%B5%B7%E9%A9%AC%E5%AD%A6%E9%99%A2/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>skaffold</title>
+      <link>https://qnxr.xyz/tags/skaffold/</link>
+      <pubDate>Tue, 27 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/skaffold/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>quato</title>
+      <link>https://qnxr.xyz/tags/quato/</link>
+      <pubDate>Fri, 23 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/quato/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>resource</title>
+      <link>https://qnxr.xyz/tags/resource/</link>
+      <pubDate>Fri, 23 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/resource/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Tips</title>
+      <link>https://qnxr.xyz/tags/tips/</link>
+      <pubDate>Tue, 13 Mar 2018 18:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/tips/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gitment</title>
+      <link>https://qnxr.xyz/tags/gitment/</link>
+      <pubDate>Mon, 05 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/gitment/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>downward</title>
+      <link>https://qnxr.xyz/tags/downward/</link>
+      <pubDate>Fri, 02 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/downward/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Algolia</title>
+      <link>https://qnxr.xyz/tags/algolia/</link>
+      <pubDate>Fri, 23 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/algolia/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Secretes</title>
+      <link>https://qnxr.xyz/tags/secretes/</link>
+      <pubDate>Sat, 10 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/secretes/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Vim</title>
+      <link>https://qnxr.xyz/tags/vim/</link>
+      <pubDate>Fri, 09 Feb 2018 11:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/vim/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>alpine</title>
+      <link>https://qnxr.xyz/tags/alpine/</link>
+      <pubDate>Sun, 04 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/alpine/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>PodPreset</title>
+      <link>https://qnxr.xyz/tags/podpreset/</link>
+      <pubDate>Tue, 23 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/podpreset/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>dashboard</title>
+      <link>https://qnxr.xyz/tags/dashboard/</link>
+      <pubDate>Thu, 18 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/dashboard/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>flask</title>
+      <link>https://qnxr.xyz/tags/flask/</link>
+      <pubDate>Sat, 13 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/flask/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>react</title>
+      <link>https://qnxr.xyz/tags/react/</link>
+      <pubDate>Sat, 13 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/react/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>TDD</title>
+      <link>https://qnxr.xyz/tags/tdd/</link>
+      <pubDate>Sat, 13 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/tdd/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>pyenv</title>
+      <link>https://qnxr.xyz/tags/pyenv/</link>
+      <pubDate>Tue, 09 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pyenv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>virtualenv</title>
+      <link>https://qnxr.xyz/tags/virtualenv/</link>
+      <pubDate>Tue, 09 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/virtualenv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>nginmesh</title>
+      <link>https://qnxr.xyz/tags/nginmesh/</link>
+      <pubDate>Tue, 02 Jan 2018 12:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/nginmesh/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>django2.0</title>
+      <link>https://qnxr.xyz/tags/django2.0/</link>
+      <pubDate>Tue, 02 Jan 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/django2.0/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>视频</title>
+      <link>https://qnxr.xyz/tags/%E8%A7%86%E9%A2%91/</link>
+      <pubDate>Tue, 26 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E8%A7%86%E9%A2%91/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>git</title>
+      <link>https://qnxr.xyz/tags/git/</link>
+      <pubDate>Wed, 20 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/git/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>log</title>
+      <link>https://qnxr.xyz/tags/log/</link>
+      <pubDate>Wed, 20 Dec 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/log/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>cluster</title>
+      <link>https://qnxr.xyz/tags/cluster/</link>
+      <pubDate>Tue, 21 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/cluster/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>socket.io</title>
+      <link>https://qnxr.xyz/tags/socket.io/</link>
+      <pubDate>Tue, 21 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/socket.io/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>集群</title>
+      <link>https://qnxr.xyz/tags/%E9%9B%86%E7%BE%A4/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E9%9B%86%E7%BE%A4/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>高可用</title>
+      <link>https://qnxr.xyz/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/</link>
+      <pubDate>Mon, 06 Nov 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E9%AB%98%E5%8F%AF%E7%94%A8/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>PDF</title>
+      <link>https://qnxr.xyz/tags/pdf/</link>
+      <pubDate>Mon, 30 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/pdf/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>服务网格</title>
+      <link>https://qnxr.xyz/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/</link>
+      <pubDate>Sat, 21 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>influxdb</title>
+      <link>https://qnxr.xyz/tags/influxdb/</link>
+      <pubDate>Tue, 17 Oct 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/influxdb/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>装饰器</title>
+      <link>https://qnxr.xyz/tags/%E8%A3%85%E9%A5%B0%E5%99%A8/</link>
+      <pubDate>Mon, 14 Nov 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E8%A3%85%E9%A5%B0%E5%99%A8/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>awk</title>
+      <link>https://qnxr.xyz/tags/awk/</link>
+      <pubDate>Thu, 31 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/awk/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>linux</title>
+      <link>https://qnxr.xyz/tags/linux/</link>
+      <pubDate>Thu, 31 Mar 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/linux/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>301</title>
+      <link>https://qnxr.xyz/tags/301/</link>
+      <pubDate>Sat, 27 Feb 2016 21:21:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/301/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>csv</title>
+      <link>https://qnxr.xyz/tags/csv/</link>
+      <pubDate>Tue, 05 May 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/csv/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>action</title>
+      <link>https://qnxr.xyz/tags/action/</link>
+      <pubDate>Wed, 02 Jul 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/action/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>admin</title>
+      <link>https://qnxr.xyz/tags/admin/</link>
+      <pubDate>Wed, 02 Jul 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/admin/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>url</title>
+      <link>https://qnxr.xyz/tags/url/</link>
+      <pubDate>Fri, 13 Jun 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/url/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Memcached</title>
+      <link>https://qnxr.xyz/tags/memcached/</link>
+      <pubDate>Wed, 28 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/memcached/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>国际化</title>
+      <link>https://qnxr.xyz/tags/%E5%9B%BD%E9%99%85%E5%8C%96/</link>
+      <pubDate>Wed, 28 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E5%9B%BD%E9%99%85%E5%8C%96/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>标签</title>
+      <link>https://qnxr.xyz/tags/%E6%A0%87%E7%AD%BE/</link>
+      <pubDate>Wed, 28 May 2014 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/%E6%A0%87%E7%AD%BE/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>CI/CD</title>
+      <link>https://qnxr.xyz/tags/ci/cd/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/tags/ci/cd/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

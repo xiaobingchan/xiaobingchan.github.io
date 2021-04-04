@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="基于 kubernetes 的动态 jenkins slave" />
+    <meta property="og:title" content="基于 kubernetes 的动态 jenkins slave" />
+    <meta property="twitter:title" content="基于 kubernetes 的动态 jenkins slave" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>基于 kubernetes 的动态 jenkins slave-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/kubernetes-jenkins1/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        <a class="tag" href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        <a class="tag" href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        <a class="tag" href="/tags/ci" title="CI">
+                            CI
+                        </a>
+                        
+                        <a class="tag" href="/tags/cd" title="CD">
+                            CD
+                        </a>
+                        
+                        <a class="tag" href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                    </div>
+                    <h1>基于 kubernetes 的动态 jenkins slave</h1>
+                    <h2 class="subheading">基于 Jenkins 的 CI/CD(一)</h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Saturday, July 28, 2018
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#安装">安装</a></li>
+        <li><a href="#优点">优点</a></li>
+        <li><a href="#配置">配置</a></li>
+        <li><a href="#测试">测试</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>前面的课程中我们学习了持久化数据存储在<code>Kubernetes</code>中的使用方法，其实接下来按照我们的课程进度来说应该是讲解服务发现这一部分的内容的，但是最近有很多同学要求我先讲解下 CI/CD 这块的内容，所以我们先把这块内容提前来讲解了。提到基于<code>Kubernete</code>的<code>CI/CD</code>，可以使用的工具有很多，比如<code>Jenkins</code>、<code>Gitlab CI</code>已经新兴的<code>drone</code>之类的，我们这里会使用大家最为熟悉的<code>Jenkins</code>来做<code>CI/CD</code>的工具。</p>
+<h2 id="安装">安装</h2>
+<p>听我们课程的大部分同学应该都或多或少的听说过<code>Jenkins</code>，我们这里就不再去详细讲述什么是 Jenkins 了，直接进入正题，后面我们会单独的关于 Jenkins 的学习课程，想更加深入学习的同学也可以关注下。既然要基于<code>Kubernetes</code>来做<code>CI/CD</code>，当然我们这里需要将 Jenkins 安装到 Kubernetes 集群当中，新建一个 Deployment：(jenkins2.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">---
+<span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: jenkins2
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: jenkins2
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">terminationGracePeriodSeconds</span>: <span style="color:#bd93f9">10</span>
+      <span style="color:#ff79c6">serviceAccountName</span>: jenkins2
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: jenkins
+        <span style="color:#ff79c6">image</span>: jenkins/jenkins:lts
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">name</span>: web
+          <span style="color:#ff79c6">protocol</span>: TCP
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">50000</span>
+          <span style="color:#ff79c6">name</span>: agent
+          <span style="color:#ff79c6">protocol</span>: TCP
+        <span style="color:#ff79c6">resources</span>:
+          <span style="color:#ff79c6">limits</span>:
+            <span style="color:#ff79c6">cpu</span>: 1000m
+            <span style="color:#ff79c6">memory</span>: 1Gi
+          <span style="color:#ff79c6">requests</span>:
+            <span style="color:#ff79c6">cpu</span>: 500m
+            <span style="color:#ff79c6">memory</span>: 512Mi
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /login
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">60</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">5</span>
+          <span style="color:#ff79c6">failureThreshold</span>: <span style="color:#bd93f9">12</span>
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /login
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">60</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">5</span>
+          <span style="color:#ff79c6">failureThreshold</span>: <span style="color:#bd93f9">12</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: jenkinshome
+          <span style="color:#ff79c6">subPath</span>: jenkins2
+          <span style="color:#ff79c6">mountPath</span>: /var/jenkins_home
+      <span style="color:#ff79c6">securityContext</span>:
+        <span style="color:#ff79c6">fsGroup</span>: <span style="color:#bd93f9">1000</span>
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: jenkinshome
+        <span style="color:#ff79c6">persistentVolumeClaim</span>:
+          <span style="color:#ff79c6">claimName</span>: opspvc
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: jenkins2
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: jenkins2
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: jenkins2
+  <span style="color:#ff79c6">type</span>: NodePort
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: web
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8080</span>
+    <span style="color:#ff79c6">targetPort</span>: web
+    <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">30002</span>
+  - <span style="color:#ff79c6">name</span>: agent
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">50000</span>
+    <span style="color:#ff79c6">targetPort</span>: agent
+</code></pre></div><p>为了方便演示，我们把本节课所有的对象资源都放置在一个名为 kube-ops 的 namespace 下面，所以我们需要添加创建一个 namespace：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create namespace kube-ops
+</code></pre></div><p>我们这里使用一个名为 jenkins/jenkins:lts 的镜像，这是 jenkins 官方的 Docker 镜像，然后也有一些环境变量，当然我们也可以根据自己的需求来定制一个镜像，比如我们可以将一些插件打包在自定义的镜像当中，可以参考文档：<a href="https://github.com/jenkinsci/docker">https://github.com/jenkinsci/docker</a>，我们这里使用默认的官方镜像就行，另外一个还需要注意的是我们将容器的 /var/jenkins_home 目录挂载到了一个名为 opspvc 的 PVC 对象上面，所以我们同样还得提前创建一个对应的 PVC 对象，当然我们也可以使用我们前面的 StorageClass 对象来自动创建：(pvc.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: PersistentVolume
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: opspv
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">capacity</span>:
+    <span style="color:#ff79c6">storage</span>: 20Gi
+  <span style="color:#ff79c6">accessModes</span>:
+  - ReadWriteMany
+  <span style="color:#ff79c6">persistentVolumeReclaimPolicy</span>: Delete
+  <span style="color:#ff79c6">nfs</span>:
+    <span style="color:#ff79c6">server</span>: <span style="color:#bd93f9">10.151.30.57</span>
+    <span style="color:#ff79c6">path</span>: /data/k8s
+
+---
+<span style="color:#ff79c6">kind</span>: PersistentVolumeClaim
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: opspvc
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">accessModes</span>:
+    - ReadWriteMany
+  <span style="color:#ff79c6">resources</span>:
+    <span style="color:#ff79c6">requests</span>:
+      <span style="color:#ff79c6">storage</span>: 20Gi
+</code></pre></div><p>创建需要用到的 PVC 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f pvc.yaml
+</code></pre></div><p>另外我们这里还需要使用到一个拥有相关权限的 serviceAccount：jenkins2，我们这里只是给 jenkins 赋予了一些必要的权限，当然如果你对 serviceAccount 的权限不是很熟悉的话，我们给这个 sa 绑定一个 cluster-admin 的集群角色权限也是可以的，当然这样具有一定的安全风险：（rbac.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ServiceAccount
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: jenkins2
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+
+---
+
+<span style="color:#ff79c6">kind</span>: ClusterRole
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1beta1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: jenkins2
+<span style="color:#ff79c6">rules</span>:
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;extensions&#34;</span>, <span style="color:#f1fa8c">&#34;apps&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;deployments&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>, <span style="color:#f1fa8c">&#34;delete&#34;</span>, <span style="color:#f1fa8c">&#34;get&#34;</span>, <span style="color:#f1fa8c">&#34;list&#34;</span>, <span style="color:#f1fa8c">&#34;watch&#34;</span>, <span style="color:#f1fa8c">&#34;patch&#34;</span>, <span style="color:#f1fa8c">&#34;update&#34;</span>]
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;services&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>, <span style="color:#f1fa8c">&#34;delete&#34;</span>, <span style="color:#f1fa8c">&#34;get&#34;</span>, <span style="color:#f1fa8c">&#34;list&#34;</span>, <span style="color:#f1fa8c">&#34;watch&#34;</span>, <span style="color:#f1fa8c">&#34;patch&#34;</span>, <span style="color:#f1fa8c">&#34;update&#34;</span>]
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;pods&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>,<span style="color:#f1fa8c">&#34;delete&#34;</span>,<span style="color:#f1fa8c">&#34;get&#34;</span>,<span style="color:#f1fa8c">&#34;list&#34;</span>,<span style="color:#f1fa8c">&#34;patch&#34;</span>,<span style="color:#f1fa8c">&#34;update&#34;</span>,<span style="color:#f1fa8c">&#34;watch&#34;</span>]
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;pods/exec&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>,<span style="color:#f1fa8c">&#34;delete&#34;</span>,<span style="color:#f1fa8c">&#34;get&#34;</span>,<span style="color:#f1fa8c">&#34;list&#34;</span>,<span style="color:#f1fa8c">&#34;patch&#34;</span>,<span style="color:#f1fa8c">&#34;update&#34;</span>,<span style="color:#f1fa8c">&#34;watch&#34;</span>]
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;pods/log&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;get&#34;</span>,<span style="color:#f1fa8c">&#34;list&#34;</span>,<span style="color:#f1fa8c">&#34;watch&#34;</span>]
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;secrets&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;get&#34;</span>]
+
+---
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1beta1
+<span style="color:#ff79c6">kind</span>: ClusterRoleBinding
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: jenkins2
+<span style="color:#ff79c6">roleRef</span>:
+  <span style="color:#ff79c6">apiGroup</span>: rbac.authorization.k8s.io
+  <span style="color:#ff79c6">kind</span>: ClusterRole
+  <span style="color:#ff79c6">name</span>: jenkins2
+<span style="color:#ff79c6">subjects</span>:
+  - <span style="color:#ff79c6">kind</span>: ServiceAccount
+    <span style="color:#ff79c6">name</span>: jenkins2
+    <span style="color:#ff79c6">namespace</span>: kube-ops
+</code></pre></div><p>创建 rbac 相关的资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f rbac.yaml
+serviceaccount <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> created
+role.rbac.authorization.k8s.io <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> created
+rolebinding.rbac.authorization.k8s.io <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> created
+</code></pre></div><p>最后为了方便我们测试，我们这里通过 NodePort 的形式来暴露 Jenkins 的 web 服务，固定为30002端口，另外还需要暴露一个 agent 的端口，这个端口主要是用于 Jenkins 的 master 和 slave 之间通信使用的。</p>
+<p>一切准备的资源准备好过后，我们直接创建 Jenkins 服务：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">$ kubectl create -f jenkins2.yaml
+deployment.extensions &#34;jenkins2&#34; created
+service &#34;jenkins2&#34; created
+</code></pre></div><p>创建完成后，要去拉取镜像可能需要等待一会儿，然后我们查看下 Pod 的状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                        READY     STATUS    RESTARTS   AGE
+jenkins2-7f5494cd44-pqpzs   0/1       Running   <span style="color:#bd93f9">0</span>          2m
+</code></pre></div><p>可以看到该 Pod 处于 Running 状态，但是 READY 值确为0，然后我们用 describe 命令去查看下该 Pod 的详细信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl describe pod jenkins2-7f5494cd44-pqpzs -n kube-ops
+...
+Normal   Created                3m                kubelet, node01    Created container
+  Normal   Started                3m                kubelet, node01    Started container
+  Warning  Unhealthy              1m <span style="color:#ff79c6">(</span>x10 over 2m<span style="color:#ff79c6">)</span>  kubelet, node01    Liveness probe failed: Get http://10.244.1.165:8080/login: dial tcp 10.244.1.165:8080: getsockopt: connection refused
+  Warning  Unhealthy              1m <span style="color:#ff79c6">(</span>x10 over 2m<span style="color:#ff79c6">)</span>  kubelet, node01    Readiness probe failed: Get http://10.244.1.165:8080/login: dial tcp 10.244.1.165:8080: getsockopt: connection refused
+</code></pre></div><p>可以看到上面的 Warning 信息，健康检查没有通过，具体原因是什么引起的呢？可以通过查看日志进一步了解：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl logs -f jenkins2-7f5494cd44-pqpzs -n kube-ops
+touch: cannot touch <span style="color:#f1fa8c">&#39;/var/jenkins_home/copy_reference_file.log&#39;</span>: Permission denied
+Can not write to /var/jenkins_home/copy_reference_file.log. Wrong volume permissions?
+</code></pre></div><p>很明显可以看到上面的错误信息，意思就是我们没有权限在 jenkins 的 home 目录下面创建文件，这是因为默认的镜像使用的是 jenkins 这个用户，而我们通过 PVC 挂载到 nfs 服务器的共享数据目录下面却是 root 用户的，所以没有权限访问该目录，要解决该问题，也很简单，我只需要在 nfs 共享数据目录下面把我们的目录权限重新分配下即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ chown -R <span style="color:#bd93f9">1000</span> /data/k8s/jenkins2
+</code></pre></div><blockquote>
+<p>当然还有另外一种方法是我们自定义一个镜像，在镜像中指定使用 root 用户也可以</p>
+</blockquote>
+<p>然后我们再重新创建：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl delete -f jenkins.yaml
+deployment.extensions <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> deleted
+service <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> deleted
+$ kubectl create -f jenkins.yaml
+deployment.extensions <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> created
+service <span style="color:#f1fa8c">&#34;jenkins2&#34;</span> created
+</code></pre></div><p>现在我们再去查看新生成的 Pod 已经没有错误信息了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                        READY     STATUS        RESTARTS   AGE
+jenkins2-7f5494cd44-smn2r   1/1       Running       <span style="color:#bd93f9">0</span>          25s
+</code></pre></div><p>等到服务启动成功后，我们就可以根据任意节点的 IP:30002 端口就可以访问 jenkins 服务了，可以根据提示信息进行安装配置即可：
+
+  <img src="/img/posts/setup-jenkins-01-unlock.jpg" alt="setup jenkins">
+
+
+初始化的密码我们可以在 jenkins 的容器的日志中进行查看，也可以直接在 nfs 的共享数据目录中查看：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /data/k8s/jenkins2/secrets/initAdminPassword
+</code></pre></div><p>然后选择安装推荐的插件即可。
+
+  <img src="/img/posts/setup-jenkins-02-plugin.png" alt="setup plugin">
+
+</p>
+<p>安装完成后添加管理员帐号即可进入到 jenkins 主界面：
+
+  <img src="/img/posts/setup-jenkins-home.png" alt="jenkins home">
+
+</p>
+<h2 id="优点">优点</h2>
+<p>Jenkins 安装完成了，接下来我们不用急着就去使用，我们要了解下在 Kubernetes 环境下面使用 Jenkins 有什么好处。</p>
+<p>我们知道持续构建与发布是我们日常工作中必不可少的一个步骤，目前大多公司都采用 Jenkins 集群来搭建符合需求的 CI/CD 流程，然而传统的 Jenkins Slave 一主多从方式会存在一些痛点，比如：</p>
+<ul>
+<li>主 Master 发生单点故障时，整个流程都不可用了</li>
+<li>每个 Slave 的配置环境不一样，来完成不同语言的编译打包等操作，但是这些差异化的配置导致管理起来非常不方便，维护起来也是比较费劲</li>
+<li>资源分配不均衡，有的 Slave 要运行的 job 出现排队等待，而有的 Slave 处于空闲状态</li>
+<li>资源有浪费，每台 Slave 可能是物理机或者虚拟机，当 Slave 处于空闲状态时，也不会完全释放掉资源。</li>
+</ul>
+<p>正因为上面的这些种种痛点，我们渴望一种更高效更可靠的方式来完成这个 CI/CD 流程，而 Docker 虚拟化容器技术能很好的解决这个痛点，又特别是在 Kubernetes 集群环境下面能够更好来解决上面的问题，下图是基于 Kubernetes 搭建 Jenkins 集群的简单示意图：
+
+  <img src="/img/posts/k8s-jenkins-slave.png" alt="k8s-jenkins">
+
+</p>
+<p>从图上可以看到 Jenkins Master 和 Jenkins Slave 以 Pod 形式运行在 Kubernetes 集群的 Node 上，Master 运行在其中一个节点，并且将其配置数据存储到一个 Volume 上去，Slave 运行在各个节点上，并且它不是一直处于运行状态，它会按照需求动态的创建并自动删除。</p>
+<p>这种方式的工作流程大致为：当 Jenkins Master 接受到 Build 请求时，会根据配置的 Label 动态创建一个运行在 Pod 中的 Jenkins Slave 并注册到 Master 上，当运行完 Job 后，这个 Slave 会被注销并且这个 Pod 也会自动删除，恢复到最初状态。</p>
+<p>那么我们使用这种方式带来了哪些好处呢？</p>
+<ul>
+<li><strong>服务高可用</strong>，当 Jenkins Master 出现故障时，Kubernetes 会自动创建一个新的 Jenkins Master 容器，并且将 Volume 分配给新创建的容器，保证数据不丢失，从而达到集群服务高可用。</li>
+<li><strong>动态伸缩</strong>，合理使用资源，每次运行 Job 时，会自动创建一个 Jenkins Slave，Job 完成后，Slave 自动注销并删除容器，资源自动释放，而且 Kubernetes 会根据每个资源的使用情况，动态分配 Slave 到空闲的节点上创建，降低出现因某节点资源利用率高，还排队等待在该节点的情况。</li>
+<li><strong>扩展性好</strong>，当 Kubernetes 集群的资源严重不足而导致 Job 排队等待时，可以很容易的添加一个 Kubernetes Node 到集群中，从而实现扩展。</li>
+</ul>
+<p>是不是以前我们面临的种种问题在 Kubernetes 集群环境下面是不是都没有了啊？看上去非常完美。</p>
+<h2 id="配置">配置</h2>
+<p>接下来我们就需要来配置 Jenkins，让他能够动态的生成 Slave 的 Pod。</p>
+<p><strong>第1步.</strong> 我们需要安装<strong>kubernetes plugin (新版本就叫 Kubernetes)</strong>， 点击 Manage Jenkins -&gt; Manage Plugins -&gt; Available -&gt; Kubernetes plugin 勾选安装即可。
+
+  <img src="/img/posts/setup-jenkins-k8s-plugin.png" alt="kubernetes plugin">
+
+</p>
+<p><strong>第2步.</strong> 安装完毕后，点击 Manage Jenkins —&gt; Configure System —&gt; (拖到最下方)Add a new cloud —&gt; 选择 Kubernetes，然后填写 Kubernetes 和 Jenkins 配置信息。
+
+  <img src="/img/posts/jenkins-k8s-config1.jpg" alt="kubernetes plugin config1">
+
+</p>
+<p>注意 namespace，我们这里填 kube-ops，然后点击<strong>Test Connection</strong>，如果出现 Connection test successful 的提示信息证明 Jenkins 已经可以和 Kubernetes 系统正常通信了，然后下方的 Jenkins URL 地址：<strong><a href="http://jenkins2.kube-ops.svc.cluster.local:8080">http://jenkins2.kube-ops.svc.cluster.local:8080</a></strong>，这里的格式为：服务名.namespace.svc.cluster.local:8080，<strong>根据上面创建的jenkins 的服务名填写，我这里是之前创建的名为jenkins，如果是用上面我们创建的就应该是jenkins2</strong></p>
+<blockquote>
+<p>另外需要注意，如果这里 Test Connection 失败的话，很有可能是权限问题，这里就需要把我们创建的 jenkins 的 serviceAccount 对应的 secret 添加到这里的 Credentials 里面。</p>
+</blockquote>
+<p><strong>第3步.</strong> 配置 Pod Template，其实就是配置 Jenkins Slave 运行的 Pod 模板，命名空间我们同样是用 kube-ops，Labels 这里也非常重要，对于后面执行 Job 的时候需要用到该值，然后我们这里使用的是 cnych/jenkins:jnlp 这个镜像，这个镜像是在官方的 jnlp 镜像基础上定制的，加入了 kubectl 等一些实用的工具。
+
+  <img src="/img/posts/jenkins-k8s-config2.png" alt="kubernetes plugin config2">
+
+</p>
+<blockquote>
+<p>注意：由于新版本的 Kubernetes 插件变化较多，如果你使用的 Jenkins 版本在 2.176.x 版本以上，注意将上面的镜像替换成<code>cnych/jenkins:jnlp6</code>，否则使用会报错，配置如下图所示：
+
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/jenkins-slave-new.png" alt="kubernetes slave image config">
+
+</p>
+</blockquote>
+<p>另外需要注意我们这里需要在下面挂载两个主机目录，一个是<code>/var/run/docker.sock</code>，该文件是用于 Pod 中的容器能够共享宿主机的 Docker，这就是大家说的 docker in docker 的方式，Docker 二进制文件我们已经打包到上面的镜像中了，另外一个目录下<code>/root/.kube</code>目录，我们将这个目录挂载到容器的 /root/.kube 目录下面这是为了让我们能够在 Pod 的容器中能够使用 kubectl 工具来访问我们的 Kubernetes 集群，方便我们后面在 Slave Pod 部署 Kubernetes 应用。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/jenkins-slave-volume.png" alt="kubernetes plugin config3">
+
+</p>
+<p>另外还有几个参数需要注意，如下图中的<strong>Time in minutes to retain slave when idle</strong>，这个参数表示的意思是当处于空闲状态的时候保留 Slave Pod 多长时间，这个参数最好我们保存默认就行了，如果你设置过大的话，Job 任务执行完成后，对应的 Slave Pod 就不会立即被销毁删除。
+
+  <img src="/img/posts/jenkins-k8s-config4.png" alt="kubernetes plugin config4">
+
+</p>
+<p>另外一些同学在配置了后运行 Slave Pod 的时候出现了权限问题，如果出现了权限不足的问题，在 Slave Pod 配置的地方点击下面的高级，添加上对应的 ServiceAccount 即可：
+
+  <img src="/img/posts/jenkins-k8s-config5.png" alt="kubernetes plugin config5">
+
+</p>
+<p>还有一些同学在配置完成后发现启动 Jenkins Slave Pod 的时候，出现 Slave Pod 连接不上，然后尝试100次连接之后销毁 Pod，然后会再创建一个 Slave Pod 继续尝试连接，无限循环，类似于下面的信息：
+
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/slave-pod-reconnect-100-times.png" alt="">
+
+</p>
+<p>如果出现这种情况的话就需要将 Slave Pod 中的运行命令和参数两个值给清空掉
+
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/clean-slave-pod-cmd-args.png" alt="">
+
+</p>
+<p>到这里我们的 Kubernetes Plugin 插件就算配置完成了。</p>
+<h2 id="测试">测试</h2>
+<p>Kubernetes 插件的配置工作完成了，接下来我们就来添加一个 Job 任务，看是否能够在 Slave Pod 中执行，任务执行完成后看 Pod 是否会被销毁。</p>
+<p>在 Jenkins 首页点击<strong>create new jobs</strong>，创建一个测试的任务，输入任务名称，然后我们选择 Freestyle project 类型的任务：
+
+  <img src="/img/posts/jenkins-demo1.png" alt="jenkins demo">
+
+</p>
+<p>注意在下面的 Label Expression 这里要填入<strong>haimaxy-jnlp</strong>，就是前面我们配置的 Slave Pod 中的 Label，这两个地方必须保持一致
+
+  <img src="/img/posts/jenkins-demo1-config.jpeg" alt="config">
+
+</p>
+<p>然后往下拉，在 Build 区域选择<strong>Execute shell</strong>
+
+  <img src="/img/posts/jenkins-demo1-config2.jpeg" alt="Build">
+
+</p>
+<p>然后输入我们测试命令</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;测试 Kubernetes 动态生成 jenkins slave&#34;</span>
+<span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;==============docker in docker===========&#34;</span>
+docker info
+
+<span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;=============kubectl=============&#34;</span>
+kubectl get pods
+</code></pre></div><p>最后点击保存
+
+  <img src="/img/posts/jenkins-demo1-config3.jpeg" alt="command">
+
+</p>
+<blockquote>
+<p>注意：如果在执行<code>kubectl apply</code>这一步的时候出现类似于<code>Failed to download OpenAPI (unknown), falling back to swagger error: error validating: &quot;k8s.yaml&quot;: error validating data: unknown; if you choose to ignore these errors, trun validation off with --validate=false</code>这样的错误，这是因为我使用的镜像<code>cnych/jenkins:jnlp</code>里面内置的<code>kubectl</code>工具是 v1.10.0 版本的，如果你的 kubernetes 集群版本较高，就会出现这种情况，要解决这个问题也很简单，可以基于我这个镜像重新制作一个镜像，把 kubectl 工具用正确的版本覆盖掉即可，<a href="https://github.com/cnych/kubernetes-learning/blob/master/jenkins/jenkins-slave.Dockerfile">点击查看我原始的 Dockerfile 文件</a>。</p>
+</blockquote>
+<p>现在我们直接在页面点击做成的 Build now 触发构建即可，然后观察 Kubernetes 集群中 Pod 的变化</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                       READY     STATUS              RESTARTS   AGE
+jenkins2-7c85b6f4bd-rfqgv   1/1       Running             <span style="color:#bd93f9">3</span>          1d
+jnlp-hfmvd                 0/1       ContainerCreating   <span style="color:#bd93f9">0</span>          7s
+</code></pre></div><p>我们可以看到在我们点击立刻构建的时候可以看到一个新的 Pod：jnlp-hfmvd 被创建了，这就是我们的 Jenkins Slave。任务执行完成后我们可以看到任务信息，比如我们这里是 花费了 5.2s 时间在 jnlp-hfmvd 这个 Slave上面
+
+  <img src="/img/posts/jenkins-demo1-config4.jpeg" alt="jnlp slave">
+
+</p>
+<p>同样也可以查看到对应的控制台信息：
+
+  <img src="/img/posts/jenkins-demo1-config5.jpeg" alt="jnlp output">
+
+</p>
+<p>到这里证明我们的任务已经构建完成，然后这个时候我们再去集群查看我们的 Pod 列表，发现 kube-ops 这个 namespace 下面已经没有之前的 Slave 这个 Pod 了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                       READY     STATUS    RESTARTS   AGE
+jenkins2-7c85b6f4bd-rfqgv   1/1       Running   <span style="color:#bd93f9">3</span>          1d
+</code></pre></div><p>到这里我们就完成了使用 Kubernetes 动态生成 Jenkins Slave 的方法。下节课我们来给大家介绍下怎么在 Jenkins 中来发布我们的 Kubernetes 应用。最后感谢圈友<code>@TangT-newhope-成都</code>提供的帮助。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/pod-mount-single-file/" data-toggle="tooltip" data-placement="top" title="Pod 中挂载单个文件的方法">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/kubernetes-jenkins2/" data-toggle="tooltip" data-placement="top" title="Jenkins Pipeline 部署 Kubernetes 应用(二)">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

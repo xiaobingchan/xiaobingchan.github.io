@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="在 Kubernetes 上安装 Gitlab" />
+    <meta property="og:title" content="在 Kubernetes 上安装 Gitlab" />
+    <meta property="twitter:title" content="在 Kubernetes 上安装 Gitlab" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>在 Kubernetes 上安装 Gitlab-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/gitlab-install-on-k8s/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        <a class="tag" href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        <a class="tag" href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/redis" title="redis">
+                            redis
+                        </a>
+                        
+                    </div>
+                    <h1>在 Kubernetes 上安装 Gitlab</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Thursday, March 7, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="/post/gitlab-install-on-k8s/">
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/vTUWg8.jpg" alt="gitlab on k8s">
+
+</a></p>
+<p><code>Gitlab</code>官方提供了 Helm 的方式在 Kubernetes 集群中来快速安装，但是在使用的过程中发现 Helm 提供的 Chart 包中有很多其他额外的配置，所以我们这里使用自定义的方式来安装，也就是自己来定义一些资源清单文件。</p>
+<p><code>Gitlab</code>主要涉及到3个应用：Redis、Postgresql、Gitlab 核心程序，实际上我们只要将这3个应用分别启动起来，然后加上对应的配置就可以很方便的安装 Gitlab 了，我们这里选择使用的镜像不是官方的，而是 Gitlab 容器化中使用非常多的一个第三方镜像：<code>sameersbn/gitlab</code>，基本上和官方保持同步更新，地址：<a href="http://www.damagehead.com/docker-gitlab/">http://www.damagehead.com/docker-gitlab/</a></p>
+<h3 id="安装">安装</h3>
+<p>如果我们已经有可使用的 Redis 或 Postgresql 服务的话，那么直接配置在 Gitlab 环境变量中即可，如果没有的话就单独部署。</p>
+<p>首先部署需要的 Redis 服务，对应的资源清单文件如下：(gitlab-redis.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: redis
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: redis
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">name</span>: redis
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">name</span>: redis
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: redis
+        <span style="color:#ff79c6">image</span>: sameersbn/redis
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">name</span>: redis
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">6379</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">mountPath</span>: /var/lib/redis
+          <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#ff79c6">exec</span>:
+            <span style="color:#ff79c6">command</span>:
+            - redis-cli
+            - ping
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">30</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">5</span>
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#ff79c6">exec</span>:
+            <span style="color:#ff79c6">command</span>:
+            - redis-cli
+            - ping
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">5</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">emptyDir</span>: {}
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: redis
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: redis
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">name</span>: redis
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">6379</span>
+      <span style="color:#ff79c6">targetPort</span>: redis
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">name</span>: redis
+</code></pre></div><p>然后是数据库 Postgresql，对应的资源清单文件如下：(gitlab-postgresql.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: postgresql
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: postgresql
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">name</span>: postgresql
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">name</span>: postgresql
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: postgresql
+        <span style="color:#ff79c6">image</span>: sameersbn/postgresql:10
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: DB_USER
+          <span style="color:#ff79c6">value</span>: gitlab
+        - <span style="color:#ff79c6">name</span>: DB_PASS
+          <span style="color:#ff79c6">value</span>: passw0rd
+        - <span style="color:#ff79c6">name</span>: DB_NAME
+          <span style="color:#ff79c6">value</span>: gitlab_production
+        - <span style="color:#ff79c6">name</span>: DB_EXTENSION
+          <span style="color:#ff79c6">value</span>: pg_trgm
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">name</span>: postgres
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">5432</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">mountPath</span>: /var/lib/postgresql
+          <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#ff79c6">exec</span>:
+            <span style="color:#ff79c6">command</span>:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">30</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">5</span>
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#ff79c6">exec</span>:
+            <span style="color:#ff79c6">command</span>:
+            - pg_isready
+            - -h
+            - localhost
+            - -U
+            - postgres
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">5</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">emptyDir</span>: {}
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: postgresql
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: postgresql
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">name</span>: postgres
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">5432</span>
+      <span style="color:#ff79c6">targetPort</span>: postgres
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">name</span>: postgresql
+</code></pre></div><p>然后就是我们最核心的 Gitlab 的应用，对应的资源清单文件如下：(gitlab.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1beta1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: gitlab
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: gitlab
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">name</span>: gitlab
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">name</span>: gitlab
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: gitlab
+        <span style="color:#ff79c6">image</span>: sameersbn/gitlab:11.8.1
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: TZ
+          <span style="color:#ff79c6">value</span>: Asia/Shanghai
+        - <span style="color:#ff79c6">name</span>: GITLAB_TIMEZONE
+          <span style="color:#ff79c6">value</span>: Beijing
+        - <span style="color:#ff79c6">name</span>: GITLAB_SECRETS_DB_KEY_BASE
+          <span style="color:#ff79c6">value</span>: long-and-random-alpha-numeric-string
+        - <span style="color:#ff79c6">name</span>: GITLAB_SECRETS_SECRET_KEY_BASE
+          <span style="color:#ff79c6">value</span>: long-and-random-alpha-numeric-string
+        - <span style="color:#ff79c6">name</span>: GITLAB_SECRETS_OTP_KEY_BASE
+          <span style="color:#ff79c6">value</span>: long-and-random-alpha-numeric-string
+        - <span style="color:#ff79c6">name</span>: GITLAB_ROOT_PASSWORD
+          <span style="color:#ff79c6">value</span>: admin321
+        - <span style="color:#ff79c6">name</span>: GITLAB_ROOT_EMAIL
+          <span style="color:#ff79c6">value</span>: <span style="color:#bd93f9">517554016</span>@qq.com
+        - <span style="color:#ff79c6">name</span>: GITLAB_HOST
+          <span style="color:#ff79c6">value</span>: git.qikqiak.com
+        - <span style="color:#ff79c6">name</span>: GITLAB_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;80&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GITLAB_SSH_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;22&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GITLAB_NOTIFY_ON_BROKEN_BUILDS
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GITLAB_NOTIFY_PUSHER
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;false&#34;</span>
+        - <span style="color:#ff79c6">name</span>: GITLAB_BACKUP_SCHEDULE
+          <span style="color:#ff79c6">value</span>: daily
+        - <span style="color:#ff79c6">name</span>: GITLAB_BACKUP_TIME
+          <span style="color:#ff79c6">value</span>: <span style="color:#bd93f9">01</span>:<span style="color:#bd93f9">00</span>
+        - <span style="color:#ff79c6">name</span>: DB_TYPE
+          <span style="color:#ff79c6">value</span>: postgres
+        - <span style="color:#ff79c6">name</span>: DB_HOST
+          <span style="color:#ff79c6">value</span>: postgresql
+        - <span style="color:#ff79c6">name</span>: DB_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;5432&#34;</span>
+        - <span style="color:#ff79c6">name</span>: DB_USER
+          <span style="color:#ff79c6">value</span>: gitlab
+        - <span style="color:#ff79c6">name</span>: DB_PASS
+          <span style="color:#ff79c6">value</span>: passw0rd
+        - <span style="color:#ff79c6">name</span>: DB_NAME
+          <span style="color:#ff79c6">value</span>: gitlab_production
+        - <span style="color:#ff79c6">name</span>: REDIS_HOST
+          <span style="color:#ff79c6">value</span>: redis
+        - <span style="color:#ff79c6">name</span>: REDIS_PORT
+          <span style="color:#ff79c6">value</span>: <span style="color:#f1fa8c">&#34;6379&#34;</span>
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">name</span>: http
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">80</span>
+        - <span style="color:#ff79c6">name</span>: ssh
+          <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">22</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">mountPath</span>: /home/git/data
+          <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">180</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">5</span>
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#ff79c6">httpGet</span>:
+            <span style="color:#ff79c6">path</span>: /
+            <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+          <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">5</span>
+          <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: data
+        <span style="color:#ff79c6">emptyDir</span>: {}
+
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: gitlab
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: gitlab
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">name</span>: http
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+      <span style="color:#ff79c6">targetPort</span>: http
+    - <span style="color:#ff79c6">name</span>: ssh
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">22</span>
+      <span style="color:#ff79c6">targetPort</span>: ssh
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">name</span>: gitlab
+
+---
+<span style="color:#ff79c6">apiVersion</span>: extensions/v1beta1
+<span style="color:#ff79c6">kind</span>: Ingress
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: gitlab
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">kubernetes.io/ingress.class</span>: traefik
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">rules</span>:
+  - <span style="color:#ff79c6">host</span>: git.qikqiak.com
+    <span style="color:#ff79c6">http</span>:
+      <span style="color:#ff79c6">paths</span>:
+      - <span style="color:#ff79c6">backend</span>:
+          <span style="color:#ff79c6">serviceName</span>: gitlab
+          <span style="color:#ff79c6">servicePort</span>: http
+</code></pre></div><blockquote>
+<p>要注意我们这里应用数据没有做数据持久化，只是使用的<code>emptyDir: {}</code>类型的 volume，Pod 挂掉后，对应的数据也就没有了，所以要在正式的环境中使用一定要做数据的持久化，比如添加 PV/PVC 或者 StorageClass。</p>
+</blockquote>
+<p>要注意的是其中 Redis 和 Postgresql 相关的环境变量配置，另外，我们这里添加了一个 Ingress 对象，来为我们的 Gitlab 配置一个域名<code>git.qikqiak.com</code>，这样应用部署完成后，我们就可以通过该域名来访问了，然后直接部署即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f gitlab-redis.yaml gitlab-postgresql.yaml gitlab.yaml
+</code></pre></div><p>创建完成后，查看 Pod 的部署状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                                           READY     STATUS    RESTARTS   AGE
+gitlab-7d855554cb-twh7c                        1/1       Running   <span style="color:#bd93f9">0</span>          10m
+postgresql-8566bb959c-2tnvr                    1/1       Running   <span style="color:#bd93f9">0</span>          17h
+redis-8446f57bdf-4v62p                         1/1       Running   <span style="color:#bd93f9">0</span>          17h
+</code></pre></div><p>可以看到都已经部署成功了，然后我们可以通过 Ingress 中定义的域名<code>git.qikqiak.com</code>(需要做 DNS 解析或者在本地 /etc/hosts 中添加映射)来访问 Portal：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/MlLWIV.jpg" alt="gitlab portal">
+
+</p>
+<h3 id="使用">使用</h3>
+<p>使用用户名 root，和部署的时候指定的超级用户密码<code>GITLAB_ROOT_PASSWORD=admin321</code>即可登录进入到首页：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/Sh0Uzv.jpg" alt="gitlab homepage">
+
+</p>
+<p>Gitlab 运行后，我们可以注册为新用户并创建一个项目，还可以做很多的其他系统设置，比如设置语言、设置应用风格样式等等。</p>
+<p>点击<code>Create a project</code>创建一个新的项目，和之前 Github 使用上没有多大的差别：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/4ZsdVb.jpg" alt="create gitlab project">
+
+</p>
+<p>创建完成后，我们可以添加本地用户的一个<code>SSH-KEY</code>，这样我们就可以通过 SSH 来拉取或者推送代码了。SSH 公钥通常包含在<code>~/.ssh/id_rsa.pub</code> 文件中，并以<code>ssh-rsa</code>开头。如果没有的话可以使用<code>ssh-keygen</code>命令来生成，<code>id_rsa.pub</code>里面的内容就是我们需要的 SSH 公钥，然后添加到 Gitlab 中。</p>
+<p>由于平时使用的 ssh 默认是 22 端口，现在如果用默认的 22 端口去连接，是没办法和 Gitlab 容器中的 22 端口进行映射的，因为我们只是通过 Service 的 22 端口进行了映射，要想通过节点去进行 ssh 链接就需要在节点上一个端口和容器内部的22端口进行绑定，所以这里我们可以通过 NodePort 去映射 Gitlab 容器内部的22端口，比如我们将环境变量设置为<code>GITLAB_SSH_PORT=30022</code>，将 Gitlab 的 Service 也设置为 NodePort 类型：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: gitlab
+  <span style="color:#ff79c6">namespace</span>: kube-ops
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">name</span>: gitlab
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">name</span>: http
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+      <span style="color:#ff79c6">targetPort</span>: http
+    - <span style="color:#ff79c6">name</span>: ssh
+      <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">22</span>
+      <span style="color:#ff79c6">targetPort</span>: ssh
+      <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">30022</span>
+  <span style="color:#ff79c6">type</span>: NodePort
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">name</span>: gitlab
+</code></pre></div><p>注意上面 ssh 对应的 nodePort 端口设置为 30022，这样就不会随机生成了，重新更新下 Deployment 和 Service，更新完成后，现在我们在项目上面 Clone 的时候使用 ssh 就会带上端口号了：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/EmeNg0.jpg" alt="gitlab ssh">
+
+</p>
+<p>现在就可以使用<code>Clone with SSH</code>的地址了，由于上面我们配置了 SSH 公钥，所以就可以直接访问上面的仓库了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone ssh://git@git.qikqiak.com:30022/root/gitlab-demo.git
+Cloning into <span style="color:#f1fa8c">&#39;gitlab-demo&#39;</span>...
+warning: You appear to have cloned an empty repository.
+Checking connectivity... <span style="color:#ff79c6">done</span>.
+</code></pre></div><p>然后随便在该项目下面添加一些资源：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;# hello world&#34;</span> &gt;  README.md
+$ git add .
+$ git commit -m <span style="color:#f1fa8c">&#39;hello world&#39;</span>
+<span style="color:#ff79c6">[</span>master <span style="color:#ff79c6">(</span>root-commit<span style="color:#ff79c6">)</span> 63de7cb<span style="color:#ff79c6">]</span> hello world
+ <span style="color:#bd93f9">1</span> file changed, <span style="color:#bd93f9">1</span> insertion<span style="color:#ff79c6">(</span>+<span style="color:#ff79c6">)</span>
+ create mode <span style="color:#bd93f9">100644</span> README.md
+$ git push origin master
+Counting objects: 3, <span style="color:#ff79c6">done</span>.
+Writing objects: 100% <span style="color:#ff79c6">(</span>3/3<span style="color:#ff79c6">)</span>, <span style="color:#bd93f9">224</span> bytes | <span style="color:#bd93f9">0</span> bytes/s, <span style="color:#ff79c6">done</span>.
+Total <span style="color:#bd93f9">3</span> <span style="color:#ff79c6">(</span>delta 0<span style="color:#ff79c6">)</span>, reused <span style="color:#bd93f9">0</span> <span style="color:#ff79c6">(</span>delta 0<span style="color:#ff79c6">)</span>
+To ssh://git@git.qikqiak.com:30022/root/gitlab-demo.git
+ * <span style="color:#ff79c6">[</span>new branch<span style="color:#ff79c6">]</span>      master -&gt; master
+</code></pre></div><p>然后刷新浏览器，就可以看到刚刚创建的 Git 仓库中多了一个 README.md 的文件：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/OejJDk.jpg" alt="git commit">
+
+</p>
+<p>到这里就表明我们的 Gitlab 就成功部署到了 Kubernetes 集群当中了。</p>
+<p>本文中涉及到的所有资源清单文件参考地址：<a href="https://github.com/cnych/kubeapp/tree/master/gitlab">https://github.com/cnych/kubeapp/tree/master/gitlab</a></p>
+<p>下节课和大家开始介绍基于 Gitlab 的 CI/CD 实现。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/harbor-quick-install/" data-toggle="tooltip" data-placement="top" title="在 Kubernetes 在快速安装 Harbor">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/k8s-offline-training/" data-toggle="tooltip" data-placement="top" title="Kubernetes 线下3天闭门集训">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>jvm on 青年夏日IT</title>
+    <link>https://qnxr.xyz/tags/jvm/</link>
+    <description>Recent content in jvm on 青年夏日IT</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 05 Jan 2019 00:00:00 +0000</lastBuildDate><atom:link href="https://qnxr.xyz/tags/jvm/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>在 Docker 容器中运行 JVM 的注意事项</title>
+      <link>https://qnxr.xyz/post/running-jvm-inside-a-container/</link>
+      <pubDate>Sat, 05 Jan 2019 00:00:00 +0000</pubDate>
+      
+      <guid>https://qnxr.xyz/post/running-jvm-inside-a-container/</guid>
+      <description>https://medium.com/domain-tech/running-jvm-inside-a-container-what-you-need-to-know-aac6fa6c12c8</description>
+    </item>
+    
+  </channel>
+</rss>

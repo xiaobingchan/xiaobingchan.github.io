@@ -1,0 +1,1752 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Helm 的基本使用" />
+    <meta property="og:title" content="Helm 的基本使用" />
+    <meta property="twitter:title" content="Helm 的基本使用" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Helm 的基本使用-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/kubernetes-helm-usage/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                    </div>
+                    <h1>Helm 的基本使用</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Tuesday, September 4, 2018
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#仓库">仓库</a></li>
+        <li><a href="#查找-chart">查找 chart</a></li>
+        <li><a href="#安装-chart">安装 chart</a></li>
+        <li><a href="#自定义-chart">自定义 chart</a></li>
+        <li><a href="#升级">升级</a></li>
+        <li><a href="#删除">删除</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>上节课我们成功安装了<code>Helm</code>的客户端以及服务端<code>Tiller Server</code>，我们也自己尝试创建了我们的第一个 Helm Chart 包，这节课就来和大家一起学习下 Helm 中的一些常用的操作方法。</p>
+<h2 id="仓库">仓库</h2>
+<p>Helm 的 Repo 仓库和 Docker Registry 比较类似，Chart 库可以用来存储和共享打包 Chart 的位置，我们在安装了 Helm 后，默认的仓库地址是 google 的一个地址，这对于我们不能科学上网的同学就比较苦恼了，没办法访问到官方提供的 Chart 仓库，可以用<code>helm repo list</code>来查看当前的仓库配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm repo list
+NAME    URL
+stable  https://kubernetes-charts.storage.googleapis.com/
+<span style="color:#8be9fd;font-style:italic">local</span>   http://127.0.0.1:8879/charts
+</code></pre></div><p>我们可以看到除了一个默认的 stable 的仓库配置外，还有一个 local 的本地仓库，这是我们本地测试的一个仓库地址。其实要创建一个 Chart 仓库也是非常简单的，Chart 仓库其实就是一个带有<code>index.yaml</code>索引文件和任意个打包的 Chart 的 HTTP 服务器而已，比如我们想要分享一个 Chart 包的时候，将我们本地的 Chart 包上传到该服务器上面，别人就可以使用了，所以其实我们自己托管一个 Chart 仓库也是非常简单的，比如阿里云的 OSS、Github Pages，甚至自己创建的一个简单服务器都可以。</p>
+<p>为了解决科学上网的问题，我这里建了一个 Github Pages 仓库，每天会自动和官方的仓库进行同步，地址是：<a href="https://github.com/cnych/kube-charts-mirror">https://github.com/cnych/kube-charts-mirror</a>，这样我们就可以将我们的 Helm 默认仓库地址更改成我们自己的仓库地址了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm repo remove stable
+<span style="color:#f1fa8c">&#34;stable&#34;</span> has been removed from your repositories
+$ helm repo add stable https://cnych.github.io/kube-charts-mirror/
+<span style="color:#f1fa8c">&#34;stable&#34;</span> has been added to your repositories
+$ helm repo list
+NAME    URL
+stable  https://cnych.github.io/kube-charts-mirror/
+<span style="color:#8be9fd;font-style:italic">local</span>   http://127.0.0.1:8879/charts
+$ helm repo update
+Hang tight <span style="color:#ff79c6">while</span> we grab the latest from your chart repositories...
+...Skip <span style="color:#8be9fd;font-style:italic">local</span> chart repository
+...Successfully got an update from the <span style="color:#f1fa8c">&#34;stable&#34;</span> chart repository
+Update Complete. ⎈ Happy Helming!⎈
+</code></pre></div><p>仓库添加完成后，可以使用 update 命令进行仓库更新。当然如果要我们自己来创建一个 web 服务器来服务 Helm Chart 的话，只需要实现下面几个功能点就可以提供服务了：</p>
+<ul>
+<li>将索引和<code>Chart</code>置于服务器目录中</li>
+<li>确保索引文件<code>index.yaml</code>可以在没有认证要求的情况下访问</li>
+<li>确保 yaml 文件的正确内容类型（text/yaml 或 text/x-yaml）</li>
+</ul>
+<p>如果你的 web 服务提供了上面几个功能，那么也就可以当做 Helm Chart 仓库来使用了。</p>
+<h2 id="查找-chart">查找 chart</h2>
+<p>Helm 将 Charts 包安装到 Kubernetes 集群中，一个安装实例就是一个新的 Release，要找到新的 Chart，我们可以通过搜索命令完成。</p>
+<blockquote>
+<p>记住，如果不能科学上网，将默认的 stable 的仓库地址更换成上面我们创建的地址</p>
+</blockquote>
+<p>直接运行<code>helm search</code>命令可以查看有哪些 Charts 是可用的：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm search
+NAME                                    CHART VERSION   APP VERSION                     DESCRIPTION
+...
+stable/minio                            1.6.3           RELEASE.2018-08-25T01-56-38Z    Minio is a high performance distributed object storage se...
+stable/mission-control                  0.4.2           3.1.2                           A Helm chart <span style="color:#ff79c6">for</span> JFrog Mission Control
+stable/mongodb                          4.2.2           4.0.2                           NoSQL document-oriented database that stores JSON-like <span style="color:#ff79c6">do</span>...
+stable/mongodb-replicaset               3.5.6           3.6                             NoSQL document-oriented database that stores JSON-like <span style="color:#ff79c6">do</span>...
+...
+stable/zetcd                            0.1.9           0.0.3                           CoreOS zetcd Helm chart <span style="color:#ff79c6">for</span> Kubernetes
+...
+</code></pre></div><p>如果没有使用过滤条件，helm search 显示所有可用的 charts。可以通过使用过滤条件进行搜索来缩小搜索的结果范围：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm search mysql
+NAME                                CHART VERSION   APP VERSION DESCRIPTION
+...
+stable/mysql                        0.10.1          5.7.14      Fast, reliable, scalable, and easy to use open-source rel...
+stable/mysqldump                    0.1.0           5.7.21      A Helm chart to <span style="color:#8be9fd;font-style:italic">help</span> backup MySQL databases using mysqldump
+stable/prometheus-mysql-exporter    0.1.0           v0.10.0     A Helm chart <span style="color:#ff79c6">for</span> prometheus
+stable/mariadb                      4.4.0           10.1.35     Fast, reliable, scalable, and easy to use open-source rel...
+...
+</code></pre></div><p>可以看到明显少了很多 charts 了，同样的，我们可以使用 inspect 命令来查看一个 chart 的详细信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm inspect stable/mysql
+appVersion: 5.7.14
+description: Fast, reliable, scalable, and easy to use open-source relational database
+  system.
+engine: gotpl
+home: https://www.mysql.com/
+icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+keywords:
+- mysql
+- database
+- sql
+maintainers:
+- email: o.with@sportradar.com
+  name: olemarkus
+- email: viglesias@google.com
+  name: viglesiasce
+name: mysql
+sources:
+- https://github.com/kubernetes/charts
+- https://github.com/docker-library/mysql
+version: 0.10.1
+
+---
+<span style="color:#6272a4">## mysql image version</span>
+<span style="color:#6272a4">## ref: https://hub.docker.com/r/library/mysql/tags/</span>
+<span style="color:#6272a4">##</span>
+image: <span style="color:#f1fa8c">&#34;mysql&#34;</span>
+imageTag: <span style="color:#f1fa8c">&#34;5.7.14&#34;</span>
+...
+</code></pre></div><p>使用 inspect 命令可以查看到该 chart 里面所有描述信息，包括运行方式、配置信息等等。</p>
+<p>通过 helm search 命令可以找到我们想要的 chart 包，找到后就可以通过 helm install 命令来进行安装了。</p>
+<h2 id="安装-chart">安装 chart</h2>
+<p>要安装新的软件包，直接使用 helm install 命令即可。最简单的情况下，它只需要一个 chart 的名称参数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install stable/mysql
+NAME:   mewing-squid
+LAST DEPLOYED: Tue Sep  <span style="color:#bd93f9">4</span> 23:31:23 <span style="color:#bd93f9">2018</span>
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+<span style="color:#ff79c6">==</span>&gt; v1/PersistentVolumeClaim
+NAME                STATUS   VOLUME  CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+mewing-squid-mysql  Pending  <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Service
+NAME                TYPE       CLUSTER-IP     EXTERNAL-IP  PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>   AGE
+mewing-squid-mysql  ClusterIP  10.108.197.48  &lt;none&gt;       3306/TCP  <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1beta1/Deployment
+NAME                DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+mewing-squid-mysql  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">0</span>        <span style="color:#bd93f9">0</span>           <span style="color:#bd93f9">0</span>          <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Pod<span style="color:#ff79c6">(</span>related<span style="color:#ff79c6">)</span>
+NAME                                 READY  STATUS   RESTARTS  AGE
+mewing-squid-mysql-69f587bdf9-z7glv  0/1    Pending  <span style="color:#bd93f9">0</span>         <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Secret
+NAME                TYPE    DATA  AGE
+mewing-squid-mysql  Opaque  <span style="color:#bd93f9">2</span>     <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/ConfigMap
+NAME                     DATA  AGE
+mewing-squid-mysql-test  <span style="color:#bd93f9">1</span>     1s
+
+
+NOTES:
+MySQL can be accessed via port <span style="color:#bd93f9">3306</span> on the following DNS name from within your cluster:
+mewing-squid-mysql.default.svc.cluster.local
+
+To get your root password run:
+
+    <span style="color:#8be9fd;font-style:italic">MYSQL_ROOT_PASSWORD</span><span style="color:#ff79c6">=</span><span style="color:#ff79c6">$(</span>kubectl get secret --namespace default mewing-squid-mysql -o <span style="color:#8be9fd;font-style:italic">jsonpath</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;{.data.mysql-root-password}&#34;</span> | base64 --decode; <span style="color:#8be9fd;font-style:italic">echo</span><span style="color:#ff79c6">)</span>
+
+To connect to your database:
+
+1. Run an Ubuntu pod that you can use as a client:
+
+    kubectl run -i --tty ubuntu --image<span style="color:#ff79c6">=</span>ubuntu:16.04 --restart<span style="color:#ff79c6">=</span>Never -- bash -il
+
+2. Install the mysql client:
+
+    $ apt-get update <span style="color:#ff79c6">&amp;&amp;</span> apt-get install mysql-client -y
+
+3. Connect using the mysql cli, <span style="color:#ff79c6">then</span> provide your password:
+    $ mysql -h mewing-squid-mysql -p
+
+To connect to your database directly from outside the K8s cluster:
+    <span style="color:#8be9fd;font-style:italic">MYSQL_HOST</span><span style="color:#ff79c6">=</span>127.0.0.1
+    <span style="color:#8be9fd;font-style:italic">MYSQL_PORT</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">3306</span>
+
+    <span style="color:#6272a4"># Execute the following command to route the connection:</span>
+    kubectl port-forward svc/mewing-squid-mysql <span style="color:#bd93f9">3306</span>
+
+    mysql -h <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">MYSQL_HOST</span><span style="color:#f1fa8c">}</span> -P<span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">MYSQL_PORT</span><span style="color:#f1fa8c">}</span> -u root -p<span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">MYSQL_ROOT_PASSWORD</span><span style="color:#f1fa8c">}</span>
+</code></pre></div><p>现在 mysql chart 已经安装上了，安装 chart 会创建一个新 release 对象。上面的 release 被命名为 hmewing-squid。如果你想使用你自己的 release 名称，只需使用<code>--name</code>参数指定即可，比如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install stable/mysql --name mydb
+</code></pre></div><p>在安装过程中，helm 客户端将打印有关创建哪些资源的有用信息，release 的状态以及其他有用的配置信息，比如这里的有访问 mysql 服务的方法、获取 root 用户的密码以及连接 mysql 的方法等信息。</p>
+<blockquote>
+<p>值得注意的是 Helm 并不会一直等到所有资源都运行才退出。因为很多 charts 需要的镜像资源非常大，所以可能需要很长时间才能安装到集群中去。</p>
+</blockquote>
+<p>要跟踪 release 状态或重新读取配置信息，可以使用 helm status 查看：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$  helm status mewing-squid
+LAST DEPLOYED: Tue Sep  <span style="color:#bd93f9">4</span> 23:31:23 <span style="color:#bd93f9">2018</span>
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+...
+</code></pre></div><p>可以看到当前 release 的状态是<code>DEPLOYED</code>，下面还有一些安装的时候出现的信息。</p>
+<h2 id="自定义-chart">自定义 chart</h2>
+<p>上面的安装方式是使用 chart 的默认配置选项。但是在很多时候，我们都需要自定义 chart 以满足自身的需求，要自定义 chart，我们就需要知道我们使用的 chart 支持的可配置选项才行。</p>
+<p>要查看 chart 上可配置的选项，使用<code>helm inspect values</code>命令即可，比如我们这里查看上面的 mysql 的配置选项：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm inspect values stable/mysql
+<span style="color:#6272a4">## mysql image version</span>
+<span style="color:#6272a4">## ref: https://hub.docker.com/r/library/mysql/tags/</span>
+<span style="color:#6272a4">##</span>
+image: <span style="color:#f1fa8c">&#34;mysql&#34;</span>
+imageTag: <span style="color:#f1fa8c">&#34;5.7.14&#34;</span>
+
+<span style="color:#6272a4">## Specify password for root user</span>
+<span style="color:#6272a4">##</span>
+<span style="color:#6272a4">## Default: random 10 character string</span>
+<span style="color:#6272a4"># mysqlRootPassword: testing</span>
+
+<span style="color:#6272a4">## Create a database user</span>
+<span style="color:#6272a4">##</span>
+<span style="color:#6272a4"># mysqlUser:</span>
+<span style="color:#6272a4">## Default: random 10 character string</span>
+<span style="color:#6272a4"># mysqlPassword:</span>
+
+<span style="color:#6272a4">## Allow unauthenticated access, uncomment to enable</span>
+<span style="color:#6272a4">##</span>
+<span style="color:#6272a4"># mysqlAllowEmptyPassword: true</span>
+
+<span style="color:#6272a4">## Create a database</span>
+<span style="color:#6272a4">##</span>
+<span style="color:#6272a4"># mysqlDatabase:</span>
+
+<span style="color:#6272a4">## Specify an imagePullPolicy (Required)</span>
+<span style="color:#6272a4">## It&#39;s recommended to change this to &#39;Always&#39; if the image tag is &#39;latest&#39;</span>
+<span style="color:#6272a4">## ref: http://kubernetes.io/docs/user-guide/images/#updating-images</span>
+<span style="color:#6272a4">##</span>
+imagePullPolicy: IfNotPresent
+
+extraVolumes: |
+  <span style="color:#6272a4"># - name: extras</span>
+  <span style="color:#6272a4">#   emptyDir: {}</span>
+
+extraVolumeMounts: |
+  <span style="color:#6272a4"># - name: extras</span>
+  <span style="color:#6272a4">#   mountPath: /usr/share/extras</span>
+  <span style="color:#6272a4">#   readOnly: true</span>
+
+extraInitContainers: |
+  <span style="color:#6272a4"># - name: do-something</span>
+  <span style="color:#6272a4">#   image: busybox</span>
+  <span style="color:#6272a4">#   command: [&#39;do&#39;, &#39;something&#39;]</span>
+
+<span style="color:#6272a4"># Optionally specify an array of imagePullSecrets.</span>
+<span style="color:#6272a4"># Secrets must be manually created in the namespace.</span>
+<span style="color:#6272a4"># ref: https://kubernetes.io/docs/concepts/containers/images/#specifying-imagepullsecrets-on-a-pod</span>
+<span style="color:#6272a4"># imagePullSecrets:</span>
+  <span style="color:#6272a4"># - name: myRegistryKeySecretName</span>
+
+<span style="color:#6272a4">## Node selector</span>
+<span style="color:#6272a4">## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector</span>
+nodeSelector: <span style="color:#ff79c6">{}</span>
+
+livenessProbe:
+  initialDelaySeconds: <span style="color:#bd93f9">30</span>
+  periodSeconds: <span style="color:#bd93f9">10</span>
+  timeoutSeconds: <span style="color:#bd93f9">5</span>
+  successThreshold: <span style="color:#bd93f9">1</span>
+  failureThreshold: <span style="color:#bd93f9">3</span>
+
+readinessProbe:
+  initialDelaySeconds: <span style="color:#bd93f9">5</span>
+  periodSeconds: <span style="color:#bd93f9">10</span>
+  timeoutSeconds: <span style="color:#bd93f9">1</span>
+  successThreshold: <span style="color:#bd93f9">1</span>
+  failureThreshold: <span style="color:#bd93f9">3</span>
+
+<span style="color:#6272a4">## Persist data to a persistent volume</span>
+persistence:
+  enabled: <span style="color:#8be9fd;font-style:italic">true</span>
+  <span style="color:#6272a4">## database data Persistent Volume Storage Class</span>
+  <span style="color:#6272a4">## If defined, storageClassName: &lt;storageClass&gt;</span>
+  <span style="color:#6272a4">## If set to &#34;-&#34;, storageClassName: &#34;&#34;, which disables dynamic provisioning</span>
+  <span style="color:#6272a4">## If undefined (the default) or set to null, no storageClassName spec is</span>
+  <span style="color:#6272a4">##   set, choosing the default provisioner.  (gp2 on AWS, standard on</span>
+  <span style="color:#6272a4">##   GKE, AWS &amp; OpenStack)</span>
+  <span style="color:#6272a4">##</span>
+  <span style="color:#6272a4"># storageClass: &#34;-&#34;</span>
+  accessMode: ReadWriteOnce
+  size: 8Gi
+  annotations: <span style="color:#ff79c6">{}</span>
+
+<span style="color:#6272a4">## Configure resource requests and limits</span>
+<span style="color:#6272a4">## ref: http://kubernetes.io/docs/user-guide/compute-resources/</span>
+<span style="color:#6272a4">##</span>
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 100m
+
+<span style="color:#6272a4"># Custom mysql configuration files used to override default mysql settings</span>
+configurationFiles: <span style="color:#ff79c6">{}</span>
+<span style="color:#6272a4">#  mysql.cnf: |-</span>
+<span style="color:#6272a4">#    [mysqld]</span>
+<span style="color:#6272a4">#    skip-name-resolve</span>
+<span style="color:#6272a4">#    ssl-ca=/ssl/ca.pem</span>
+<span style="color:#6272a4">#    ssl-cert=/ssl/server-cert.pem</span>
+<span style="color:#6272a4">#    ssl-key=/ssl/server-key.pem</span>
+
+<span style="color:#6272a4"># Custom mysql init SQL files used to initialize the database</span>
+initializationFiles: <span style="color:#ff79c6">{}</span>
+<span style="color:#6272a4">#  first-db.sql: |-</span>
+<span style="color:#6272a4">#    CREATE DATABASE IF NOT EXISTS first DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;</span>
+<span style="color:#6272a4">#  second-db.sql: |-</span>
+<span style="color:#6272a4">#    CREATE DATABASE IF NOT EXISTS second DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;</span>
+
+metrics:
+  enabled: <span style="color:#8be9fd;font-style:italic">false</span>
+  image: prom/mysqld-exporter
+  imageTag: v0.10.0
+  imagePullPolicy: IfNotPresent
+  resources: <span style="color:#ff79c6">{}</span>
+  annotations: <span style="color:#ff79c6">{}</span>
+    <span style="color:#6272a4"># prometheus.io/scrape: &#34;true&#34;</span>
+    <span style="color:#6272a4"># prometheus.io/port: &#34;9104&#34;</span>
+  livenessProbe:
+    initialDelaySeconds: <span style="color:#bd93f9">15</span>
+    timeoutSeconds: <span style="color:#bd93f9">5</span>
+  readinessProbe:
+    initialDelaySeconds: <span style="color:#bd93f9">5</span>
+    timeoutSeconds: <span style="color:#bd93f9">1</span>
+
+<span style="color:#6272a4">## Configure the service</span>
+<span style="color:#6272a4">## ref: http://kubernetes.io/docs/user-guide/services/</span>
+service:
+  <span style="color:#6272a4">## Specify a service type</span>
+  <span style="color:#6272a4">## ref: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services---service-types</span>
+  type: ClusterIP
+  port: <span style="color:#bd93f9">3306</span>
+  <span style="color:#6272a4"># nodePort: 32000</span>
+
+ssl:
+  enabled: <span style="color:#8be9fd;font-style:italic">false</span>
+  secret: mysql-ssl-certs
+  certificates:
+<span style="color:#6272a4">#  - name: mysql-ssl-certs</span>
+<span style="color:#6272a4">#    ca: |-</span>
+<span style="color:#6272a4">#      -----BEGIN CERTIFICATE-----</span>
+<span style="color:#6272a4">#      ...</span>
+<span style="color:#6272a4">#      -----END CERTIFICATE-----</span>
+<span style="color:#6272a4">#    cert: |-</span>
+<span style="color:#6272a4">#      -----BEGIN CERTIFICATE-----</span>
+<span style="color:#6272a4">#      ...</span>
+<span style="color:#6272a4">#      -----END CERTIFICATE-----</span>
+<span style="color:#6272a4">#    key: |-</span>
+<span style="color:#6272a4">#      -----BEGIN RSA PRIVATE KEY-----</span>
+<span style="color:#6272a4">#      ...</span>
+<span style="color:#6272a4">#      -----END RSA PRIVATE KEY-----</span>
+
+<span style="color:#6272a4">## Populates the &#39;TZ&#39; system timezone environment variable</span>
+<span style="color:#6272a4">## ref: https://dev.mysql.com/doc/refman/5.7/en/time-zone-support.html</span>
+<span style="color:#6272a4">##</span>
+<span style="color:#6272a4">## Default: nil (mysql will use image&#39;s default timezone, normally UTC)</span>
+<span style="color:#6272a4">## Example: &#39;Australia/Sydney&#39;</span>
+<span style="color:#6272a4"># timezone:</span>
+
+<span style="color:#6272a4"># To be added to the database server pod(s)</span>
+podAnnotations: <span style="color:#ff79c6">{}</span>
+</code></pre></div><p>然后，我们可以直接在 YAML 格式的文件中来覆盖上面的任何配置，在安装的时候直接使用该配置文件即可：(config.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">mysqlUser</span>: haimaxyUser
+<span style="color:#ff79c6">mysqlDatabase</span>: haimaxyDB
+<span style="color:#ff79c6">service</span>:
+  <span style="color:#ff79c6">type</span>: NodePort
+</code></pre></div><p>我们这里通过 config.yaml 文件定义了 mysqlUser 和 mysqlDatabase，并且把 service 的类型更改为了 NodePort，然后现在我们来安装的时候直接指定该 yaml 文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install -f config.yaml stable/mysql --name mydb
+NAME:   mydb
+LAST DEPLOYED: Wed Sep  <span style="color:#bd93f9">5</span> 00:09:44 <span style="color:#bd93f9">2018</span>
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+<span style="color:#ff79c6">==</span>&gt; v1/Secret
+NAME        TYPE    DATA  AGE
+mydb-mysql  Opaque  <span style="color:#bd93f9">2</span>     <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/ConfigMap
+NAME             DATA  AGE
+mydb-mysql-test  <span style="color:#bd93f9">1</span>     <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/PersistentVolumeClaim
+NAME        STATUS   VOLUME  CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+mydb-mysql  Pending  <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Service
+NAME        TYPE      CLUSTER-IP     EXTERNAL-IP  PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>         AGE
+mydb-mysql  NodePort  10.96.150.198  &lt;none&gt;       3306:32604/TCP  <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1beta1/Deployment
+NAME        DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+mydb-mysql  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Pod<span style="color:#ff79c6">(</span>related<span style="color:#ff79c6">)</span>
+NAME                        READY  STATUS   RESTARTS  AGE
+mydb-mysql-dfc999888-hbw5d  0/1    Pending  <span style="color:#bd93f9">0</span>         0s
+...
+</code></pre></div><p>我们可以看到当前 release 的名字已经变成 mydb 了。然后可以查看下 mydb 关联的 Service 是否变成 NodePort 类型的了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get svc
+NAME                 TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>          AGE
+kubernetes           ClusterIP   10.96.0.1        &lt;none&gt;        443/TCP          110d
+mewing-squid-mysql   ClusterIP   10.108.197.48    &lt;none&gt;        3306/TCP         46m
+mydb-mysql           NodePort    10.96.150.198    &lt;none&gt;        3306:32604/TCP   8m
+</code></pre></div><p>看到服务 mydb-mysql 变成了 NodePort 类型的，二之前默认创建的 mewing-squid-mysql 是 ClusterIP 类型的，证明上面我们通过 YAML 文件来覆盖 values 是成功的。</p>
+<p>接下来我们查看下 Pod 的状况：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                                      READY     STATUS    RESTARTS   AGE
+mewing-squid-mysql-69f587bdf9-z7glv       0/1       Pending   <span style="color:#bd93f9">0</span>          49m
+mydb-mysql-dfc999888-hbw5d                0/1       Pending   <span style="color:#bd93f9">0</span>          11m
+</code></pre></div><p>比较奇怪的是之前默认创建的和现在的 mydb 的 release 创建的 Pod 都是 Pending 状态，直接使用 describe 命令查看下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl describe pod mydb-mysql-dfc999888-hbw5d
+Name:           mydb-mysql-dfc999888-hbw5d
+Namespace:      default
+Node:           &lt;none&gt;
+Labels:         <span style="color:#8be9fd;font-style:italic">app</span><span style="color:#ff79c6">=</span>mydb-mysql
+                pod-template-hash<span style="color:#ff79c6">=</span><span style="color:#bd93f9">897555444</span>
+...
+Events:
+  Type     Reason            Age                From               Message
+  ----     ------            ----               ----               -------
+  Warning  FailedScheduling  2m <span style="color:#ff79c6">(</span>x37 over 12m<span style="color:#ff79c6">)</span>  default-scheduler  pod has unbound PersistentVolumeClaims <span style="color:#ff79c6">(</span>repeated <span style="color:#bd93f9">2</span> <span style="color:#8be9fd;font-style:italic">times</span><span style="color:#ff79c6">)</span>
+</code></pre></div><p>我们可以发现两个 Pod 处于 Pending 状态的原因都是 PVC 没有被绑定上，所以这里我们可以通过 storageclass 或者手动创建一个合适的 PV 对象来解决这个问题。</p>
+<p>另外为了说明 helm 更新的用法，我们这里来直接禁用掉数据持久化，可以在上面的 config.yaml 文件中设置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">persistence</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">false</span>
+</code></pre></div><p>另外一种方法就是在安装过程中使用<code>--set</code>来覆盖对应的 value 值，比如禁用数据持久化，我们这里可以这样来覆盖：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install stable/mysql --set persistence.enabled<span style="color:#ff79c6">=</span><span style="color:#8be9fd;font-style:italic">false</span> --name mydb
+</code></pre></div><h2 id="升级">升级</h2>
+<p>我们这里将数据持久化禁用掉来对上面的 mydb 进行升级：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ <span style="color:#8be9fd;font-style:italic">echo</span> config.yaml
+mysqlUser: haimaxyUser
+mysqlDatabase: haimaxyDB
+service:
+  type: NodePort
+persistence:
+  enabled: <span style="color:#8be9fd;font-style:italic">false</span>
+$ helm upgrade -f config.yaml mydb stable/mysql
+helm upgrade -f config.yaml mydb stable/mysql
+Release <span style="color:#f1fa8c">&#34;mydb&#34;</span> has been upgraded. Happy Helming!
+LAST DEPLOYED: Wed Sep  <span style="color:#bd93f9">5</span> 00:38:33 <span style="color:#bd93f9">2018</span>
+NAMESPACE: default
+STATUS: DEPLOYED
+
+RESOURCES:
+...
+</code></pre></div><p>可以看到已经变成 DEPLOYED 状态了，现在我们再去看看 Pod 的状态呢：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                                      READY     STATUS            RESTARTS   AGE
+mewing-squid-mysql-69f587bdf9-z7glv       0/1       Pending           <span style="color:#bd93f9">0</span>          1h
+mydb-mysql-6ffc84bbf6-lcn4d               0/1       PodInitializing   <span style="color:#bd93f9">0</span>          49s
+...
+</code></pre></div><p>我们看到 mydb 关联的 Pod 已经变成了 PodInitializing 的状态，已经不是 Pending 状态了，同样的，使用 describe 命令查看：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl describe pod mydb-mysql-6ffc84bbf6-lcn4d
+Name:           mydb-mysql-6ffc84bbf6-lcn4d
+Namespace:      default
+Node:           node02/10.151.30.63
+Start Time:     Wed, <span style="color:#bd93f9">05</span> Sep <span style="color:#bd93f9">2018</span> 00:38:33 +0800
+Labels:         <span style="color:#8be9fd;font-style:italic">app</span><span style="color:#ff79c6">=</span>mydb-mysql
+                pod-template-hash<span style="color:#ff79c6">=</span><span style="color:#bd93f9">2997406692</span>
+Annotations:    &lt;none&gt;
+Status:         Pending
+...
+Events:
+  Type    Reason                 Age   From               Message
+  ----    ------                 ----  ----               -------
+  Normal  SuccessfulMountVolume  58s   kubelet, node02    MountVolume.SetUp succeeded <span style="color:#ff79c6">for</span> volume <span style="color:#f1fa8c">&#34;data&#34;</span>
+  Normal  SuccessfulMountVolume  58s   kubelet, node02    MountVolume.SetUp succeeded <span style="color:#ff79c6">for</span> volume <span style="color:#f1fa8c">&#34;default-token-n9w2d&#34;</span>
+  Normal  Scheduled              57s   default-scheduler  Successfully assigned mydb-mysql-6ffc84bbf6-lcn4d to node02
+  Normal  Pulling                57s   kubelet, node02    pulling image <span style="color:#f1fa8c">&#34;busybox:1.25.0&#34;</span>
+  Normal  Pulled                 45s   kubelet, node02    Successfully pulled image <span style="color:#f1fa8c">&#34;busybox:1.25.0&#34;</span>
+  Normal  Created                44s   kubelet, node02    Created container
+  Normal  Started                44s   kubelet, node02    Started container
+  Normal  Pulling                41s   kubelet, node02    pulling image <span style="color:#f1fa8c">&#34;mysql:5.7.14&#34;</span>
+</code></pre></div><p>我们可以看到现在没有任何关于 PVC 的错误信息了，这是因为我们刚刚更新的版本中就是禁用掉了的数据持久化的，证明 helm upgrade 和 &ndash;values 是生效了的。现在我们使用 helm ls 命令查看先当前的 release：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm ls
+NAME            REVISION    UPDATED                     STATUS      CHART           APP VERSION NAMESPACE
+mewing-squid    <span style="color:#bd93f9">1</span>           Tue Sep  <span style="color:#bd93f9">4</span> 23:31:23 <span style="color:#bd93f9">2018</span>    DEPLOYED    mysql-0.10.1    5.7.14      default
+mydb            <span style="color:#bd93f9">2</span>           Wed Sep  <span style="color:#bd93f9">5</span> 00:38:33 <span style="color:#bd93f9">2018</span>    DEPLOYED    mysql-0.10.1    5.7.14      default
+</code></pre></div><p>可以看到 mydb 这个 release 的<code>REVISION</code>已经变成<strong>2</strong>了，这是因为 release 的版本是递增的，每次安装、升级或者回滚，版本号都会加<strong>1</strong>，第一个版本号始终为<strong>1</strong>，同样我们可以使用 helm history 命令查看 release 的历史版本：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm <span style="color:#8be9fd;font-style:italic">history</span> mydb
+REVISION    UPDATED                     STATUS      CHART           DESCRIPTION
+<span style="color:#bd93f9">1</span>           Wed Sep  <span style="color:#bd93f9">5</span> 00:09:44 <span style="color:#bd93f9">2018</span>    SUPERSEDED  mysql-0.10.1    Install <span style="color:#8be9fd;font-style:italic">complete</span>
+<span style="color:#bd93f9">2</span>           Wed Sep  <span style="color:#bd93f9">5</span> 00:38:33 <span style="color:#bd93f9">2018</span>    DEPLOYED    mysql-0.10.1    Upgrade <span style="color:#8be9fd;font-style:italic">complete</span>
+</code></pre></div><p>当然如果我们要回滚到某一个版本的话，使用 helm rollback 命令即可，比如我们将 mydb 回滚到上一个版本：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ $ helm rollback mydb <span style="color:#bd93f9">1</span>
+</code></pre></div><h2 id="删除">删除</h2>
+<p>上节课我们就学习了要删除一个 release 直接使用 helm delete 命令就 OK：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm delete mewing-squid
+release <span style="color:#f1fa8c">&#34;mewing-squid&#34;</span> deleted
+</code></pre></div><p>这将从集群中删除该 release，但是这并不代表就完全删除了，我们还可以通过<code>--deleted</code>参数来显示被删除掉 release:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm list --deleted
+NAME            REVISION    UPDATED                     STATUS  CHART           APP VERSION NAMESPACE
+mewing-squid    <span style="color:#bd93f9">1</span>           Tue Sep  <span style="color:#bd93f9">4</span> 23:31:23 <span style="color:#bd93f9">2018</span>    DELETED mysql-0.10.1    5.7.14      default
+$  helm list --all
+NAME            REVISION    UPDATED                     STATUS      CHART           APP VERSION NAMESPACE
+mewing-squid    <span style="color:#bd93f9">1</span>           Tue Sep  <span style="color:#bd93f9">4</span> 23:31:23 <span style="color:#bd93f9">2018</span>    DELETED     mysql-0.10.1    5.7.14      default
+mydb            <span style="color:#bd93f9">2</span>           Wed Sep  <span style="color:#bd93f9">5</span> 00:38:33 <span style="color:#bd93f9">2018</span>    DEPLOYED    mysql-0.10.1    5.7.14      default
+</code></pre></div><p><code>helm list --all</code>则会显示所有的 release，包括已经被删除的</p>
+<blockquote>
+<p>由于 Helm 保留已删除 release 的记录，因此不能重新使用 release 名称。（如果 确实 需要重新使用此 release 名称，则可以使用此 &ndash;replace 参数，但它只会重用现有 release 并替换其资源。）这点是不是和 docker container 的管理比较类似</p>
+</blockquote>
+<p>请注意，因为 release 以这种方式保存，所以可以回滚已删除的资源并重新激活它。</p>
+<p>如果要彻底删除 release，则需要加上<code>--purge</code>参数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm delete mewing-squid --purge
+release <span style="color:#f1fa8c">&#34;mewing-squid&#34;</span> deleted
+</code></pre></div><p>我们这里只是讲到了 Helm 的一些常用的方法，更多用法我们将在后面的课程中和大家接触到。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/huawei-cloudnativelives-k8s-course/" data-toggle="tooltip" data-placement="top" title="华为 CloudNativeLives K8S 系列课程">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/kubernetes-qos-usage/" data-toggle="tooltip" data-placement="top" title="Kubernetes 服务质量 Qos 解析">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

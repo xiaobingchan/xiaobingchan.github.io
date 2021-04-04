@@ -1,0 +1,1508 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="在 Kubernetes 中运行 Kubernetes" />
+    <meta property="og:title" content="在 Kubernetes 中运行 Kubernetes" />
+    <meta property="twitter:title" content="在 Kubernetes 中运行 Kubernetes" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>在 Kubernetes 中运行 Kubernetes-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/k8s-in-k8s/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        <a class="tag" href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        <a class="tag" href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                    </div>
+                    <h1>在 Kubernetes 中运行 Kubernetes</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, June 12, 2020
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#在-pod-中安装-docker-daemon">在 Pod 中安装 Docker Daemon</a></li>
+        <li><a href="#在-pod-中运行-kind">在 Pod 中运行 KinD</a></li>
+        <li><a href="#总结">总结</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="/post/deploy-k8s-on-win-use-wsl2/">前面其实我们在 Windows 系统的 WSL2 下面使用 KinD 搭建了一套 Kubernetes 集群</a>，KinD 是一个非常轻量级的 Kubernetes 安装工具，他将 Docker 容器当成 Kubernetes 的节点，使用非常方便。既然在 Docker 容器中可以运行 Kubernetes 集群，那么我们自然就会想到是否可以在 Pod 中来运行呢？在 Pod 中运行会遇到哪些问题呢？</p>
+<h2 id="在-pod-中安装-docker-daemon">在 Pod 中安装 Docker Daemon</h2>
+<p>KinD 现在是依赖与 Docker 的，所以首先我们需要创建一个允许我们在 Pod 中运行 Docker Deamon 的镜像，这样我们就可以在 Pod 里面去执行 <code>docker run</code> 这样的命令，当然这个和我们之前说的挂载宿主机的 docker.sock 这种 DIND 模式是不一样的。要想在 Pod 中运行 Docker Deamon 依然会有不少问题的。</p>
+<h3 id="pid-1-的问题">PID 1 的问题</h3>
+<p>比如我们需要在一个容器中去运行 Docker Daemon 以及一些 Kubernetes 的集群测试，而这些测试依赖于 KinD 和 Docker Damon，在一个容器中运行多个服务我们可能会去使用 systemd，但是使用 systemd 也会有一些问题。</p>
+<ol>
+<li>比如我们需要保留测试的退出状态，Kubernetes 中使用的容器运行时可以 watch 到容器中的第一个进程（PID 1）的退出状态。如果我们使用 systemd 的话，那么我们测试的进程退出状态不会被转发到 Kubernetes。</li>
+<li>此外获取测试的日志也是非常重要的，在 Kubernetes 中会自动获取写入到 stdout 和 stderr 的容器日志，但是如果使用 systemd 的话，要想获取应用的日志就比较麻烦的。</li>
+</ol>
+<p>为了解决上面的问题，我们可以在容器镜像中使用如下所示的启动脚本：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">dockerd &amp;
+<span style="color:#6272a4"># Wait until dockerd is ready.</span>
+<span style="color:#ff79c6">until</span> docker ps &gt;/dev/null 2&gt;&amp;<span style="color:#bd93f9">1</span>
+<span style="color:#ff79c6">do</span>
+  <span style="color:#8be9fd;font-style:italic">echo</span> <span style="color:#f1fa8c">&#34;Waiting for dockerd...&#34;</span>
+  sleep <span style="color:#bd93f9">1</span>
+<span style="color:#ff79c6">done</span>
+<span style="color:#8be9fd;font-style:italic">exec</span> <span style="color:#f1fa8c">&#34;</span><span style="color:#8be9fd;font-style:italic">$@</span><span style="color:#f1fa8c">&#34;</span>
+</code></pre></div><p>但是需要注意的是我们不能将上面的脚本作为容器的 entrypoint，在镜像中定义的 entrypoint 会在容器中以 PID 1 的形式运行在一个单独的 pid namespace 中。PID 1 是一个内核中的一个特殊进程，它的行为和其他进程不同。</p>
+<p>本质上，接收信号的进程是 PID 1：它会被内核做特殊处理；如果它没有为信号注册一个处理器，内核就不会回到默认行为（即杀死进程）。由于当收到 <code>SIGTERM</code> 信号时，内核会默认杀死这个进程，所以一些进程也许不会为 <code>SIGTERM</code> 信号注册信号处理程序。如果出现了这种情况，当 Kubernetes 尝试终止 Pod 时，SIGTERM 将被吞噬，你会注意到 Pod 会被卡在 <code>Terminating</code> 的状态下。</p>
+<p>这其实不是一个什么新鲜的问题，但是了解这个问题的人却并不多，而且还一直在构建有这样问题的容器。我们可以使用 <a href="https://github.com/krallin/tini">tini</a> 这个应用来解决这个问题，将其作为镜像的入口点，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ENTRYPOINT <span style="color:#ff79c6">[</span><span style="color:#f1fa8c">&#34;/usr/bin/tini&#34;</span>, <span style="color:#f1fa8c">&#34;--&#34;</span>, <span style="color:#f1fa8c">&#34;/entrypoint.sh&#34;</span><span style="color:#ff79c6">]</span>
+</code></pre></div><p>这个程序会正确注册信号处理程序和转发信号。它还会执行一些其他 PID 1 的事情，比如回收容器中的僵尸进程。</p>
+<h3 id="挂载-cgroups">挂载 cgroups</h3>
+<p>由于 Docker Daemon 需要控制 cgroups，所以需要将 cgroup 文件系统挂载到容器中去。但是由于 cgroups 和宿主机是共享的，所以我们需要确保 Docker Daemon 控制的 cgroups 不会影响到其他容器或者宿主机进程使用的其他 cgroups，还需要确保 Docker Daemon 在容器中创建的 cgroups 在容器退出后不会被泄露。</p>
+<p>Docker Daemon 中有一个<code>--cgroup—parent</code> 参数来告诉 Daemon 将所有容器的 cgroups 嵌套在指定的 cgroup 下面。当容器运行在 Kubernetes 集群下面时，我们在容器中设置 Docker Daemon 的<code>--cgroup—parent</code> 参数，这样它的所有 cgroups 就会被嵌套在 Kubernetes 为容器创建的 cgroup 下面了。</p>
+<p>在以前为了让 cgroup 文件系统在容器中可用，一些用户会将宿主机中的 <code>/sys/fs/cgroup</code> 挂载到容器中的这个位置，如果这样使用的话，我们就需要在容器启动脚本中把<code>--cgroup—parent</code> 设置为下面的内容，这样 Docker Daemon 创建的 cgroups 就可以正确被嵌套了。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#8be9fd;font-style:italic">CGROUP_PARENT</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;</span><span style="color:#ff79c6">$(</span>grep systemd /proc/self/cgroup | cut -d: -f3<span style="color:#ff79c6">)</span><span style="color:#f1fa8c">/docker&#34;</span>
+</code></pre></div><blockquote>
+<p>注意：<code>/proc/self/cgroup</code> 显示的是调用进程的 cgorup 路径。</p>
+</blockquote>
+<p>但是我们要知道，挂载宿主机的 <code>/sys/fs/cgroup</code> 文件是非常危险的事情，因为他把整个宿主机的 cgroup 层次结构都暴露给了容器。以前为了解决这个问题，Docker 用了一个小技巧把不相关的 cgroups 隐藏起来，不让容器看到。Docker 从容器的 cgroups 对每个 cgroup 系统的 cgroup 层次结构的根部进行绑定挂载。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run --rm debian findmnt -lo source,target -t cgroup       
+SOURCE                                                                               TARGET
+cpuset<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>     /sys/fs/cgroup/cpuset
+cpu<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>        /sys/fs/cgroup/cpu
+cpuacct<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>    /sys/fs/cgroup/cpuacct
+blkio<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>     /sys/fs/cgroup/blkio
+memory<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>     /sys/fs/cgroup/memory
+ 
+cgroup<span style="color:#ff79c6">[</span>/docker/451b803b3cd7cd2b69dde64cd833fdd799ae16f9d2d942386ec382f6d55bffac<span style="color:#ff79c6">]</span>     /sys/fs/cgroup/systemd
+</code></pre></div><p>从上面我们可以看出 cgroups 通过将宿主机 cgroup 文件系统上的 <code>/sys/fs/cgroup/memory/memory.limit_in_bytes</code> 文件映射到 <code>/sys/fs/cgroup/memory/docker/&lt;CONTAINER_ID&gt;/memory.limit_in_bytes</code> 来控制容器内 cgroup 层次结构根部的文件，这种方式可以防止容器进程意外地修改宿主机的 cgroup。</p>
+<p>但是这种方式有时候会让 cadvisor 和 kubelet 这样的应用感动困惑，因为绑定挂载并不会改变 <code>/proc/&lt;PID&gt;/cgroup</code> 里面的内容。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run --rm debian cat /proc/1/cgroup                                
+14:name<span style="color:#ff79c6">=</span>systemd:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+ 
+5:memory:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+4:blkio:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+3:cpuacct:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+2:cpu:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+1:cpuset:/docker/512f6b62e3963f85f5abc09b69c370d27ab1dc56549fa8afcbb86eec8663a141
+0::/
+</code></pre></div><p>cadvisor 会通过查看 <code>/proc/&lt;PID&gt;/cgroup</code> 来获取给定进程的 cgroup，并尝试从对应的 cgroup 中获取 CPU 或内存统计数据。但是由于 Docker Daemon 进程做了绑定挂载，cadvisor 就无法找打容器进程对应的 cgroup。为了解决这个问题，我们在容器内部又做了一次挂载，从 <code>/sys/fs/cgroup/memory</code> 挂载到 <code>/sys/fs/cgroup/memory/docker/&lt;CONTAINER_ID&gt;/</code>（针对所有的 cgroup 子系统），这个方法可以很好的解决这个问题。</p>
+<p>现在新的解决方法是使用 <a href="http://man7.org/linux/man-pages/man7/cgroup_namespaces.7.html">cgroup namespace</a>，如果你运行在一个内核版本 4.6+ 的 Linux 系统下面，runc 和 docker 都加入了 cgroup 命名空间的支持。但是目前 Kubernetes 暂时还不支持 cgroup 命名空间，但是很快会作为 <a href="https://github.com/kubernetes/enhancements/blob/master/keps/sig-node/20191118-cgroups-v2.md">cgroups v2 支持</a>的一部分。</p>
+<h3 id="iptables">IPtables</h3>
+<p>在使用的时候我们发现在线上的 Kubernetes 集群运行时，有时候容器内的 Docker Daemon 启动的嵌套容器无法访问外网，但是在本地开发电脑上却可以很正常的工作，大部分开发者应该都会经常遇到这种情况。</p>
+<p>最后发现当出现这个问题的时候，来自嵌套的 Docker 容器的数据包并没有打到 iptables 的 POSTROUTING 链，所以没有做 masqueraded。</p>
+<!-- raw HTML omitted -->
+<p>这个问题是因为包含 Docker Daemon 的镜像是基于 <a href="https://www.debian.org/releases/buster/">Debian buster</a> 的，而默认情况下，Debian buster 使用的是 <a href="https://wiki.debian.org/nftables">nftables</a> 作为 iptables 的默认后端，然而 Docker 本身还不支持 nftables。要解决这个问题只需要在容器镜像中切换到 iptables 命令即可。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">RUN update-alternatives --set iptables  /usr/sbin/iptables-legacy <span style="color:#ff79c6">||</span> <span style="color:#8be9fd;font-style:italic">true</span> <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>    update-alternatives --set ip6tables /usr/sbin/ip6tables-legacy <span style="color:#ff79c6">||</span> <span style="color:#8be9fd;font-style:italic">true</span> <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>    update-alternatives --set arptables /usr/sbin/arptables-legacy <span style="color:#ff79c6">||</span> <span style="color:#8be9fd;font-style:italic">true</span>
+</code></pre></div><p>完整的 Dockerfile 文件和启动脚本可以在 GitHub（<a href="https://github.com/jieyu/docker-images/tree/master/dind">https://github.com/jieyu/docker-images/tree/master/dind</a>）上面获取，也可以直接使用 <code>jieyu/dind-buster:v0.1.8</code> 这个镜像来测试。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run --rm --privileged jieyu/dind-buster:v0.1.8 docker run alpine wget baidu.com
+</code></pre></div><p>在 Kubernetes 集群下使用如下所示的 Pod 资源清单部署即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Pod
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dind
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">containers</span>:
+  - <span style="color:#ff79c6">image</span>: jieyu/dind-buster:v0.1.8
+    <span style="color:#ff79c6">name</span>: dind
+    <span style="color:#ff79c6">stdin</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">tty</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">args</span>:
+    - /bin/bash
+    <span style="color:#ff79c6">volumeMounts</span>:
+    - <span style="color:#ff79c6">mountPath</span>: /var/lib/docker
+      <span style="color:#ff79c6">name</span>: varlibdocker
+    <span style="color:#ff79c6">securityContext</span>:
+      <span style="color:#ff79c6">privileged</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">volumes</span>:
+  - <span style="color:#ff79c6">name</span>: varlibdocker
+    <span style="color:#ff79c6">emptyDir</span>: {}
+</code></pre></div><h2 id="在-pod-中运行-kind">在 Pod 中运行 KinD</h2>
+<p>上面我们成功配置了 Docker-in-Docker(DinD)，接下来我们就来在该容器中使用 KinD 启动 Kubernetes 集群。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run -ti --rm --privileged jieyu/dind-buster:v0.1.8 /bin/bash
+Waiting <span style="color:#ff79c6">for</span> dockerd...
+<span style="color:#ff79c6">[</span>root@257b543a91a5 /<span style="color:#ff79c6">]</span><span style="color:#6272a4"># curl -Lso ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-$(uname)-amd64</span>
+<span style="color:#ff79c6">[</span>root@257b543a91a5 /<span style="color:#ff79c6">]</span><span style="color:#6272a4"># chmod +x ./kind</span>
+<span style="color:#ff79c6">[</span>root@257b543a91a5 /<span style="color:#ff79c6">]</span><span style="color:#6272a4"># mv ./kind /usr/bin/ </span>
+<span style="color:#ff79c6">[</span>root@257b543a91a5 /<span style="color:#ff79c6">]</span><span style="color:#6272a4"># kind create cluster</span>
+Creating cluster <span style="color:#f1fa8c">&#34;kind&#34;</span> ...
+ ✓ Ensuring node image <span style="color:#ff79c6">(</span>kindest/node:v1.18.2<span style="color:#ff79c6">)</span> 🖼 
+ ✓ Preparing nodes 📦  
+ ✓ Writing configuration 📜 
+ ✓ Starting control-plane 🕹️ 
+ ✓ Installing CNI 🔌 
+ ✓ Installing StorageClass 💾 
+Set kubectl context to <span style="color:#f1fa8c">&#34;kind-kind&#34;</span>
+You can now use your cluster with:
+kubectl cluster-info --context kind-kind
+Have a nice day! 👋
+<span style="color:#ff79c6">[</span>root@257b543a91a5 /<span style="color:#ff79c6">]</span><span style="color:#6272a4"># kubectl get nodes</span>
+NAME                 STATUS   ROLES    AGE   VERSION
+kind-control-plane   Ready    master   11m   v1.18.2
+</code></pre></div><p>由于某些原因可能你用上面的命令下载不了 kind，我们可以想办法提前下载到宿主机上面，然后直接挂载到容器中去也可以，我这里将 kind 和 kubectl 命令都挂载到容器中去，使用下面的命令启动容器即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run -it --rm --privileged -v /usr/local/bin/kind:/usr/bin/kind -v /usr/local/bin/kubectl:/usr/bin/kubectl jieyu/dind-buster:v0.1.8 /bin/bash
+</code></pre></div><p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200612100342.png" alt="kind in docker">
+
+</p>
+<p>可以看到在容器中可以很好的使用 KinD 来创建 Kubernetes 集群。接下来我们直接在 Kubernetes 中来测试一次：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ kubectl apply -f dind.yaml
+$ kubectl <span style="color:#8be9fd;font-style:italic">exec</span> -ti dind /bin/bash
+root@dind:/# curl -Lso ./kind https://kind.sigs.k8s.io/dl/v0.7.0/kind-<span style="color:#ff79c6">$(</span>uname<span style="color:#ff79c6">)</span>-amd64
+root@dind:/# chmod +x ./kind
+root@dind:/# mv ./kind /usr/bin/
+root@dind:/# kind create cluster
+Creating cluster <span style="color:#f1fa8c">&#34;kind&#34;</span> ...
+ ✓ Ensuring node image <span style="color:#ff79c6">(</span>kindest/node:v1.17.0<span style="color:#ff79c6">)</span> 🖼 
+ ✓ Preparing nodes 📦  
+ ✓ Writing configuration 📜 
+ ✗ Starting control-plane 🕹️ 
+ERROR: failed to create cluster: failed to init node with kubeadm: <span style="color:#8be9fd;font-style:italic">command</span> <span style="color:#f1fa8c">&#34;docker exec --privileged kind-control-plane kubeadm init --ignore-preflight-errors=all --config=/kind/kubeadm.conf --skip-token-print --v=6&#34;</span> failed with error: <span style="color:#8be9fd;font-style:italic">exit</span> status <span style="color:#bd93f9">137</span>
+</code></pre></div><p>我们可以看到在 Pod 中使用 KinD 来创建集群失败了，这是因为在 KinD 节点嵌套容器内运行的 kubelet 会随机杀死顶层容器内的进程，这其实还是和上面讨论的 cgroups 的挂载有关。</p>
+<p>但其实我自己在使用 v0.8.1 版本的 KinD 的时候，在上面的 Pod 中是可以正常创建集群的，不知道是否是 KinD 搭建的集群有什么特殊处理，这里需要再深入研究：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200612114709.png" alt="kind in pod">
+
+</p>
+<p>如果你在使用的过程中也遇到了上述的问题，则可以继续往下看解决方案。</p>
+<p>当顶层容器（DIND）在 Kubernetes  Pod 中运行的时候，对于每个 cgroup 子系统（比如内存），从宿主机的角度来看，它的 cgroup 路径是 <code>/kubepods/burstable/&lt;POD_ID&gt;/&lt;DIND_CID&gt;</code>。</p>
+<p>当 KinD 在 DIND 容器内的嵌套节点容器内启动 kubelet 的时候，kubelet 将在 <code>/kubepods/burstable/</code> 下相对于嵌套 KIND 节点容器的根 cgroup 为其 Pods 来操作 cgroup。从宿主机的角度来看，cgroup 路径就是 <code>/kubepods/burstable/&lt;POD_ID&gt;/&lt;DIND_CID&gt;/docker/&lt;KIND_CID&gt;/kubepods/burstable/</code>。</p>
+<p>这些都是正确的，但是在嵌套的 KinD 节点容器中，有另一个 cgroup 存在于 <code>/kubepods/burstable/&lt;POD_ID&gt;/&lt;DIND_CID&gt;/docker/&lt;DIND_CID&gt;</code>下面，相对于嵌套的 KinD 节点容器的根 cgroup，在 kubelet 启动之前就存在了，这是上面我们讨论过的 cgroups 挂载造成的，通过 KinD entrypoint 脚本设置。而如果你在 KinD 节点容器里面做一个 <code>cat /kubepods/burstable/&lt;POD_ID&gt;/docker/&lt;DIND_CID&gt;/tasks</code>，你会看到 DinD 容器的进程。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200612111432.png" alt="k8s in k8s">
+
+</p>
+<p>这就是最根本的原因，KinD 节点容器里面的 kubelet 看到了这个 cgroup，以为应该由它来管理，但是却找不到和这个 cgroup 相关联的 Pod，所以就会尝试来杀死属于这个 cgroup 的进程来删除这个 cgroup。这个操作的结果就是随机进程被杀死。解决这个问题的方法可以通过设置 kubelet 的<code>--cgroup-root</code> 参数，通过该标志来指示 KinD 节点容器内的 kubelet 为其 Pods 使用不通的 cgroup 根路径（比如 /kubelet）。这样就可以在 Kubernetes 集群中来启动 KinD 集群了，我们可以通过下面的 YAML 资源清单文件来修复这个问题。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Pod
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: kind-cluster
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">containers</span>:
+  - <span style="color:#ff79c6">image</span>: jieyu/kind-cluster-buster:v0.1.0
+    <span style="color:#ff79c6">name</span>: kind-cluster
+    <span style="color:#ff79c6">stdin</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">tty</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">args</span>:
+    - /bin/bash
+    <span style="color:#ff79c6">env</span>:
+    - <span style="color:#ff79c6">name</span>: API_SERVER_ADDRESS
+      <span style="color:#ff79c6">valueFrom</span>:
+        <span style="color:#ff79c6">fieldRef</span>:
+          <span style="color:#ff79c6">fieldPath</span>: status.podIP
+    <span style="color:#ff79c6">volumeMounts</span>:
+    - <span style="color:#ff79c6">mountPath</span>: /var/lib/docker
+      <span style="color:#ff79c6">name</span>: varlibdocker
+    - <span style="color:#ff79c6">mountPath</span>: /lib/modules
+      <span style="color:#ff79c6">name</span>: libmodules
+      <span style="color:#ff79c6">readOnly</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">securityContext</span>:
+      <span style="color:#ff79c6">privileged</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">ports</span>:
+    - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">30001</span>
+      <span style="color:#ff79c6">name</span>: api-server-port
+      <span style="color:#ff79c6">protocol</span>: TCP
+    <span style="color:#ff79c6">readinessProbe</span>:
+      <span style="color:#ff79c6">failureThreshold</span>: <span style="color:#bd93f9">15</span>
+      <span style="color:#ff79c6">httpGet</span>:
+        <span style="color:#ff79c6">path</span>: /healthz
+        <span style="color:#ff79c6">port</span>: api-server-port
+        <span style="color:#ff79c6">scheme</span>: HTTPS
+      <span style="color:#ff79c6">initialDelaySeconds</span>: <span style="color:#bd93f9">120</span>
+      <span style="color:#ff79c6">periodSeconds</span>: <span style="color:#bd93f9">20</span>
+      <span style="color:#ff79c6">successThreshold</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">timeoutSeconds</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#ff79c6">volumes</span>:
+  - <span style="color:#ff79c6">name</span>: varlibdocker
+    <span style="color:#ff79c6">emptyDir</span>: {}
+  - <span style="color:#ff79c6">name</span>: libmodules
+    <span style="color:#ff79c6">hostPath</span>:
+      <span style="color:#ff79c6">path</span>: /lib/modules
+</code></pre></div><p>使用上面的资源清单文件创建完成后，稍等一会儿我们就可以进入 Pod 中来验证。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ kubectl <span style="color:#8be9fd;font-style:italic">exec</span> -ti kind-cluster /bin/bash
+root@kind-cluster:/# kubectl get nodes
+NAME                 STATUS   ROLES    AGE   VERSION                                                                                                                   
+kind-control-plane   Ready    master   72s   v1.17.0
+</code></pre></div><p>同样也可以直接使用 Docker CLI 来进行测试：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ docker run -ti --rm --privileged jieyu/kind-cluster-buster:v0.1.0 /bin/bash
+Waiting <span style="color:#ff79c6">for</span> dockerd...
+Setting up KIND cluster
+Creating cluster <span style="color:#f1fa8c">&#34;kind&#34;</span> ...
+ ✓ Ensuring node image <span style="color:#ff79c6">(</span>jieyu/kind-node:v1.17.0<span style="color:#ff79c6">)</span> 🖼 
+ ✓ Preparing nodes 📦  
+ ✓ Writing configuration 📜 
+ ✓ Starting control-plane 🕹️ 
+ ✓ Installing CNI 🔌 
+ ✓ Installing StorageClass 💾 
+ ✓ Waiting ≤ 15m0s <span style="color:#ff79c6">for</span> control-plane <span style="color:#ff79c6">=</span> Ready ⏳ 
+ • Ready after 31s 💚
+Set kubectl context to <span style="color:#f1fa8c">&#34;kind-kind&#34;</span>
+You can now use your cluster with:
+kubectl cluster-info --context kind-kind
+Have a nice day! 👋
+root@d95fa1302557:/# kubectl get nodes
+NAME                 STATUS   ROLES    AGE   VERSION
+kind-control-plane   Ready    master   71s   v1.17.0
+root@d95fa1302557:/#
+</code></pre></div><blockquote>
+<p>上面镜像对应的 Dockerfile 和启动脚本地址：<a href="https://github.com/jieyu/docker-images/tree/master/kind-cluster">https://github.com/jieyu/docker-images/tree/master/kind-cluster</a></p>
+</blockquote>
+<p>下图是我在 KinD 搭建的 Kubernetes 集群中，创建的一个 Pod，然后在 Pod 中创建的一个独立的 Kubernetes 集群最终效果：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200612115324.png" alt="k8s in k8s">
+
+</p>
+<h2 id="总结">总结</h2>
+<p>在实现上面功能的时候，过程中还是遇到了不少的障碍，其中大部分都是因为 Docker 容器没有提供和宿主机完全隔离的功能造成的，某些内核资源比如 cgroups 是在内核中共享的，如果很多容器同时操作它们，也可能会造成潜在的冲突。但是一旦解决了这些问题，我们就可以非常方便的在 Kubernetes 集群 Pod 中轻松地运行一个独立的 Kubernetes 集群了，这应该算真正的 Kubernetes IN Kubernetes 了吧~</p>
+<blockquote>
+<p>原文链接：<a href="https://d2iq.com/blog/running-kind-inside-a-kubernetes-cluster-for-continuous-integration?utm_sq=gf2bqwb34d">https://d2iq.com/blog/running-kind-inside-a-kubernetes-cluster-for-continuous-integration</a></p>
+</blockquote>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/deploy-k8s-on-win-use-wsl2/" data-toggle="tooltip" data-placement="top" title="在 Windows 下使用 WSL2 搭建 Kubernetes 集群">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/status-in-pv-pvc/" data-toggle="tooltip" data-placement="top" title="Kubernetes 中 PV 和 PVC 的状态变化">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

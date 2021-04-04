@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="使用 OAM 部署 Kubernetes 应用" />
+    <meta property="og:title" content="使用 OAM 部署 Kubernetes 应用" />
+    <meta property="twitter:title" content="使用 OAM 部署 Kubernetes 应用" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>使用 OAM 部署 Kubernetes 应用-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/deploy-k8s-app-with-oam/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/oam" title="oam">
+                            oam
+                        </a>
+                        
+                        <a class="tag" href="/tags/rudr" title="rudr">
+                            rudr
+                        </a>
+                        
+                    </div>
+                    <h1>使用 OAM 部署 Kubernetes 应用</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Monday, November 25, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#安装-rudr">安装 Rudr</a></li>
+        <li><a href="#部署应用">部署应用</a></li>
+        <li><a href="#参考资料">参考资料</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>前段时间阿里云和微软云联合发布了 <code>Open Application Model（OAM）</code>，简单来说就是利用一个规范对应用程序进行建模以区分开发和运维人员的职责。开发人员负责描述微服务或组件的功能，以及如何配置它；运维负责配置其中一个或多个微服务的运行时环境；基础设施工程师负责建立和维护应用程序运行的基础设施。其中 <a href="https://github.com/oam-dev/rudr">Rudr</a> 是针对 Kubernetes 上面的 <code>OAM</code> 的参考实现。</p>
+<p><code>Rudr</code> 的应用程序有三个元素：Components（组件）、Configuration（配置）、Traits（特征）：</p>
+<ul>
+<li>组件定义一个或多个面向操作系统的容器镜像以及硬件需求，如 <code>CPU</code>、内存和存储等</li>
+<li>配置处理运行时的参数，比如环境变量</li>
+<li>特征声明运行时的属性，比如 Volume、Ingress、伸缩等等。</li>
+</ul>
+<p>下面我们来用一个简单的示例演示下  Rudr 的使用，Rudr 也是通过 Kubernetes CRD 实现的，将 <code>OAM</code> 规范中的属性映射成 Kubernetes 对象，继续操作之前，首先确保有一个 Kubernetes 集群，文章中使用到的应用源代码可以从 <a href="https://github.com/cnych/todo-app">GitHub 仓库</a>上获取，我们可以自己制作一个 Docker 镜像，当然也可以使用我们这里推送到 Docker Hub 上面的镜像。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl version
+Client Version: version.Info<span style="color:#ff79c6">{</span>Major:<span style="color:#f1fa8c">&#34;1&#34;</span>, Minor:<span style="color:#f1fa8c">&#34;14&#34;</span>, GitVersion:<span style="color:#f1fa8c">&#34;v1.14.2&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;66049e3b21efe110454d67df4fa62b08ea79a19b&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, BuildDate:<span style="color:#f1fa8c">&#34;2019-05-16T18:55:03Z&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.12.5&#34;</span>, Compiler:<span style="color:#f1fa8c">&#34;gc&#34;</span>, Platform:<span style="color:#f1fa8c">&#34;darwin/amd64&#34;</span><span style="color:#ff79c6">}</span>
+Server Version: version.Info<span style="color:#ff79c6">{</span>Major:<span style="color:#f1fa8c">&#34;1&#34;</span>, Minor:<span style="color:#f1fa8c">&#34;16&#34;</span>, GitVersion:<span style="color:#f1fa8c">&#34;v1.16.2&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;c97fe5036ef3df2967d086711e6c0c405941e14b&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, BuildDate:<span style="color:#f1fa8c">&#34;2019-10-15T19:09:08Z&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.12.10&#34;</span>, Compiler:<span style="color:#f1fa8c">&#34;gc&#34;</span>, Platform:<span style="color:#f1fa8c">&#34;linux/amd64&#34;</span><span style="color:#ff79c6">}</span>
+</code></pre></div><blockquote>
+<p>我们这里使用的 <code>Traefik</code> 1.7.x 版本作为 Ingress Controller，当然你也可以使用其他的。</p>
+</blockquote>
+<p>我们这里的应用是一个 Node.js 的 Web 应用程序和一个对应的 MongoDB 容器组件，作为环境变量来配置 MongoDB 的连接地址就是我们的配置，最后再配置一个 Ingress 作为我们的一个特征（Traits）。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-system -l k8s-app<span style="color:#ff79c6">=</span>traefik-ingress-lb
+NAME                                         READY   STATUS    RESTARTS   AGE
+traefik-ingress-controller-bd489c447-6ms8z   1/1     Running   <span style="color:#bd93f9">0</span>          4d21h
+</code></pre></div><h2 id="安装-rudr">安装 Rudr</h2>
+<p>关于 Rudr 的安装，<a href="https://github.com/oam-dev/rudr/blob/master/docs/setup/install.md">官方文档</a>中提到的是用 <code>Helm3</code> 来安装，我们这里同样用 <code>Helm3</code> 进行安装，<code>Helm3</code> 已经去除掉了 Tiller Server，所以我们只需要下载 Helm3 客户端，然后在使用的节点上配置好 kubectl 就可以正常使用了。</p>
+<p>从 <a href="https://github.com/helm/helm/releases">GitHub Release 页面</a>下载最新版本的 Helm3，然后解压放置到 PATH 路径下面即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm version
+version.BuildInfo<span style="color:#ff79c6">{</span>Version:<span style="color:#f1fa8c">&#34;v3.0.0&#34;</span>, GitCommit:<span style="color:#f1fa8c">&#34;e29ce2a54e96cd02ccfce88bee4f58bb6e2a28b6&#34;</span>, GitTreeState:<span style="color:#f1fa8c">&#34;clean&#34;</span>, GoVersion:<span style="color:#f1fa8c">&#34;go1.13.4&#34;</span><span style="color:#ff79c6">}</span>
+</code></pre></div><p>然后 Clone Rudr 代码仓库到本地，然后使用 Helm 直接安装即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone https://github.com/oam-dev/rudr.git
+$ <span style="color:#8be9fd;font-style:italic">cd</span> rudr
+$ helm install rudr ./charts/rudr --wait --set image.tag<span style="color:#ff79c6">=</span>v1.0.0-alpha.1
+
+NAME: rudr
+LAST DEPLOYED: Mon Nov <span style="color:#bd93f9">25</span> 17:16:43 <span style="color:#bd93f9">2019</span>
+NAMESPACE: default
+STATUS: deployed
+REVISION: <span style="color:#bd93f9">1</span>
+TEST SUITE: None
+NOTES:
+Rudr is a Kubernetes controller to manage Configuration CRDs.
+
+It has been successfully installed.
+</code></pre></div><p>安装过后，可以使用如下命令来校验 CRD 和 Pod 是否已经安装成功：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get crds -l app.kubernetes.io/part-of<span style="color:#ff79c6">=</span>core.oam.dev
+NAME                                     CREATED AT
+applicationconfigurations.core.oam.dev   2019-11-25T09:00:42Z
+componentinstances.core.oam.dev          2019-11-25T09:00:42Z
+componentschematics.core.oam.dev         2019-11-25T09:00:42Z
+healthscopes.core.oam.dev                2019-11-25T09:00:42Z
+scopes.core.oam.dev                      2019-11-25T09:00:42Z
+traits.core.oam.dev                      2019-11-25T09:00:43Z
+$ kubectl get deployment rudr
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+rudr   1/1     <span style="color:#bd93f9">1</span>            <span style="color:#bd93f9">1</span>           8m50s
+$ kubectl get pods
+</code></pre></div><h2 id="部署应用">部署应用</h2>
+<p>Rudr 安装成功后，现在我们可以来声明一个资源清单，我们这里的应用是一个简单的 TODO 应用，基于后端存储 MongoDB 的 Express 框架实现，所以我们这里可以声明一个 MongoDB 组件和 Web 应用组件，将他们分别称为后端和前端组件：(components.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: core.oam.dev/v1alpha1
+<span style="color:#ff79c6">kind</span>: ComponentSchematic
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: backend
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#34;1.0.0&#34;</span>
+    <span style="color:#ff79c6">description</span>: Mongodb Backend
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">workloadType</span>: core.oam.dev/v1alpha1.SingletonServer
+  <span style="color:#ff79c6">containers</span>:
+    - <span style="color:#ff79c6">name</span>: backend
+      <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">27017</span>
+          <span style="color:#ff79c6">name</span>: mongo
+      <span style="color:#ff79c6">image</span>: mongo
+
+---
+
+<span style="color:#ff79c6">apiVersion</span>: core.oam.dev/v1alpha1
+<span style="color:#ff79c6">kind</span>: ComponentSchematic
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: frontend
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">version</span>: <span style="color:#f1fa8c">&#34;1.0.0&#34;</span>
+    <span style="color:#ff79c6">description</span>: Todo Web Frontend
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">workloadType</span>: core.oam.dev/v1alpha1.Server
+  <span style="color:#ff79c6">parameters</span>:
+    - <span style="color:#ff79c6">name</span>: database
+      <span style="color:#ff79c6">type</span>: string
+      <span style="color:#ff79c6">required</span>: <span style="color:#ff79c6">false</span>  
+  <span style="color:#ff79c6">containers</span>:
+    - <span style="color:#ff79c6">name</span>: frontend
+      <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">3000</span>
+          <span style="color:#ff79c6">name</span>: http
+      <span style="color:#ff79c6">image</span>: cnych/todo:v1
+      <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: DB
+          <span style="color:#ff79c6">value</span>: db
+          <span style="color:#ff79c6">fromParam</span>: database
+</code></pre></div><p>对于上面的资源清单文件，首先我们需要关注的是 <code>workloadType</code> 字段，用来表示工作负载类型，由于我们这里的两个服务都是监听特定端口长期运行的服务，所以它们都被定义为了 <code>Server</code>，但是 MongoDB 只需要运行一个 Pod 即可，因为是有状态的，多个副本需要很复杂的集群配置，所以为了简单我们这里始终运行一个 Pod 副本，所以这里使用的是一个 <code>SingletonServer</code>，表示单实例的服务。</p>
+<!-- raw HTML omitted -->
+<p>我们的 Node 服务会优先检查环境变量 <code>DB</code>，如果该变量值为空，则将使用使用字符串 <code>db</code> 作为默认的值，上面资源清单中我们在 web 应用程序中声明了 <code>parameters</code> 部分，这个部分其实一般是开发定义的，但是运行运维后续来进行覆盖，所以这里的用途就是告诉运维人员哪些参数可以被覆盖掉，我们这里的意思就是默认值为 <code>db</code>，当然也可以被运维来覆盖掉这个值。</p>
+<p>现在我们需要的两个<strong>组件</strong>定义完成后，就可以来定义配置和特征了。如下资源清单是我们这里声明的一个应用配置：(configuration.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: core.oam.dev/v1alpha1
+<span style="color:#ff79c6">kind</span>: ApplicationConfiguration
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: todo-app
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">components</span>:
+    - <span style="color:#ff79c6">name</span>: backend
+      <span style="color:#ff79c6">instanceName</span>: mongo    
+    - <span style="color:#ff79c6">name</span>: frontend
+      <span style="color:#ff79c6">instanceName</span>: fe
+      <span style="color:#ff79c6">parameterValues</span>:
+        - <span style="color:#ff79c6">name</span>: database
+          <span style="color:#ff79c6">value</span>: mongo
+      <span style="color:#ff79c6">traits</span>:
+        - <span style="color:#ff79c6">name</span>: ingress
+          <span style="color:#ff79c6">parameterValues</span>:
+            - <span style="color:#ff79c6">name</span>: hostname
+              <span style="color:#ff79c6">value</span>: todo.qikqiak.com
+            - <span style="color:#ff79c6">name</span>: service_port
+              <span style="color:#ff79c6">value</span>: <span style="color:#bd93f9">3000</span>
+            - <span style="color:#ff79c6">name</span>: path
+              <span style="color:#ff79c6">value</span>: /      
+</code></pre></div><p>这个配置资源清单我们做了两件事情，为每个组件定义一个实例名称以及 Web 应用程序需要的环境变量，比如我们这里定义了 backend 的组件实例 mongo，frontend 组件的实例 fe，并且还用 backend 的实例名来覆盖 <code>database</code> 这个参数，也就是 Web 应用程序中对应的 <code>DB</code> 这个环境变量。后面我们还配置了一个 Ingress 特征入口，其实就是定义 Ingress 对象的一些字段。</p>
+<p>然后接下来我们就可以部署组件、配置和特征了。首先创建组件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">$ kubectl apply -f components.yaml
+componentschematic.core.oam.dev/backend created
+componentschematic.core.oam.dev/frontend created
+</code></pre></div><p>创建组件并不会创建 Kubernetes Pods 对象，只有在部署了与组件相关的 Rudr 配置后才会部署：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f configuration.yaml
+applicationconfiguration.core.oam.dev/todo-app created
+</code></pre></div><p>这个时候我们去查看下当前命名空间下面的 Pods：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                        READY   STATUS              RESTARTS   AGE
+fe-85fc96d7f7-kwcq5         0/1     ContainerCreating   <span style="color:#bd93f9">0</span>          20s
+mongo-d7b9cc75d-b4knx       0/1     ContainerCreating   <span style="color:#bd93f9">0</span>          20s
+rudr-558fb59cd8-gw7kh       1/1     Running             <span style="color:#bd93f9">0</span>          31m
+</code></pre></div><p>我们可以看到已经在开始部署 Pod 资源了，default 命名空间下面有三个 Pod：rudr、frontend、backend。另外由于我们在配置中添加了 Ingress ，所以也可以找到对象的 Service 和 Ingress 对象和我们的 frontend 应用关联：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get svc
+NAME         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>     AGE
+fe           ClusterIP   10.102.204.32    &lt;none&gt;        3000/TCP    2m
+kubernetes   ClusterIP   10.96.0.1        &lt;none&gt;        443/TCP     16d
+mongo        ClusterIP   10.108.116.10    &lt;none&gt;        27017/TCP   2m
+$ kubectl get ingress
+NAME               HOSTS              ADDRESS   PORTS   AGE
+fe-trait-ingress   todo.qikqiak.com             <span style="color:#bd93f9">80</span>      2m9s
+</code></pre></div><p>然后我们就通过解析（也可以直接加到 <code>/etc/hosts</code> 里面）上面的 <code>todo.qikqiak.com</code> 域名到 Ingress Controller 的节点来访问我们的前端应用了。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/oam-rudr-demo.png" alt="oam rudr demo">
+
+</p>
+<p>到这里我们就使用 <code>Rudr</code> 按照 <code>OAM</code> 部署了一个 Kubernetes 应用。</p>
+<p>使用 <code>OAM</code> 这种方式来部署应用过程非常流畅，和我们之前单独为一个应用创建 Operator 的方式来部署非常类似，只是 <code>OAM</code> 是一个通用的规范，具有普适性，当我们面对成百上千的应用的时候可能才会体现出 <code>OAM</code> 的优势。不过总感觉什么地方怪怪的😄，和之前编写原生的资源清单不是一个感觉~~~</p>
+<h2 id="参考资料">参考资料</h2>
+<ul>
+<li><a href="http://oam.dev/">OAM</a></li>
+<li><a href="https://github.com/oam-dev/rudr">Rudr</a></li>
+<li><a href="https://thenewstack.io/tutorial-deploy-microservices-on-kubernetes-through-rudr/">Deploy Microservices on Kubernetes Through Rudr</a></li>
+</ul>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/capabilities-on-k8s/" data-toggle="tooltip" data-placement="top" title="在 Kubernetes 中配置 Container Capabilities">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/url-rewrite-on-ingress-nginx/" data-toggle="tooltip" data-placement="top" title="ingress-nginx 中 Rewrite 的使用">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

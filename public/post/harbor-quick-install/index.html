@@ -1,0 +1,1907 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="在 Kubernetes 在快速安装 Harbor" />
+    <meta property="og:title" content="在 Kubernetes 在快速安装 Harbor" />
+    <meta property="twitter:title" content="在 Kubernetes 在快速安装 Harbor" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>在 Kubernetes 在快速安装 Harbor-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/harbor-quick-install/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        <a class="tag" href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                    </div>
+                    <h1>在 Kubernetes 在快速安装 Harbor</h1>
+                    <h2 class="subheading">使用 Helm 一键安装</h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, February 22, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>前面我们和大家简单分析了<a href="/post/harbor-code-analysis/">Harbor 的实现原理和部分源代码</a>，这节课给大家介绍下如何快速安装并使用 Harbor。</p>
+<h3 id="安装-harbor">安装 Harbor</h3>
+<p>Harbor 支持多种安装方式，源码目录下面默认有一个安装脚本（make/install.sh），采用 docker-compose 的形式运行 Harbor 各个组件，和前面的课程一样，我们这里依然还是将 Harbor 安装到 Kubernetes 集群中，如果我们对 Harbor 的各个组件之间的运行关系非常熟悉，同样的，我们可以自己手动编写资源清单文件进行部署，不过 Harbor 源码目录中也为我们提供了生成这些资源清单的脚本文件了（make/kubernetes/k8s-prepare），我们只需要执行下面的命令即可为我们生成所需要用到的 YAML 文件了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ python make/kubernetes/k8s-prepare
+</code></pre></div><p>当然了如果上面的一些基本配置不能满足你的需求，你也可以做一些更高级的配置。你可以在<code>make/common/templates</code>目录下面找到所有的 Harbor 的配置模板，做相应的修改即可。</p>
+<p>不过我们这里给大家介绍另外一种简单的安装方法：Helm，Harbor 官方提供了对应的 Helm Chart 包，所以我们可以很容易安装。</p>
+<p>首先下载 Harbor Chart 包到要安装的集群上：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone https://github.com/goharbor/harbor-helm
+</code></pre></div><p>切换到我们需要安装的分支，比如我们这里使用 1.0.0分支：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ <span style="color:#8be9fd;font-style:italic">cd</span> harbor-helm
+$ git checkout 1.0.0
+</code></pre></div><p>安装 Helm Chart 包最重要的当然是<code>values.yaml</code>文件了，我们可以通过覆盖该文件中的属性来改变配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">expose</span>:
+  <span style="color:#6272a4"># 设置暴露服务的方式。将类型设置为 ingress、clusterIP或nodePort并补充对应部分的信息。</span>
+  <span style="color:#ff79c6">type</span>: ingress
+  <span style="color:#ff79c6">tls</span>:
+    <span style="color:#6272a4"># 是否开启 tls，注意：如果类型是 ingress 并且tls被禁用，则在pull/push镜像时，则必须包含端口。详细查看文档：https://github.com/goharbor/harbor/issues/5291。</span>
+    <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#6272a4"># 如果你想使用自己的 TLS 证书和私钥，请填写这个 secret 的名称，这个 secret 必须包含名为 tls.crt 和 tls.key 的证书和私钥文件，如果没有设置则会自动生成证书和私钥文件。</span>
+    <span style="color:#ff79c6">secretName</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+    <span style="color:#6272a4"># 默认 Notary 服务会使用上面相同的证书和私钥文件，如果你想用一个独立的则填充下面的字段，注意只有类型是 ingress 的时候才需要。</span>
+    <span style="color:#ff79c6">notarySecretName</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+    <span style="color:#6272a4"># common name 是用于生成证书的，当类型是 clusterIP 或者 nodePort 并且 secretName 为空的时候才需要</span>
+    <span style="color:#ff79c6">commonName</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+  <span style="color:#ff79c6">ingress</span>:
+    <span style="color:#ff79c6">hosts</span>:
+      <span style="color:#ff79c6">core</span>: core.harbor.domain
+      <span style="color:#ff79c6">notary</span>: notary.harbor.domain
+    <span style="color:#ff79c6">annotations</span>:
+      <span style="color:#ff79c6">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+      <span style="color:#ff79c6">nginx.ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+      <span style="color:#ff79c6">ingress.kubernetes.io/proxy-body-size</span>: <span style="color:#f1fa8c">&#34;0&#34;</span>
+      <span style="color:#ff79c6">nginx.ingress.kubernetes.io/proxy-body-size</span>: <span style="color:#f1fa8c">&#34;0&#34;</span>
+  <span style="color:#ff79c6">clusterIP</span>:
+    <span style="color:#6272a4"># ClusterIP 服务的名称</span>
+    <span style="color:#ff79c6">name</span>: harbor
+    <span style="color:#ff79c6">ports</span>:
+      <span style="color:#ff79c6">httpPort</span>: <span style="color:#bd93f9">80</span>
+      <span style="color:#ff79c6">httpsPort</span>: <span style="color:#bd93f9">443</span>
+      <span style="color:#6272a4"># Notary 服务监听端口，只有当 notary.enabled 设置为 true 的时候有效</span>
+      <span style="color:#ff79c6">notaryPort</span>: <span style="color:#bd93f9">4443</span>
+  <span style="color:#ff79c6">nodePort</span>:
+    <span style="color:#6272a4"># NodePort 服务名称</span>
+    <span style="color:#ff79c6">name</span>: harbor
+    <span style="color:#ff79c6">ports</span>:
+      <span style="color:#ff79c6">http</span>:
+        <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">80</span>
+        <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">30002</span>
+      <span style="color:#ff79c6">https</span>:
+        <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">443</span>
+        <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">30003</span>
+      <span style="color:#ff79c6">notary</span>:
+        <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">4443</span>
+        <span style="color:#ff79c6">nodePort</span>: <span style="color:#bd93f9">30004</span>
+
+<span style="color:#6272a4"># Harbor 核心服务外部访问 URL。主要用于：</span>
+<span style="color:#6272a4"># 1) 补全 portal 页面上面显示的 docker/helm 命令</span>
+<span style="color:#6272a4"># 2) 补全返回给 docker/notary 客户端的 token 服务 URL</span>
+
+<span style="color:#6272a4"># 格式：protocol://domain[:port]。</span>
+<span style="color:#6272a4"># 1) 如果 expose.type=ingress，&#34;domain&#34;的值就是 expose.ingress.hosts.core 的值</span>
+<span style="color:#6272a4"># 2) 如果 expose.type=clusterIP，&#34;domain&#34;的值就是 expose.clusterIP.name 的值</span>
+<span style="color:#6272a4"># 3) 如果 expose.type=nodePort，&#34;domain&#34;的值就是 k8s 节点的 IP 地址</span>
+
+<span style="color:#6272a4"># 如果在代理后面部署 Harbor，请将其设置为代理的 URL</span>
+<span style="color:#ff79c6">externalURL</span>: https://core.harbor.domain
+
+<span style="color:#6272a4"># 默认情况下开启数据持久化，在k8s集群中需要动态的挂载卷默认需要一个StorageClass对象。</span>
+<span style="color:#6272a4"># 如果你有已经存在可以使用的持久卷，需要在&#34;storageClass&#34;中指定你的 storageClass 或者设置 &#34;existingClaim&#34;。</span>
+<span style="color:#6272a4">#</span>
+<span style="color:#6272a4"># 对于存储 docker 镜像和 Helm charts 包，你也可以用 &#34;azure&#34;、&#34;gcs&#34;、&#34;s3&#34;、&#34;swift&#34; 或者 &#34;oss&#34;，直接在 &#34;imageChartStorage&#34; 区域设置即可</span>
+<span style="color:#ff79c6">persistence</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#6272a4"># 设置成&#34;keep&#34;避免在执行 helm 删除操作期间移除 PVC，留空则在 chart 被删除后删除 PVC</span>
+  <span style="color:#ff79c6">resourcePolicy</span>: <span style="color:#f1fa8c">&#34;keep&#34;</span>
+  <span style="color:#ff79c6">persistentVolumeClaim</span>:
+    <span style="color:#ff79c6">registry</span>:
+      <span style="color:#6272a4"># 使用一个存在的 PVC(必须在绑定前先手动创建)</span>
+      <span style="color:#ff79c6">existingClaim</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#6272a4"># 指定&#34;storageClass&#34;，或者使用默认的 StorageClass 对象，设置成&#34;-&#34;禁用动态分配挂载卷</span>
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">subPath</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">accessMode</span>: ReadWriteOnce
+      <span style="color:#ff79c6">size</span>: 5Gi
+    <span style="color:#ff79c6">chartmuseum</span>:
+      <span style="color:#ff79c6">existingClaim</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">subPath</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">accessMode</span>: ReadWriteOnce
+      <span style="color:#ff79c6">size</span>: 5Gi
+    <span style="color:#ff79c6">jobservice</span>:
+      <span style="color:#ff79c6">existingClaim</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">subPath</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">accessMode</span>: ReadWriteOnce
+      <span style="color:#ff79c6">size</span>: 1Gi
+    <span style="color:#6272a4"># 如果使用外部的数据库服务，下面的设置将会被忽略</span>
+    <span style="color:#ff79c6">database</span>:
+      <span style="color:#ff79c6">existingClaim</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">subPath</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">accessMode</span>: ReadWriteOnce
+      <span style="color:#ff79c6">size</span>: 1Gi
+    <span style="color:#6272a4"># 如果使用外部的 Redis 服务，下面的设置将会被忽略</span>
+    <span style="color:#ff79c6">redis</span>:
+      <span style="color:#ff79c6">existingClaim</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">subPath</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+      <span style="color:#ff79c6">accessMode</span>: ReadWriteOnce
+      <span style="color:#ff79c6">size</span>: 1Gi
+  <span style="color:#6272a4"># 定义使用什么存储后端来存储镜像和 charts 包，详细文档地址：https://github.com/docker/distribution/blob/master/docs/configuration.md#storage</span>
+  <span style="color:#ff79c6">imageChartStorage</span>:
+    <span style="color:#6272a4"># 正对镜像和chart存储是否禁用跳转，对于一些不支持的后端(例如对于使用minio的`s3`存储)，需要禁用它。为了禁止跳转，只需要设置`disableredirect=true`即可，详细文档地址：https://github.com/docker/distribution/blob/master/docs/configuration.md#redirect</span>
+    <span style="color:#ff79c6">disableredirect</span>: <span style="color:#ff79c6">false</span>
+    <span style="color:#6272a4"># 指定存储类型：&#34;filesystem&#34;, &#34;azure&#34;, &#34;gcs&#34;, &#34;s3&#34;, &#34;swift&#34;, &#34;oss&#34;，在相应的区域填上对应的信息。</span>
+    <span style="color:#6272a4"># 如果你想使用 pv 则必须设置成&#34;filesystem&#34;类型</span>
+    <span style="color:#ff79c6">type</span>: filesystem
+    <span style="color:#ff79c6">filesystem</span>:
+      <span style="color:#ff79c6">rootdirectory</span>: /storage
+      <span style="color:#6272a4">#maxthreads: 100</span>
+    <span style="color:#ff79c6">azure</span>:
+      <span style="color:#ff79c6">accountname</span>: accountname
+      <span style="color:#ff79c6">accountkey</span>: base64encodedaccountkey
+      <span style="color:#ff79c6">container</span>: containername
+      <span style="color:#6272a4">#realm: core.windows.net</span>
+    <span style="color:#ff79c6">gcs</span>:
+      <span style="color:#ff79c6">bucket</span>: bucketname
+      <span style="color:#6272a4"># The base64 encoded json file which contains the key</span>
+      <span style="color:#ff79c6">encodedkey</span>: base64-encoded-json-key-file
+      <span style="color:#6272a4">#rootdirectory: /gcs/object/name/prefix</span>
+      <span style="color:#6272a4">#chunksize: &#34;5242880&#34;</span>
+    <span style="color:#ff79c6">s3</span>:
+      <span style="color:#ff79c6">region</span>: us-west-1
+      <span style="color:#ff79c6">bucket</span>: bucketname
+      <span style="color:#6272a4">#accesskey: awsaccesskey</span>
+      <span style="color:#6272a4">#secretkey: awssecretkey</span>
+      <span style="color:#6272a4">#regionendpoint: http://myobjects.local</span>
+      <span style="color:#6272a4">#encrypt: false</span>
+      <span style="color:#6272a4">#keyid: mykeyid</span>
+      <span style="color:#6272a4">#secure: true</span>
+      <span style="color:#6272a4">#v4auth: true</span>
+      <span style="color:#6272a4">#chunksize: &#34;5242880&#34;</span>
+      <span style="color:#6272a4">#rootdirectory: /s3/object/name/prefix</span>
+      <span style="color:#6272a4">#storageclass: STANDARD</span>
+    <span style="color:#ff79c6">swift</span>:
+      <span style="color:#ff79c6">authurl</span>: https://storage.myprovider.com/v3/auth
+      <span style="color:#ff79c6">username</span>: username
+      <span style="color:#ff79c6">password</span>: password
+      <span style="color:#ff79c6">container</span>: containername
+      <span style="color:#6272a4">#region: fr</span>
+      <span style="color:#6272a4">#tenant: tenantname</span>
+      <span style="color:#6272a4">#tenantid: tenantid</span>
+      <span style="color:#6272a4">#domain: domainname</span>
+      <span style="color:#6272a4">#domainid: domainid</span>
+      <span style="color:#6272a4">#trustid: trustid</span>
+      <span style="color:#6272a4">#insecureskipverify: false</span>
+      <span style="color:#6272a4">#chunksize: 5M</span>
+      <span style="color:#6272a4">#prefix:</span>
+      <span style="color:#6272a4">#secretkey: secretkey</span>
+      <span style="color:#6272a4">#accesskey: accesskey</span>
+      <span style="color:#6272a4">#authversion: 3</span>
+      <span style="color:#6272a4">#endpointtype: public</span>
+      <span style="color:#6272a4">#tempurlcontainerkey: false</span>
+      <span style="color:#6272a4">#tempurlmethods:</span>
+    <span style="color:#ff79c6">oss</span>:
+      <span style="color:#ff79c6">accesskeyid</span>: accesskeyid
+      <span style="color:#ff79c6">accesskeysecret</span>: accesskeysecret
+      <span style="color:#ff79c6">region</span>: regionname
+      <span style="color:#ff79c6">bucket</span>: bucketname
+      <span style="color:#6272a4">#endpoint: endpoint</span>
+      <span style="color:#6272a4">#internal: false</span>
+      <span style="color:#6272a4">#encrypt: false</span>
+      <span style="color:#6272a4">#secure: true</span>
+      <span style="color:#6272a4">#chunksize: 10M</span>
+      <span style="color:#6272a4">#rootdirectory: rootdirectory</span>
+
+<span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+
+<span style="color:#ff79c6">logLevel</span>: debug
+<span style="color:#6272a4"># Harbor admin 初始密码，Harbor 启动后通过 Portal 修改该密码</span>
+<span style="color:#ff79c6">harborAdminPassword</span>: <span style="color:#f1fa8c">&#34;Harbor12345&#34;</span>
+<span style="color:#6272a4"># 用于加密的一个 secret key，必须是一个16位的字符串</span>
+<span style="color:#ff79c6">secretKey</span>: <span style="color:#f1fa8c">&#34;not-a-secure-key&#34;</span>
+
+<span style="color:#6272a4"># 如果你通过&#34;ingress&#34;保留服务，则下面的Nginx不会被使用</span>
+<span style="color:#ff79c6">nginx</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/nginx-photon
+    <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#6272a4"># resources:</span>
+  <span style="color:#6272a4">#  requests:</span>
+  <span style="color:#6272a4">#    memory: 256Mi</span>
+  <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#6272a4">## 额外的 Deployment 的一些 annotations</span>
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">portal</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/harbor-portal
+    <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+<span style="color:#6272a4"># resources:</span>
+<span style="color:#6272a4">#  requests:</span>
+<span style="color:#6272a4">#    memory: 256Mi</span>
+<span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">core</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/harbor-core
+    <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+<span style="color:#6272a4"># resources:</span>
+<span style="color:#6272a4">#  requests:</span>
+<span style="color:#6272a4">#    memory: 256Mi</span>
+<span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">adminserver</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/harbor-adminserver
+    <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#6272a4"># resources:</span>
+  <span style="color:#6272a4">#  requests:</span>
+  <span style="color:#6272a4">#    memory: 256Mi</span>
+  <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">jobservice</span>:
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/harbor-jobservice
+    <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#ff79c6">maxJobWorkers</span>: <span style="color:#bd93f9">10</span>
+  <span style="color:#6272a4"># jobs 的日志收集器：&#34;file&#34;, &#34;database&#34; or &#34;stdout&#34;</span>
+  <span style="color:#ff79c6">jobLogger</span>: file
+<span style="color:#6272a4"># resources:</span>
+<span style="color:#6272a4">#   requests:</span>
+<span style="color:#6272a4">#     memory: 256Mi</span>
+<span style="color:#6272a4">#     cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">registry</span>:
+  <span style="color:#ff79c6">registry</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/registry-photon
+      <span style="color:#ff79c6">tag</span>: v2.6.2-v1.7.0
+  <span style="color:#ff79c6">controller</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/harbor-registryctl
+      <span style="color:#ff79c6">tag</span>: v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">chartmuseum</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/chartmuseum-photon
+    <span style="color:#ff79c6">tag</span>: v0.7.1-v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#6272a4"># resources:</span>
+  <span style="color:#6272a4">#  requests:</span>
+  <span style="color:#6272a4">#    memory: 256Mi</span>
+  <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">clair</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">image</span>:
+    <span style="color:#ff79c6">repository</span>: goharbor/clair-photon
+    <span style="color:#ff79c6">tag</span>: v2.0.7-v1.7.0
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+  <span style="color:#6272a4"># 用于从 Internet 更新漏洞数据库的http(s)代理</span>
+  <span style="color:#ff79c6">httpProxy</span>:
+  <span style="color:#ff79c6">httpsProxy</span>:
+  <span style="color:#6272a4"># clair 更新程序的间隔，单位为小时，设置为0来禁用</span>
+  <span style="color:#ff79c6">updatersInterval</span>: <span style="color:#bd93f9">12</span>
+  <span style="color:#6272a4"># resources:</span>
+  <span style="color:#6272a4">#  requests:</span>
+  <span style="color:#6272a4">#    memory: 256Mi</span>
+  <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">notary</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">server</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/notary-server-photon
+      <span style="color:#ff79c6">tag</span>: v0.6.1-v1.7.0
+    <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+    <span style="color:#6272a4"># resources:</span>
+    <span style="color:#6272a4">#  requests:</span>
+    <span style="color:#6272a4">#    memory: 256Mi</span>
+    <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">signer</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/notary-signer-photon
+      <span style="color:#ff79c6">tag</span>: v0.6.1-v1.7.0
+    <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">1</span>
+    <span style="color:#6272a4"># resources:</span>
+    <span style="color:#6272a4">#  requests:</span>
+    <span style="color:#6272a4">#    memory: 256Mi</span>
+    <span style="color:#6272a4">#    cpu: 100m</span>
+  <span style="color:#ff79c6">nodeSelector</span>: {}
+  <span style="color:#ff79c6">tolerations</span>: []
+  <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">database</span>:
+  <span style="color:#6272a4"># 如果使用外部的数据库，则设置 type=external，然后填写 external 区域的一些连接信息</span>
+  <span style="color:#ff79c6">type</span>: internal
+  <span style="color:#ff79c6">internal</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/harbor-db
+      <span style="color:#ff79c6">tag</span>: v1.7.0
+    <span style="color:#6272a4"># 内部的数据库的初始化超级用户的密码</span>
+    <span style="color:#ff79c6">password</span>: <span style="color:#f1fa8c">&#34;changeit&#34;</span>
+    <span style="color:#6272a4"># resources:</span>
+    <span style="color:#6272a4">#  requests:</span>
+    <span style="color:#6272a4">#    memory: 256Mi</span>
+    <span style="color:#6272a4">#    cpu: 100m</span>
+    <span style="color:#ff79c6">nodeSelector</span>: {}
+    <span style="color:#ff79c6">tolerations</span>: []
+    <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">external</span>:
+    <span style="color:#ff79c6">host</span>: <span style="color:#f1fa8c">&#34;192.168.0.1&#34;</span>
+    <span style="color:#ff79c6">port</span>: <span style="color:#f1fa8c">&#34;5432&#34;</span>
+    <span style="color:#ff79c6">username</span>: <span style="color:#f1fa8c">&#34;user&#34;</span>
+    <span style="color:#ff79c6">password</span>: <span style="color:#f1fa8c">&#34;password&#34;</span>
+    <span style="color:#ff79c6">coreDatabase</span>: <span style="color:#f1fa8c">&#34;registry&#34;</span>
+    <span style="color:#ff79c6">clairDatabase</span>: <span style="color:#f1fa8c">&#34;clair&#34;</span>
+    <span style="color:#ff79c6">notaryServerDatabase</span>: <span style="color:#f1fa8c">&#34;notary_server&#34;</span>
+    <span style="color:#ff79c6">notarySignerDatabase</span>: <span style="color:#f1fa8c">&#34;notary_signer&#34;</span>
+    <span style="color:#ff79c6">sslmode</span>: <span style="color:#f1fa8c">&#34;disable&#34;</span>
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+
+<span style="color:#ff79c6">redis</span>:
+  <span style="color:#6272a4"># 如果使用外部的 Redis 服务，设置 type=external，然后补充 external 部分的连接信息。</span>
+  <span style="color:#ff79c6">type</span>: internal
+  <span style="color:#ff79c6">internal</span>:
+    <span style="color:#ff79c6">image</span>:
+      <span style="color:#ff79c6">repository</span>: goharbor/redis-photon
+      <span style="color:#ff79c6">tag</span>: v1.7.0
+    <span style="color:#6272a4"># resources:</span>
+    <span style="color:#6272a4">#  requests:</span>
+    <span style="color:#6272a4">#    memory: 256Mi</span>
+    <span style="color:#6272a4">#    cpu: 100m</span>
+    <span style="color:#ff79c6">nodeSelector</span>: {}
+    <span style="color:#ff79c6">tolerations</span>: []
+    <span style="color:#ff79c6">affinity</span>: {}
+  <span style="color:#ff79c6">external</span>:
+    <span style="color:#ff79c6">host</span>: <span style="color:#f1fa8c">&#34;192.168.0.2&#34;</span>
+    <span style="color:#ff79c6">port</span>: <span style="color:#f1fa8c">&#34;6379&#34;</span>
+    <span style="color:#6272a4"># coreDatabaseIndex 必须设置为0</span>
+    <span style="color:#ff79c6">coreDatabaseIndex</span>: <span style="color:#f1fa8c">&#34;0&#34;</span>
+    <span style="color:#ff79c6">jobserviceDatabaseIndex</span>: <span style="color:#f1fa8c">&#34;1&#34;</span>
+    <span style="color:#ff79c6">registryDatabaseIndex</span>: <span style="color:#f1fa8c">&#34;2&#34;</span>
+    <span style="color:#ff79c6">chartmuseumDatabaseIndex</span>: <span style="color:#f1fa8c">&#34;3&#34;</span>
+    <span style="color:#ff79c6">password</span>: <span style="color:#f1fa8c">&#34;&#34;</span>
+  <span style="color:#ff79c6">podAnnotations</span>: {}
+</code></pre></div><p>有了上面的配置说明，则我们可以根据自己的需求来覆盖上面的值，比如我们这里新建一个 qikqiak-values.yaml 的文件，文件内容如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">expose</span>:
+  <span style="color:#ff79c6">type</span>: ingress
+  <span style="color:#ff79c6">tls</span>:
+    <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">ingress</span>:
+    <span style="color:#ff79c6">hosts</span>:
+      <span style="color:#ff79c6">core</span>: registry.qikqiak.com
+      <span style="color:#ff79c6">notary</span>: notary.qikqiak.com
+    <span style="color:#ff79c6">annotations</span>:
+      <span style="color:#ff79c6">kubernetes.io/ingress.class</span>: <span style="color:#f1fa8c">&#34;traefik&#34;</span>
+      <span style="color:#ff79c6">ingress.kubernetes.io/ssl-redirect</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+      <span style="color:#ff79c6">ingress.kubernetes.io/proxy-body-size</span>: <span style="color:#f1fa8c">&#34;0&#34;</span>
+
+<span style="color:#ff79c6">externalURL</span>: https://registry.qikqiak.com
+
+<span style="color:#ff79c6">persistence</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">resourcePolicy</span>: <span style="color:#f1fa8c">&#34;keep&#34;</span>
+  <span style="color:#ff79c6">persistentVolumeClaim</span>:
+    <span style="color:#ff79c6">registry</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;harbor-data&#34;</span>
+    <span style="color:#ff79c6">chartmuseum</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;harbor-data&#34;</span>
+    <span style="color:#ff79c6">jobservice</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;harbor-data&#34;</span>
+    <span style="color:#ff79c6">database</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;harbor-data&#34;</span>
+    <span style="color:#ff79c6">redis</span>:
+      <span style="color:#ff79c6">storageClass</span>: <span style="color:#f1fa8c">&#34;harbor-data&#34;</span>
+</code></pre></div><p>其中需要我们定制的部分很少，我们将域名替换成我们自己的，使用默认的 Ingress 方式暴露服务，其他需要我们手动配置的部分就是数据持久化的部分，我们需要提前为上面的这些服务创建好可用的 PVC 或者 StorageClass 对象，比如我们这里使用一个名为 harbor-data 的 StorageClass 资源对象，当然也可以根据我们实际的需求修改 accessMode 或者存储容量：(harbor-data-sc.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: storage.k8s.io/v1
+<span style="color:#ff79c6">kind</span>: StorageClass
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: harbor-data
+<span style="color:#ff79c6">provisioner</span>: fuseim.pri/ifs
+</code></pre></div><p>先新建上面的 StorageClass 资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f harbor-data-sc.yaml
+storageclass.storage.k8s.io <span style="color:#f1fa8c">&#34;harbor-data&#34;</span> created
+</code></pre></div><p>创建完成后，使用上面自定义的 values 文件安装：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install --name harbor -f qikqiak-values.yaml . --namespace kube-ops
+NAME:   harbor
+LAST DEPLOYED: Fri Feb <span style="color:#bd93f9">22</span> 22:39:22 <span style="color:#bd93f9">2019</span>
+NAMESPACE: kube-ops
+STATUS: DEPLOYED
+
+RESOURCES:
+<span style="color:#ff79c6">==</span>&gt; v1/StatefulSet
+NAME                    DESIRED  CURRENT  AGE
+harbor-harbor-database  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        0s
+harbor-harbor-redis     <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1beta1/Ingress
+NAME                   HOSTS                                    ADDRESS  PORTS  AGE
+harbor-harbor-ingress  registry.qikqiak.com,notary.qikqiak.com  80, <span style="color:#bd93f9">443</span>  <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Pod<span style="color:#ff79c6">(</span>related<span style="color:#ff79c6">)</span>
+NAME                                          READY  STATUS             RESTARTS  AGE
+harbor-harbor-adminserver-58c855568c-jnpvq    0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-chartmuseum-58d6c9b898-4csmd    0/1    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-clair-5c7689585-hd2br           0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-core-6f56879469-rbthd           0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-jobservice-74d7795cdb-bhzdm     0/1    ContainerCreating  <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-notary-server-69cdbdfb56-ggc49  0/1    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-notary-signer-8499dc4db7-f78cd  0/1    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-portal-55c45c558d-dmj48         0/1    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-registry-5569fcbf78-5grds       0/2    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-database-0                      0/1    Pending            <span style="color:#bd93f9">0</span>         0s
+harbor-harbor-redis-0                         0/1    Pending            <span style="color:#bd93f9">0</span>         <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Secret
+NAME                       TYPE               DATA  AGE
+harbor-harbor-adminserver  Opaque             <span style="color:#bd93f9">4</span>     1s
+harbor-harbor-chartmuseum  Opaque             <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-core         Opaque             <span style="color:#bd93f9">4</span>     1s
+harbor-harbor-database     Opaque             <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-ingress      kubernetes.io/tls  <span style="color:#bd93f9">3</span>     1s
+harbor-harbor-jobservice   Opaque             <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-registry     Opaque             <span style="color:#bd93f9">1</span>     <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/ConfigMap
+NAME                         DATA  AGE
+harbor-harbor-adminserver    <span style="color:#bd93f9">39</span>    1s
+harbor-harbor-chartmuseum    <span style="color:#bd93f9">24</span>    1s
+harbor-harbor-clair          <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-core           <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-jobservice     <span style="color:#bd93f9">1</span>     1s
+harbor-harbor-notary-server  <span style="color:#bd93f9">5</span>     1s
+harbor-harbor-registry       <span style="color:#bd93f9">2</span>     <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/PersistentVolumeClaim
+NAME                       STATUS   VOLUME                                    CAPACITY  ACCESS MODES  STORAGECLASS  AGE
+harbor-harbor-chartmuseum  Pending  harbor-data                               1s
+harbor-harbor-jobservice   Bound    pvc-a8a35d0e-36af-11e9-bcd8-525400db4df7  1Gi  RWO  harbor-data  1s
+harbor-harbor-registry     Bound    pvc-a8a466e9-36af-11e9-bcd8-525400db4df7  5Gi  RWO  harbor-data  <span style="color:#8be9fd;font-style:italic">1s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Service
+NAME                         TYPE       CLUSTER-IP      EXTERNAL-IP  PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>            AGE
+harbor-harbor-adminserver    ClusterIP  10.108.3.242    &lt;none&gt;       80/TCP             1s
+harbor-harbor-chartmuseum    ClusterIP  10.101.49.103   &lt;none&gt;       80/TCP             1s
+harbor-harbor-clair          ClusterIP  10.110.173.153  &lt;none&gt;       6060/TCP           1s
+harbor-harbor-core           ClusterIP  10.105.178.198  &lt;none&gt;       80/TCP             1s
+harbor-harbor-database       ClusterIP  10.102.101.155  &lt;none&gt;       5432/TCP           0s
+harbor-harbor-jobservice     ClusterIP  10.100.127.32   &lt;none&gt;       80/TCP             0s
+harbor-harbor-notary-server  ClusterIP  10.105.25.64    &lt;none&gt;       4443/TCP           0s
+harbor-harbor-notary-signer  ClusterIP  10.108.92.82    &lt;none&gt;       7899/TCP           0s
+harbor-harbor-portal         ClusterIP  10.103.111.161  &lt;none&gt;       80/TCP             0s
+harbor-harbor-redis          ClusterIP  10.107.205.3    &lt;none&gt;       6379/TCP           0s
+harbor-harbor-registry       ClusterIP  10.100.87.29    &lt;none&gt;       5000/TCP,8080/TCP  <span style="color:#8be9fd;font-style:italic">0s</span>
+
+<span style="color:#ff79c6">==</span>&gt; v1/Deployment
+NAME                         DESIRED  CURRENT  UP-TO-DATE  AVAILABLE  AGE
+harbor-harbor-adminserver    <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-chartmuseum    <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-clair          <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-core           <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-jobservice     <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-notary-server  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-notary-signer  <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-portal         <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">1</span>           <span style="color:#bd93f9">0</span>          0s
+harbor-harbor-registry       <span style="color:#bd93f9">1</span>        <span style="color:#bd93f9">0</span>        <span style="color:#bd93f9">0</span>           <span style="color:#bd93f9">0</span>          0s
+
+
+NOTES:
+Please <span style="color:#8be9fd;font-style:italic">wait</span> <span style="color:#ff79c6">for</span> several minutes <span style="color:#ff79c6">for</span> Harbor deployment to complete.
+Then you should be able to visit the Harbor portal at https://registry.qikqiak.com.
+For more details, please visit https://github.com/goharbor/harbor.
+</code></pre></div><p>上面是我们通过 Helm 安装所有涉及到的一些资源对象，稍微等一会儿，就可以安装成功了，查看对应的 Pod 状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n kube-ops
+NAME                                           READY     STATUS    RESTARTS   AGE
+harbor-harbor-adminserver-58c855568c-7dqqb     1/1       Running   <span style="color:#bd93f9">0</span>          37m
+harbor-harbor-chartmuseum-58d6c9b898-4csmd     1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-clair-5c7689585-hd2br            1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-core-6f56879469-rbthd            1/1       Running   <span style="color:#bd93f9">8</span>          49m
+harbor-harbor-database-0                       1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-jobservice-74d7795cdb-bhzdm      1/1       Running   <span style="color:#bd93f9">7</span>          49m
+harbor-harbor-notary-server-69cdbdfb56-vklbt   1/1       Running   <span style="color:#bd93f9">0</span>          20m
+harbor-harbor-notary-signer-8499dc4db7-f78cd   1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-portal-55c45c558d-dmj48          1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-redis-0                          1/1       Running   <span style="color:#bd93f9">0</span>          49m
+harbor-harbor-registry-5569fcbf78-5grds        2/2       Running   <span style="color:#bd93f9">0</span>          49m
+</code></pre></div><p>现在都是<code>Running</code>状态了，都成功运行起来了，查看下对应的 Ingress 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get ingress -n kube-ops
+NAME                    HOSTS                                     ADDRESS   PORTS     AGE
+harbor-harbor-ingress   registry.qikqiak.com,notary.qikqiak.com             80, <span style="color:#bd93f9">443</span>   50m
+</code></pre></div><p>如果你有自己的真正的域名，则将上面的两个域名解析到你的任意一个 Ingress Controller 的 Pod 所在的节点即可，我们这里为了演示方便，还是自己在本地的<code>/etc/hosts</code>里面添加上<code>registry.qikqiak.com</code>和<code>notary.qikqiak.com</code>的映射。</p>
+<p>在第一次安装的时候比较顺畅，后面安装总是不成功，查看数据库的 Pod 日志出现**database &ldquo;registry&rdquo; does not exist（）**的错误信息，如果 registry 数据库没有自动创建，我们可以进入数据库 Pod 中手动创建：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#6272a4"># 1. 进入数据库 Pod</span>
+$ kubectl <span style="color:#8be9fd;font-style:italic">exec</span> -it harbor-harbor-database-0 -n kube-ops /bin/bash
+<span style="color:#6272a4"># 2. 连接数据库</span>
+root <span style="color:#ff79c6">[</span> / <span style="color:#ff79c6">]</span><span style="color:#6272a4"># psql --username postgres</span>
+psql <span style="color:#ff79c6">(</span>9.6.10<span style="color:#ff79c6">)</span>
+Type <span style="color:#f1fa8c">&#34;help&#34;</span> <span style="color:#ff79c6">for</span> help.
+<span style="color:#6272a4"># 3. 创建 registry 数据库</span>
+<span style="color:#8be9fd;font-style:italic">postgres</span><span style="color:#ff79c6">=</span><span style="color:#6272a4"># CREATE DATABASE registry ENCODING &#39;UTF8&#39;;</span>
+CREATE DATABASE
+<span style="color:#8be9fd;font-style:italic">postgres</span><span style="color:#ff79c6">=</span><span style="color:#6272a4"># \c registry;</span>
+You are now connected to database <span style="color:#f1fa8c">&#34;registry&#34;</span> as user <span style="color:#f1fa8c">&#34;postgres&#34;</span>.
+<span style="color:#8be9fd;font-style:italic">registry</span><span style="color:#ff79c6">=</span><span style="color:#6272a4"># CREATE TABLE schema_migrations(version bigint not null primary key, dirty boolean not null);</span>
+CREATE TABLE
+registry-# <span style="color:#f1fa8c">\q</span>uit
+</code></pre></div><h3 id="harbor-portal">Harbor Portal</h3>
+<p>添加完成后，在浏览器中输入<code>registry.qikqiak.com</code>就可以打开熟悉的 Harbor 的 Portal 界面了，当然我们配置的 Ingress 中会强制跳转到 https，所以如果你的浏览器有什么安全限制的话，需要信任我们这里 Ingress 对应的证书，证书文件可以通过查看 Secret 资源对象获取：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/RwE3Mp.jpg" alt="Harbor Portal">
+
+</p>
+<p>然后输入用户名：admin，密码：Harbor12345（当然我们也可以通过 Helm 安装的时候自己覆盖 harborAdminPassword）即可登录进入 Portal 首页：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/7Nh60z.jpg" alt="Harbor Portal Home">
+
+</p>
+<p>我们可以看到有很多功能，默认情况下会有一个名叫<code>library</code>的项目，改项目默认是公开访问权限的，进入项目可以看到里面还有 Helm Chart 包的管理，可以手动在这里上传，也可以对改项目里面的镜像进行一些配置，比如是否开启自动扫描镜像功能：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/OxyAsO.jpg" alt="Harbor project settings">
+
+</p>
+<h3 id="docker-cli">docker cli</h3>
+<p>然后我们来测试下使用 docker cli 来进行 pull/push 镜像，由于上面我们安装的时候通过 Ingress 来暴露的 Harbor 的服务，而且强制使用了 https，所以如果我们要在终端中使用我们这里的私有仓库的话，就需要配置上相应的证书：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker login registry.qikqiak.com
+Warning: failed to get default registry endpoint from daemon <span style="color:#ff79c6">(</span>Cannot connect to the Docker daemon at unix:///var/run/docker.sock. Is the docker daemon running?<span style="color:#ff79c6">)</span>. Using system default: https://index.docker.io/v1/
+Username: admin
+Password:
+INFO<span style="color:#ff79c6">[</span>0007<span style="color:#ff79c6">]</span> Error logging in to v2 endpoint, trying next endpoint: Get https://registry.qikqiak.com/v2/: x509: certificate has expired or is not yet valid
+INFO<span style="color:#ff79c6">[</span>0007<span style="color:#ff79c6">]</span> Error logging in to v1 endpoint, trying next endpoint: Get https://registry.qikqiak.com/v1/users/: x509: certificate has expired or is not yet valid
+Get https://registry.qikqiak.com/v1/users/: x509: certificate has expired or is not yet valid
+</code></pre></div><p>这是因为我们没有提供证书文件，我们将使用到的<code>ca.crt</code>文件复制到<code>/etc/docker/certs.d/registry.qikqiak.com</code>目录下面，如果该目录不存在，则创建它。ca.crt 这个证书文件我们可以通过 Ingress 中使用的 Secret 资源对象来提供：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get secret harbor-harbor-ingress -n kube-ops -o yaml
+apiVersion: v1
+data:
+  ca.crt: &lt;ca.crt&gt;
+  tls.crt: &lt;tls.crt&gt;
+  tls.key: &lt;tls.key&gt;
+kind: Secret
+metadata:
+  creationTimestamp: 2019-02-22T14:39:28Z
+  labels:
+    app: harbor
+    chart: harbor
+    heritage: Tiller
+    release: harbor
+  name: harbor-harbor-ingress
+  namespace: kube-ops
+  resourceVersion: <span style="color:#f1fa8c">&#34;50400208&#34;</span>
+  selfLink: /api/v1/namespaces/kube-ops/secrets/harbor-harbor-ingress
+  uid: a899c57a-36af-11e9-bcd8-525400db4df7
+type: kubernetes.io/tls
+</code></pre></div><p>其中 data 区域中 ca.crt 对应的值就是我们需要证书，不过需要注意还需要做一个 base64 的解码，这样证书配置上以后就可以正常访问了。</p>
+<p>不过由于上面的方法较为繁琐，所以一般情况下面我们在使用 docker cli 的时候是在 docker 启动参数后面添加一个<code>--insecure-registry</code>参数来忽略证书的校验的，在 docker 启动配置文件<code>/usr/lib/systemd/system/docker.service</code>中修改<code>ExecStart</code>的启动参数：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#8be9fd;font-style:italic">ExecStart</span><span style="color:#ff79c6">=</span>/usr/bin/dockerd --insecure-registry registry.qikqiak.com
+</code></pre></div><p>然后保存重启 docker，再使用 docker cli 就没有任何问题了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker login registry.qikqiak.com
+Username: admin
+Password:
+Login Succeeded
+</code></pre></div><p>比如我们本地现在有一个名为 busybox 的镜像，现在我们想要将该镜像推送到我们的私有仓库中去，应该怎样操作呢？首先我们需要给该镜像重新打一个 registry.qikqiak.com 的前缀，然后推送的时候就可以识别到推送到哪个镜像仓库：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker tag busybox registry.qikqiak.com/library/busybox
+$ docker push registry.qikqiak.com/library/busybox
+The push refers to repository <span style="color:#ff79c6">[</span>registry.qikqiak.com/library/busybox<span style="color:#ff79c6">]</span>
+adab5d09ba79: Pushed
+latest: digest: sha256:4415a904b1aca178c2450fd54928ab362825e863c0ad5452fd020e92f7a6a47e size: <span style="color:#bd93f9">527</span>
+</code></pre></div><p>推送完成后，我们同样可以在 Portal 页面上看到这个镜像的信息：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/OLt246.jpg" alt="Harbor image info">
+
+</p>
+<p>镜像 push 成功，同样可以测试下 pull：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ docker rmi registry.qikqiak.com/library/busybox
+Untagged: registry.qikqiak.com/library/busybox:latest
+Untagged: registry.qikqiak.com/library/busybox@sha256:4415a904b1aca178c2450fd54928ab362825e863c0ad5452fd020e92f7a6a47e
+
+$ docker pull registry.qikqiak.com/library/busybox:latest
+latest: Pulling from library/busybox
+Digest: sha256:4415a904b1aca178c2450fd54928ab362825e863c0ad5452fd020e92f7a6a47e
+Status: Downloaded newer image <span style="color:#ff79c6">for</span> registry.qikqiak.com/library/busybox:latest
+
+$ docker images |grep busybox
+busybox                                latest              d8233ab899d4        <span style="color:#bd93f9">7</span> days ago          1.2MB
+registry.qikqiak.com/library/busybox   latest              d8233ab899d4        <span style="color:#bd93f9">7</span> days ago          1.2MB
+</code></pre></div><p>到这里证明上面我们的私有 docker 仓库搭建成功了，大家可以尝试去创建一个私有的项目，然后创建一个新的用户，使用这个用户来进行 pull/push 镜像，Harbor 还具有其他的一些功能，比如镜像复制，大家可以自行测试，感受下 Harbor 和官方自带的 registry 仓库的差别。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/harbor-code-analysis/" data-toggle="tooltip" data-placement="top" title="Harbor 源码浅析">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/gitlab-install-on-k8s/" data-toggle="tooltip" data-placement="top" title="在 Kubernetes 上安装 Gitlab">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

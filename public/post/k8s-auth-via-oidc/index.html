@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="通过 GitHub OAuth 和 Dex 访问 Kubernetes 集群" />
+    <meta property="og:title" content="通过 GitHub OAuth 和 Dex 访问 Kubernetes 集群" />
+    <meta property="twitter:title" content="通过 GitHub OAuth 和 Dex 访问 Kubernetes 集群" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>通过 GitHub OAuth 和 Dex 访问 Kubernetes 集群-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/k8s-auth-via-oidc/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        <a class="tag" href="/tags/dex" title="dex">
+                            dex
+                        </a>
+                        
+                        <a class="tag" href="/tags/kubectl" title="kubectl">
+                            kubectl
+                        </a>
+                        
+                        <a class="tag" href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                    </div>
+                    <h1>通过 GitHub OAuth 和 Dex 访问 Kubernetes 集群</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, June 28, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#kubernetes-身份认证">Kubernetes 身份认证</a></li>
+        <li><a href="#oidc-认证">OIDC 认证</a></li>
+        <li><a href="#测试">测试</a></li>
+        <li><a href="#参考文档">参考文档</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>我们知道可以<a href="(/post/use-rbac-in-k8s/)">通过 RBAC 为操作 kubectl 的用户或组来进行权限控制</a>，但是我们往往是通过 <a href="/tags/kubernetes/">kubernetes</a> 集群的超级管理员手动为这些用户进行分配的，并没有一个开箱即用的 kubectl 身份验证工具。</p>
+<p>现在参加 <a href="https://youdianzhishi.com/course/6n8xd6/">kubernetes 进阶课程</a>的学生比较多，其中可能有一部分学生暂时还没有一套可用的集群环境，那么我们就可以为这部分学生授权访问我们的集群，但是如果这么多学生都手动去给他们创建身份认证必然非常麻烦。</p>
+<p>那么我们可以用什么办法来可以很方便的为用户进行授权访问 <a href="/tags/kubernetes/">kubernetes</a> 集群呢？</p>
+<h2 id="kubernetes-身份认证">Kubernetes 身份认证</h2>
+<p>其实前面关于 RBAC 的文章中我们就已经和大家介绍了关于 <a href="/tags/kubernetes/">kubernetes</a> 身份认证的一些信息，<a href="/tags/kubernetes/">kubernetes</a> 本身并不维护任何用户账户信息，当然也就没办法进行任何身份认证。<a href="/tags/kubernetes/">kubernetes</a> 集群有两种类型的帐号：User Account 和 Service Account。</p>
+<ul>
+<li>User Account：是给用户来使用的，全局唯一的，和集群的 namespace 没有关系。</li>
+<li>Service Account：是给应用程序来使用的，给那些运行在 <a href="/tags/kubernetes/">kubernetes</a> 集群中的程序访问 API server 使用的。</li>
+</ul>
+<p>关于如何手动创建 RBAC 为 User Account 和 Service Account 用户进行权限控制，可以去查看之前的文章：<a href="/post/use-rbac-in-k8s/">Kubernetes RBAC 详解</a>，这里不再重复了。</p>
+<p>对于普通用户使用的 User Account，<a href="/tags/kubernetes/">kubernetes</a> 并不提供管理机制，而是通过信任某个独立的外部身份认证系统，来把身份认证交给这个外部系统来完成，所以，大部分情况下 User Account 的认证是发生在 Kubernetes 系统之外的。<a href="/tags/kubernetes/">kubernetes</a> 自然是支持和外部用户管理和认证服务进行集成的。例如，一个可分发私钥的服务，一个用户管理服务（比如 Google Accounts），甚至可以是一个存储了用户名和密码列表的外部文件也可以。但是不管外部系统怎么管理，<a href="/tags/kubernetes/">kubernetes</a> 集群内部并没有存储任何代表用户的对象信息，也就是说，集群在创建之初，在没有配置外部认证机制的情况下，没有任何用户账户存在，当然，你也无法创建任何用户。</p>
+<!-- raw HTML omitted -->
+<p>所以 kubernetes 不能设置信任单个用户，而是去信任某个第三方的用户管理系统，一旦信任了某个系统，那么该系统中所有的用户都可以访问 kubernetes 集群了，当然具体有什么权限就是授权管理的事情了，而授权是由 <a href="/tags/kubernetes/">kubernetes</a> 自身控制的。</p>
+<h2 id="oidc-认证">OIDC 认证</h2>
+<p><a href="/tags/kubernetes/">kubernetes</a> 的认证策略有很多种，其中，通过一个不记名令牌 (Bear Token) 来识别用户是一种相对安全又被各种客户端广泛支持的认证策略。不记名令牌，代表着对某种资源，以某种身份访问的权利，无论是谁，任何获取该令牌的访问者，都被认为具有了相应的身份和访问权限。身份令牌（ID Token）就是一种不记名令牌，它本身记录着一个权威认证机构对用户身份的认证声明，同时还可以包含对这个用户授予了哪些权限的声明，<a href="/tags/kubernetes/">kubernetes</a> 接受和识别的正是这种 ID Token。</p>
+<p>要想得到 ID Token，就需要经过一个权威机构的一套身份认证流程，OpenID Connect（OIDC）就是这样一套认证、授权 ID Token 的协议，我们这里需要使用到的工具包括下面几个：</p>
+<ul>
+<li><a href="https://github.com/mintel/dex-k8s-authenticator">dex-k8s-authenticator</a> - 一个用来生成 kubectl 配置信息的应用</li>
+<li><a href="https://github.com/dexidp/dex">Dex</a> - 一个 OIDC 提供器</li>
+<li>GitHub - 通过 GitHub 来提供用户授权认证</li>
+<li><a href="/post/automatic-kubernetes-ingress-https-with-lets-encrypt/">Cert manager</a> - 用来进行自动化 HTTPS</li>
+</ul>
+<h3 id="授权流程">授权流程</h3>
+<p>下面是 kubernetes 通过 OIDC 进行认证授权的流程图：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/k8s-auth-process.png" alt="k8s 认证流程">
+
+</p>
+<ol>
+<li>用户通过访问 dex-k8s-authenticator 应用进行登录请求（login-k8s.qikqiak.com）</li>
+<li>dex-k8s-authenticator 应用跳转请求到 Dex（dex-k8s.qikqiak.com）</li>
+<li>Dex 跳转到 GitHub 授权页面</li>
+<li>GitHub 将响应信息回传给 Dex</li>
+<li>Dex 转发响应信息给 dex-k8s-authenticator</li>
+<li>用户通过 GitHub 获得 ID Token</li>
+<li>dex-k8s-authenticator 添加 ID Token 到 kubeconfig</li>
+<li>kubectl 传递 ID Token 到 KubeAPIServer</li>
+<li>KubeAPIServer 返回响应结果给 kubectl</li>
+<li>用户从 kubectl 获取相关信息。</li>
+</ol>
+<h3 id="准备工作">准备工作</h3>
+<p>首先，我们当然需要有一个可用的 kubernetes 集群，由于我们这里会通过 Helm 来进行应用安装，所以需要提前准备好 Helm 相关环境，可以<a href="https://www.qikqiak.com/tags/helm/">查看前面的文章了解更多关于 Helm 的信息</a>。</p>
+<p>然后，由于要为很多用户进行授权，所以我们这里需要在 GitHub 上面创建一个组织，我们直接对这个组织下面的一个团队进行授权即可，我们这里的组织名称为：max-k8s，团队名称为：team-red，当然我们也可以对组织下的所有用户进行授权，但是通过团队来进行授权显然更加灵活。前往 GitHub 组织设置页面（<a href="https://github.com/organizations/max-k8s/settings/applications">https://github.com/organizations/max-k8s/settings/applications</a>）创建一个新的<code>OAuth App</code>：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/github-org-settings.png" alt="github organization settings">
+
+</p>
+<p>填写上你自己的值：</p>
+<ul>
+<li>首页 URL：https://dex-k8s.qikqiak.com</li>
+<li>认证回调 URL： <a href="https://dex-k8s.qikqiak.com/callback">https://dex-k8s.qikqiak.com/callback</a></li>
+</ul>
+<p>要注意回调 URL 后面需要加上<code>callback</code>，将生成的<code>Client ID</code>和<code>Client secret</code>记录下来。</p>
+<p>最后一定要记住需要对上面的两个 URL：login-k8s.qikqiak.com 和 dex-k8s.qikqiak.com 做 DNS 解析，由于 Dex 和 dex-k8s-authenticator 两个应用我们都安装在 kubernetes 集群中，所以直接解析到 Ingress Controller 所在的节点即可。</p>
+<h3 id="安装-dex-和-dex-k8s-authenticator">安装 Dex 和 dex-k8s-authenticator</h3>
+<p>为了连接 Dex 应用，我们需要配置上 kubernetes 证书和私钥信息，我这里是通过 <a href="/tags/kubeadm/">kubeadm</a> 搭建的集群，所以直接在 master 节点上直接获取即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ cat /etc/kubernetes/pki/ca.crt
+-----BEGIN CERTIFICATE-----
+......crt证书内容......
+-----END CERTIFICATE-----
+$ cat /etc/kubernetes/pki/ca.key
+-----BEGIN RSA PRIVATE KEY-----
+......key私钥内容......
+-----END RSA PRIVATE KEY-----
+</code></pre></div><p>Clone dex-k8s-authenticator 代码仓库：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone git@github.com:mintel/dex-k8s-authenticator.git
+<span style="color:#8be9fd;font-style:italic">cd</span> dex-k8s-authenticator/
+</code></pre></div><p>仓库下面有 dex 和 dex-k8s-authenticator 和 Helm Chart 模板，分别创建对应的 values.yaml 文件即可进行安装。</p>
+<p>创建 dex 的 values 文件：（values-dex.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">global</span>:
+  <span style="color:#ff79c6">deployEnv</span>: prod
+<span style="color:#ff79c6">tls</span>:
+<span style="color:#6272a4"># 替换成你的kubernetes证书信息</span>
+  <span style="color:#ff79c6">certificate</span>: |-<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    -----BEGIN CERTIFICATE-----
+</span><span style="color:#f1fa8c">    ......crt证书内容......
+</span><span style="color:#f1fa8c">    -----END CERTIFICATE-----</span>    
+<span style="color:#6272a4"># 替换成你的kubernetes私钥信息</span>
+  <span style="color:#ff79c6">key</span>: |-  
+    -----BEGIN RSA PRIVATE KEY-----
+    ......key私钥内容......
+    -----END RSA PRIVATE KEY-----
+<span style="color:#ff79c6">ingress</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">kubernetes.io/ingress.class</span>: nginx  <span style="color:#6272a4"># nginx ingress</span>
+    <span style="color:#ff79c6">kubernetes.io/tls-acme</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>  <span style="color:#6272a4"># 使用cert manager进行自动化https</span>
+  <span style="color:#ff79c6">path</span>: /
+  <span style="color:#ff79c6">hosts</span>:
+    - dex-k8s.qikqiak.com
+  <span style="color:#ff79c6">tls</span>:
+    - <span style="color:#ff79c6">secretName</span>: cert-auth-dex
+      <span style="color:#ff79c6">hosts</span>:
+        - dex-k8s.qikqiak.com
+<span style="color:#ff79c6">serviceAccount</span>:
+  <span style="color:#ff79c6">create</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">name</span>: dex-auth-sa
+<span style="color:#ff79c6">config</span>: |<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">  issuer: https://dex-k8s.qikqiak.com/
+</span><span style="color:#f1fa8c">  storage: 
+</span><span style="color:#f1fa8c">    type: sqlite3
+</span><span style="color:#f1fa8c">    config:
+</span><span style="color:#f1fa8c">      file: /var/dex.db
+</span><span style="color:#f1fa8c">  web:
+</span><span style="color:#f1fa8c">    http: 0.0.0.0:5556
+</span><span style="color:#f1fa8c">  frontend:
+</span><span style="color:#f1fa8c">    theme: &#34;coreos&#34;
+</span><span style="color:#f1fa8c">    issuer: &#34;Example Co&#34;
+</span><span style="color:#f1fa8c">    issuerUrl: &#34;https://example.com&#34;
+</span><span style="color:#f1fa8c">    logoUrl: https://example.com/images/logo-250x25.png
+</span><span style="color:#f1fa8c">  expiry:
+</span><span style="color:#f1fa8c">    signingKeys: &#34;6h&#34;
+</span><span style="color:#f1fa8c">    idTokens: &#34;24h&#34;
+</span><span style="color:#f1fa8c">  logger:
+</span><span style="color:#f1fa8c">    level: debug
+</span><span style="color:#f1fa8c">    format: json
+</span><span style="color:#f1fa8c">  oauth2:
+</span><span style="color:#f1fa8c">    responseTypes: [&#34;code&#34;, &#34;token&#34;, &#34;id_token&#34;]
+</span><span style="color:#f1fa8c">    skipApprovalScreen: true
+</span><span style="color:#f1fa8c">  connectors:
+</span><span style="color:#f1fa8c">  - type: github
+</span><span style="color:#f1fa8c">    id: github
+</span><span style="color:#f1fa8c">    name: GitHub
+</span><span style="color:#f1fa8c">    config:
+</span><span style="color:#f1fa8c">      clientID: $GITHUB_CLIENT_ID    # 不用替换
+</span><span style="color:#f1fa8c">      clientSecret: $GITHUB_CLIENT_SECRET  # 不用替换
+</span><span style="color:#f1fa8c">      redirectURI: https://dex-k8s.qikqiak.com/callback  # github oauth callback url
+</span><span style="color:#f1fa8c">      orgs:
+</span><span style="color:#f1fa8c">      - name: max-k8s    # github 组织
+</span><span style="color:#f1fa8c">        teams:
+</span><span style="color:#f1fa8c">        - team-red  # github 组织下面的 team
+</span><span style="color:#f1fa8c">  staticClients:
+</span><span style="color:#f1fa8c">  - id: dex-k8s-authenticator
+</span><span style="color:#f1fa8c">    name: dex-k8s-authenticator
+</span><span style="color:#f1fa8c">    secret: generatedLongRandomPhrase
+</span><span style="color:#f1fa8c">    redirectURIs:
+</span><span style="color:#f1fa8c">      - https://login-k8s.qikqiak.com/callback/</span>  
+<span style="color:#ff79c6">envSecrets</span>:
+  <span style="color:#ff79c6">GITHUB_CLIENT_ID</span>: <span style="color:#f1fa8c">&#34;替换成你的github client id&#34;</span>
+  <span style="color:#ff79c6">GITHUB_CLIENT_SECRET</span>: <span style="color:#f1fa8c">&#34;替换成你的github client secret&#34;</span>
+</code></pre></div><p>然后创建 dex-k8s-authenticator 的 values 文件：(values-auth.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">global</span>:
+  <span style="color:#ff79c6">deployEnv</span>: prod
+<span style="color:#ff79c6">dexK8sAuthenticator</span>:
+  <span style="color:#ff79c6">clusters</span>:
+  - <span style="color:#ff79c6">name</span>: k8s.example.com
+    <span style="color:#ff79c6">short_description</span>: <span style="color:#f1fa8c">&#34;k8s cluster&#34;</span>
+    <span style="color:#ff79c6">description</span>: <span style="color:#f1fa8c">&#34;Kubernetes cluster&#34;</span>
+    <span style="color:#ff79c6">issuer</span>: https://dex-k8s.qikqiak.com/   
+    <span style="color:#ff79c6">k8s_master_uri</span>: https://&lt;APIServer URL&gt;  <span style="color:#6272a4"># 替换成你kubernetes集群apiserver地址</span>
+    <span style="color:#ff79c6">client_id</span>: dex-k8s-authenticator
+    <span style="color:#ff79c6">client_secret</span>: generatedLongRandomPhrase
+    <span style="color:#ff79c6">redirect_uri</span>: https://login-k8s.qikqiak.com/callback/
+    <span style="color:#ff79c6">k8s_ca_pem</span>: |<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">      -----BEGIN CERTIFICATE-----
+</span><span style="color:#f1fa8c">      ......crt证书内容......
+</span><span style="color:#f1fa8c">      -----END CERTIFICATE-----</span>      
+<span style="color:#ff79c6">ingress</span>:
+  <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">kubernetes.io/ingress.class</span>: nginx
+    <span style="color:#ff79c6">kubernetes.io/tls-acme</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+  <span style="color:#ff79c6">path</span>: /
+  <span style="color:#ff79c6">hosts</span>:
+    - login-k8s.qikqiak.com
+  <span style="color:#ff79c6">tls</span>:
+    - <span style="color:#ff79c6">secretName</span>: cert-auth-login
+      <span style="color:#ff79c6">hosts</span>:
+        - login-k8s.qikqiak.com
+</code></pre></div><p>Chart 模板的 values 文件准备好了，我们可以先将两个应用的自动化 HTTPS 分别配置上，创建 SSL certificates：(https.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: certmanager.k8s.io/v1alpha1
+<span style="color:#ff79c6">kind</span>: ClusterIssuer
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: le-clusterissuer
+  <span style="color:#ff79c6">namespace</span>: kube-system
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">acme</span>:
+    <span style="color:#ff79c6">server</span>: https://acme-v02.api.letsencrypt.org/directory
+    <span style="color:#ff79c6">email</span>: icnych@gmail.com
+    <span style="color:#ff79c6">privateKeySecretRef</span>:
+      <span style="color:#ff79c6">name</span>: le-clusterissuer
+    <span style="color:#ff79c6">http01</span>: {}
+
+---
+<span style="color:#ff79c6">apiVersion</span>: certmanager.k8s.io/v1alpha1
+<span style="color:#ff79c6">kind</span>: Certificate
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: cert-auth-dex
+  <span style="color:#ff79c6">namespace</span>: kube-system
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">secretName</span>: cert-auth-dex
+  <span style="color:#ff79c6">dnsNames</span>:
+    - dex-k8s.qikqiak.com
+  <span style="color:#ff79c6">acme</span>:
+    <span style="color:#ff79c6">config</span>:
+    - <span style="color:#ff79c6">http01</span>:
+        <span style="color:#ff79c6">ingressClass</span>: nginx
+      <span style="color:#ff79c6">domains</span>:
+      - dex-k8s.qikqiak.com
+  <span style="color:#ff79c6">issuerRef</span>:
+    <span style="color:#ff79c6">name</span>: le-clusterissuer
+    <span style="color:#ff79c6">kind</span>: ClusterIssuer
+
+---
+<span style="color:#ff79c6">apiVersion</span>: certmanager.k8s.io/v1alpha1
+<span style="color:#ff79c6">kind</span>: Certificate
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: cert-auth-login
+  <span style="color:#ff79c6">namespace</span>: kube-system
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">secretName</span>: cert-auth-login
+  <span style="color:#ff79c6">dnsNames</span>:
+    - login-k8s.qikqiak.com
+  <span style="color:#ff79c6">acme</span>:
+    <span style="color:#ff79c6">config</span>:
+    - <span style="color:#ff79c6">http01</span>:
+        <span style="color:#ff79c6">ingressClass</span>: nginx
+      <span style="color:#ff79c6">domains</span>:
+      - login-k8s.qikqiak.com
+  <span style="color:#ff79c6">issuerRef</span>:
+    <span style="color:#ff79c6">name</span>: le-clusterissuer
+    <span style="color:#ff79c6">kind</span>: ClusterIssuer
+</code></pre></div><p>当然前提是要安装 Cert Manager，关于 Cert Manager 的安装可以查看前面文章：<a href="/post/automatic-kubernetes-ingress-https-with-lets-encrypt/">Kubernetes Ingress 自动化 HTTPS</a>，我们这里不再展开了。</p>
+<!-- raw HTML omitted -->
+<p>直接使用 kubectl 工具创建即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubect create -f https.yaml
+</code></pre></div><p>创建完成后可以通过 describe 命令查看运行状况，查看到类似于<code>Certificate issued successfully</code>的信息证明就已经配置成功了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl describe certificates cert-auth-dex -n kube-system
+$ kubectl describe certificates cert-auth-login -n kube-system
+</code></pre></div><p>然后在 dex-k8s-authenticator/ 根目录下面直接通过 Helm 安装：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ helm install -n dex --namespace kube-system --values values-dex.yml charts/dex
+$ helm install -n dex-auth --namespace kube-system --values values-auth.yml charts/dex-k8s-authenticator
+</code></pre></div><p>安装完成后通过下面的命令进行校验（Dex 应该返回状态码400，dex-k8s-authenticator 应该返回状态码200）：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ curl -sI https://dex-k8s.qikqiak.com/callback | head -1
+HTTP/2 <span style="color:#bd93f9">400</span>
+$ curl -sI https://login-k8s.qikqiak.com/ | head -1
+HTTP/2 <span style="color:#bd93f9">200</span>
+</code></pre></div><h3 id="rbac-权限配置">RBAC 权限配置</h3>
+<p>上面的准备工作完成后，现在我们来为 max-k8s 这个 group 下面的 team-red 进行权限控制，比如我们希望这个 team 下面的所有用户都只有只读权限，创建对应的 RBAC 配置文件：(read-auth.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span style="color:#ff79c6">kind</span>: ClusterRole
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: cluster-read-all
+<span style="color:#ff79c6">rules</span>:
+  -
+    <span style="color:#ff79c6">apiGroups</span>:
+      - <span style="color:#f1fa8c">&#34;&#34;</span>
+      - apps
+      - autoscaling
+      - batch
+      - extensions
+      - policy
+      - rbac.authorization.k8s.io
+      - storage.k8s.io
+    <span style="color:#ff79c6">resources</span>:
+      - componentstatuses
+      - configmaps
+      - cronjobs
+      - daemonsets
+      - deployments
+      - events
+      - endpoints
+      - horizontalpodautoscalers
+      - ingress
+      - ingresses
+      - jobs
+      - limitranges
+      - namespaces
+      - nodes
+      - pods
+      - pods/log
+      - pods/exec
+      - persistentvolumes
+      - persistentvolumeclaims
+      - resourcequotas
+      - replicasets
+      - replicationcontrollers
+      - serviceaccounts
+      - services
+      - statefulsets
+      - storageclasses
+      - clusterroles
+      - roles
+    <span style="color:#ff79c6">verbs</span>:
+      - get
+      - watch
+      - list
+  - <span style="color:#ff79c6">nonResourceURLs</span>: [<span style="color:#f1fa8c">&#34;*&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>:
+      - get
+      - watch
+      - list
+  - <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+    <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;pods/exec&#34;</span>]
+    <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>]
+
+---
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1beta1
+<span style="color:#ff79c6">kind</span>: ClusterRoleBinding
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dex-cluster-auth
+  <span style="color:#ff79c6">namespace</span>: kube-system
+<span style="color:#ff79c6">roleRef</span>:
+  <span style="color:#ff79c6">apiGroup</span>: rbac.authorization.k8s.io
+  <span style="color:#ff79c6">kind</span>: ClusterRole
+  <span style="color:#ff79c6">name</span>: cluster-read-all
+<span style="color:#ff79c6">subjects</span>:
+- <span style="color:#ff79c6">kind</span>: Group
+  <span style="color:#ff79c6">name</span>: <span style="color:#f1fa8c">&#34;max-k8s:team-red&#34;</span>
+</code></pre></div><p>如果对于 RBAC 权限控制这块还不是很熟悉，同样可以回头去看看前面的文章：<a href="/post/use-rbac-in-k8s/">Kubernetes RBAC 详解</a>，使用 kubectl 直接创建：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl create -f read-auth.yaml
+</code></pre></div><h3 id="apiserver-配置">APIServer 配置</h3>
+<p>现在我们相关的准备工作已经完成了，权限也配置上了，接下来是最重要的一步：为 APIServer 提供 OIDC 相关的配置。关于 APIServer 中 OIDC 相关部分的配置可以查看官方文档：<a href="https://kubernetes.io/docs/reference/access-authn-authz/authentication/#configuring-the-api-server">https://kubernetes.io/docs/reference/access-authn-authz/authentication/</a></p>
+<p>由于我这里的集群是使用的 <a href="/tags/kubeadm/">kubeadm</a> 进行搭建的，所以直接去 master 节点上更改 APIserver 的静态 Pod 配置即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">$ cat /etc/kubernetes/manifests/kube-apiserver.yaml
+......
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">containers</span>:
+  - <span style="color:#ff79c6">command</span>:
+    - kube-apiserver
+    - --authorization-mode=Node,RBAC
+    - --oidc-client-id=dex-k8s-authenticator
+    - --oidc-groups-claim=groups
+    - --oidc-issuer-url=https://dex-k8s.qikqiak.com/
+    - --oidc-username-claim=email
+......
+</code></pre></div><p>然后将<code>kube-apiserver.yaml</code>文件从<code>/etc/kubernetes/manifests/</code>静态 Pod 目录下面移除，稍等一小会儿再移动回来，相当于强制重启了。</p>
+<p>这样就完成了 KubeAPIServer 部分关于 OIDC 的配置。</p>
+<h2 id="测试">测试</h2>
+<p>现在所有的工作都准备好了，接下来我们来测试下，前往登录页面（https://login-k8s.qikqiak.com）使用你的 GitHub 帐号（当然前提是得加入到上面我们的 max-k8s 组下面）进行登录授权：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/k8s-auth-login.png" alt="k8s auth login page">
+
+</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/k8s-auth-github.png" alt="k8s github auth">
+
+</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/k8s-dex-kubeconfig.png" alt="k8s dex kubeconfig page">
+
+</p>
+<p>然后根据上面页面中的信息进行 kubeconfig 信息配置，正常我们就可以访问到 kubernetes 集群了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                                      READY   STATUS    RESTARTS   AGE
+nginx-app-76b6449498-ffhgx                1/1     Running   <span style="color:#bd93f9">0</span>          28d
+nginx-app-76b6449498-wzjq2                1/1     Running   <span style="color:#bd93f9">0</span>          28d
+$ kubectl delete pod nginx-app-76b6449498-wzjq2
+Error from server <span style="color:#ff79c6">(</span>Forbidden<span style="color:#ff79c6">)</span>: pods <span style="color:#f1fa8c">&#34;nginx-app-76b6449498-wzjq2&#34;</span> is forbidden: User <span style="color:#f1fa8c">&#34;ych_1024@163.com&#34;</span> cannot delete resource <span style="color:#f1fa8c">&#34;pods&#34;</span> in API group <span style="color:#f1fa8c">&#34;&#34;</span> in the namespace <span style="color:#f1fa8c">&#34;default&#34;</span>
+</code></pre></div><p>我们可以看到在 GitHub 上面 max-k8s 这个组下面的 team-red 这个 Team 下面的用户可以读取我们的资源对象了，但是没有写相关的权限，证明我们的验证成功了。</p>
+<p>这样以后要是有学生想要访问我的集群，只需要加入到我们的 GitHub 组里面来就可以了，是不是很方便，显然比手动去授权前进了一大步吧。当然除了通过 GitHub 去授权外，我们还可以使用其他的第三方用户认证系统。</p>
+<!-- raw HTML omitted -->
+<h2 id="参考文档">参考文档</h2>
+<ul>
+<li><a href="https://github.com/dexidp/dex">Dex</a></li>
+<li><a href="https://github.com/mintel/dex-k8s-authenticator">dex-k8s-authenticator</a></li>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/authentication/">Kubernetes Authenticating</a></li>
+<li><a href="https://kubernetes.io/docs/reference/access-authn-authz/authorization/">Kubernetes Authroization Overview</a></li>
+<li><a href="https://medium.com/preply-engineering/k8s-auth-a81f59d4dff6">Kubernetes authentication via GitHub OAuth and Dex</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/cloud/library/cl-lo-openid-connect-kubernetes-authentication/index.html">为 Kubernetes 搭建支持 OpenId Connect 的身份认证系统</a></li>
+</ul>
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/use-casc-run-jenkins/" data-toggle="tooltip" data-placement="top" title="使用 Configuration-As-Code 运行 Jenkins">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/elastic-cloud-on-k8s/" data-toggle="tooltip" data-placement="top" title="使用Elasticsearch Operator快速部署Elasticsearch集群">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

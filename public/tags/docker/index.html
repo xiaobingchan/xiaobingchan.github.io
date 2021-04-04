@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Docker" />
+    <meta property="og:title" content="Docker" />
+    <meta property="twitter:title" content="Docker" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Docker-青年夏日IT</title>
+
+    <link rel="canonical" href="/tags/docker/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+<header class="intro-header" style="background-image: url('/img/home-bg-jeep.jpg')">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1 ">
+                <div class="site-heading">
+                    <h1>青年夏日IT </h1>
+                    
+		    <span class="subheading">你为何不自己帮自己呢？连自己都对自己没信心，没人会帮你。</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+  
+<div class="container">
+    <div class="row">
+        
+        
+   	    <div class="
+            col-lg-8 col-lg-offset-1
+            col-md-8 col-md-offset-1
+            col-sm-12
+            col-xs-12
+            post-container
+        ">
+            
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/accelerate-ci-cd-pipelines-with-kind/">
+        <h2 class="post-title">
+            使用 KinD 加速 CI/CD 流水线
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p>现在安装 Kubernetes 集群已经变得越来越简单了，出现了很多方案，各种方案都有自己适合的使用场景。虽然我们可以很快速在云环境下面启动一个 Kubernetes 集群，但是对于开发人员通常更喜欢能够快速上手的东西，<a href="https://kind.sigs.k8s.io/">Kubernetes in Docker（KinD）</a>这个工具就可以通过创建容器来作为 Kubernetes 的节点，我们只需要在机器上安装 Docker 就可以使用，它允许我们在很短的时间内就启动一个多节点的集群，而不依赖任何其他工具或云服务商，这就使得它不仅对本地开发非常有用，而且对 CI/CD 也很有帮助。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Thursday, October 8, 2020
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/k8s-in-k8s/">
+        <h2 class="post-title">
+            在 Kubernetes 中运行 Kubernetes
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><a href="/post/deploy-k8s-on-win-use-wsl2/">前面其实我们在 Windows 系统的 WSL2 下面使用 KinD 搭建了一套 Kubernetes 集群</a>，KinD 是一个非常轻量级的 Kubernetes 安装工具，他将 Docker 容器当成 Kubernetes 的节点，使用非常方便。既然在 Docker 容器中可以运行 Kubernetes 集群，那么我们自然就会想到是否可以在 Pod 中来运行呢？在 Pod 中运行会遇到哪些问题呢？</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Friday, June 12, 2020
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/speed-up-develop-flow-dockerfile-best-practices/">
+        <h2 class="post-title">
+            加速开发流程的 Dockerfile 最佳实践
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p>Dockerfile 是创建 Docker 镜像的起点，该文件提供了一组定义良好的指令，可以让我们复制文件或文件夹，运行命令，设置环境变量以及执行创建容器镜像所需的其他任务。编写 Dockerfile 来确保生成的镜像安全、小巧、快速构建和快速更新非常重要。</p>
+<p>本文我们将看到如何编写良好的 Dockerfile 来加快开发流程，确保构建的可重用性，并生成可放心部署到生产中的镜像。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Thursday, April 30, 2020
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/reduce-image-size/">
+        <h2 class="post-title">
+            减小 Docker 镜像大小
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            https://www.ardanlabs.com/blog/2020/02/docker-images-part1-reducing-image-size.html https://kinbiko.com/go/testing/beginners/
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Tuesday, March 3, 2020
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/get-client-realip/">
+        <h2 class="post-title">
+            获取客户端访问真实 IP
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p>通常，当集群内的客户端连接到服务的时候，是支持服务的 Pod 可以获取到客户端的 IP 地址的，但是，当通过节点端口接收到连接时，由于对数据包执行了源网络地址转换（SNAT），因此数据包的源 IP 地址会发生变化，后端的 Pod 无法看到实际的客户端 IP，对于某些应用来说是个问题，比如，nginx 的请求日志就无法获取准确的客户端访问 IP 了。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Tuesday, March 3, 2020
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/capabilities-on-k8s/">
+        <h2 class="post-title">
+            在 Kubernetes 中配置 Container Capabilities
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p>我们在使用 Kubernetes 过程中，偶尔会遇到如下所示的一段配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">securityContext</span>:
+  <span style="color:#ff79c6">capabilities</span>:
+    <span style="color:#ff79c6">drop</span>:
+    - ALL
+    <span style="color:#ff79c6">add</span>:
+    - NET_BIND_SERVICE
+</code></pre></div><p>实际上这是配置对应的容器的 <code>Capabilities</code>，在我们使用 <code>docker run</code> 的时候可以通过 <code>--cap-add</code> 和 <code>--cap-drop</code> 命令来给容器添加 <code>Linux Capabilities</code>。对于大部分同学可能又要疑问 <code>Linux Capabilities</code> 是什么呢？</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Monday, November 18, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/use-casc-run-jenkins/">
+        <h2 class="post-title">
+            使用 Configuration-As-Code 运行 Jenkins
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p>今天了解到一个名为<code>Configuration as Code (JcasC)</code>的插件可以来创建<code>Jenkins</code>，这个插件允许你用 YAML 文件来定义 Jenkins 配置。一般我们在使用 Jenkins 的时候多少知道我们需要哪些插件或者其他配置来配合我们的 CI/CD 工作，使用 JcasC 插件，我们就可以将这些信息配置在可读性更高的 YAML 文件中。在本文中，我们会为大家演示如何使用<code>Configuration as Code</code>插件来创建 Jenkins，然后使用 Git、Maven 等工具来编写一个声明式的 Pipeline 去构建一个 Java 应用，另外还会展示如何使用<code>Vault</code>来管理一些私密数据。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Thursday, June 13, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/complete-cicd-demonstrate-2/">
+        <h2 class="post-title">
+            基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><a href="/post/complete-cicd-demonstrate-1/">上节课我们完成了最基本的流水线流程</a>，接下来的工作就是来实现之前的具体 Pipeline 脚本了。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Saturday, May 4, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/complete-cicd-demonstrate-1/">
+        <h2 class="post-title">
+            基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(一)
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><a href="/post/gitlab-ci-k8s-cluster-feature/">上节课和大家介绍了<code>Gitlab CI</code>结合<code>Kubernetes</code>进行 CI/CD 的完整过程</a>。这节课结合前面所学的知识点给大家介绍一个完整的示例：使用 Jenkins + Gitlab + Harbor + Helm + Kubernetes 来实现一个完整的 CI/CD 流水线作业。</p>
+<p>其实前面的课程中我们就<a href="/post/kubernetes-jenkins1/">已经学习了 Jenkins Pipeline 与 Kubernetes 的完美结合</a>，我们利用 Kubernetes 来动态运行 Jenkins 的 Slave 节点，可以和好的来解决传统的 Jenkins Slave 浪费大量资源的缺点。之前的示例中我们是将项目放置在 Github 仓库上的，将 Docker 镜像推送到了 Docker Hub，这节课我们来结合我们前面学习的知识点来综合运用下，使用 Jenkins、Gitlab、Harbor、Helm、Kubernetes 来实现一个完整的持续集成和持续部署的流水线作业。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Friday, April 12, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/gitlab-install-on-k8s/">
+        <h2 class="post-title">
+            在 Kubernetes 上安装 Gitlab
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><a href="/post/gitlab-install-on-k8s/">
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/vTUWg8.jpg" alt="gitlab on k8s">
+
+</a></p>
+<p><code>Gitlab</code>官方提供了 Helm 的方式在 Kubernetes 集群中来快速安装，但是在使用的过程中发现 Helm 提供的 Chart 包中有很多其他额外的配置，所以我们这里使用自定义的方式来安装，也就是自己来定义一些资源清单文件。</p>
+<p><code>Gitlab</code>主要涉及到3个应用：Redis、Postgresql、Gitlab 核心程序，实际上我们只要将这3个应用分别启动起来，然后加上对应的配置就可以很方便的安装 Gitlab 了，我们这里选择使用的镜像不是官方的，而是 Gitlab 容器化中使用非常多的一个第三方镜像：<code>sameersbn/gitlab</code>，基本上和官方保持同步更新，地址：<a href="http://www.damagehead.com/docker-gitlab/">http://www.damagehead.com/docker-gitlab/</a></p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Thursday, March 7, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/harbor-quick-install/">
+        <h2 class="post-title">
+            在 Kubernetes 在快速安装 Harbor
+        </h2>
+	
+        <h3 class="post-subtitle">
+            使用 Helm 一键安装
+        </h3>
+	
+        <div class="post-content-preview">
+	
+            <p>前面我们和大家简单分析了<a href="/post/harbor-code-analysis/">Harbor 的实现原理和部分源代码</a>，这节课给大家介绍下如何快速安装并使用 Harbor。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Friday, February 22, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/harbor-code-analysis/">
+        <h2 class="post-title">
+            Harbor 源码浅析
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><a href="/post/harbor-code-analysis/">
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/Q2xt5X.jpg" alt="harbor">
+
+</a></p>
+<p><a href="https://github.com/goharbor/harbor">Harbor</a> 是一个<code>CNCF</code>基金会托管的开源的可信的云原生<code>docker registry</code>项目，可以用于存储、签名、扫描镜像内容，Harbor 通过添加一些常用的功能如安全性、身份权限管理等来扩展 docker registry 项目，此外还支持在 registry 之间复制镜像，还提供更加高级的安全功能，如用户管理、访问控制和活动审计等，在新版本中还添加了<code>Helm</code>仓库托管的支持。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Wednesday, February 20, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/running-jvm-inside-a-container/">
+        <h2 class="post-title">
+            在 Docker 容器中运行 JVM 的注意事项
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            https://medium.com/domain-tech/running-jvm-inside-a-container-what-you-need-to-know-aac6fa6c12c8
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Saturday, January 5, 2019
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/dockerfile-best-practice/">
+        <h2 class="post-title">
+            Dockerfile 最佳实践
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            <p><code>Docker</code>官方关于<code>Dockerfile</code>最佳实践原文链接地址：<a href="https://docs.docker.com/develop/develop-images/dockerfile_best-practices/">https://docs.docker.com/develop/develop-images/dockerfile_best-practices/</a></p>
+<p><code>Docker</code>可以通过从<code>Dockerfile</code>包含所有命令的文本文件中读取指令自动构建镜像，以便构建给定镜像。</p>
+<p><code>Dockerfiles</code>使用特定的格式并使用一组特定的指令。您可以在 <a href="https://docs.docker.com/engine/reference/builder/">Dockerfile Reference</a> 页面上了解基础知识 。如果你是新手写作<code>Dockerfile</code>，你应该从那里开始。</p>
+<p>本文档介绍了由 Docker，Inc. 和 Docker 社区推荐的用于构建高效镜像的最佳实践和方法。要查看更多实践和建议，请查看 <a href="https://github.com/docker-library/buildpack-deps/blob/master/jessie/Dockerfile">Dockerfile for buildpack-deps</a>。</p>
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Wednesday, September 12, 2018
+    
+    
+    </p>
+
+</div>
+<hr>
+
+<div class="post-preview">
+    <a href="https://qnxr.xyz/post/what-is-oci-runc-containerd-cri-docker/">
+        <h2 class="post-title">
+            名称解释OCI、runc、containerd、Docker、CRI、CRI-O
+        </h2>
+	
+        <div class="post-content-preview">
+	
+            TODO
+       
+        </div>
+    </a>
+    <p class="post-meta">
+    Posted by 青年夏日IT Saturday, June 2, 2018
+    
+    
+    </p>
+
+</div>
+<hr>
+
+
+            
+
+
+<ul class="pager">
+    
+    
+    <li class="next">
+        <a href="/tags/docker/page/2/">下一页 &rarr;</a>
+    </li>
+    
+</ul>
+
+
+       	</div>
+        
+
+<div class="
+    col-lg-3 col-lg-offset-0
+    col-md-3 col-md-offset-0
+    col-sm-12
+    col-xs-12
+    sidebar-container
+">
+    
+    
+    <section>
+        <hr class="hidden-sm hidden-xs">
+        <h5>标签</h5>
+        <div class="tags">
+            
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/affinity" title="affinity">
+                        affinity
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/alertmanager" title="alertmanager">
+                        alertmanager
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/argo" title="argo">
+                        argo
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/cd" title="cd">
+                        cd
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/ci" title="ci">
+                        ci
+                    </a>
+               
+            
+               
+                    <a href="/tags/ci/cd" title="ci/cd">
+                        ci/cd
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/configmap" title="configmap">
+                        configmap
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/coredns" title="coredns">
+                        coredns
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/dashboard" title="dashboard">
+                        dashboard
+                    </a>
+               
+            
+               
+                    <a href="/tags/deployment" title="deployment">
+                        deployment
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/devops" title="devops">
+                        devops
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/django" title="django">
+                        django
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/docker" title="docker">
+                        docker
+                    </a>
+               
+            
+               
+                    <a href="/tags/dockerfile" title="dockerfile">
+                        dockerfile
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/drone" title="drone">
+                        drone
+                    </a>
+               
+            
+               
+                    <a href="/tags/efk" title="efk">
+                        efk
+                    </a>
+               
+            
+               
+                    <a href="/tags/elastic" title="elastic">
+                        elastic
+                    </a>
+               
+            
+               
+                    <a href="/tags/elasticsearch" title="elasticsearch">
+                        elasticsearch
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/envoy" title="envoy">
+                        envoy
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/flask" title="flask">
+                        flask
+                    </a>
+               
+            
+               
+                    <a href="/tags/fluentd" title="fluentd">
+                        fluentd
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/github" title="github">
+                        github
+                    </a>
+               
+            
+               
+                    <a href="/tags/gitlab" title="gitlab">
+                        gitlab
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/gitops" title="gitops">
+                        gitops
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/goland" title="goland">
+                        goland
+                    </a>
+               
+            
+               
+                    <a href="/tags/golang" title="golang">
+                        golang
+                    </a>
+               
+            
+               
+                    <a href="/tags/grafana" title="grafana">
+                        grafana
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/haproxy" title="haproxy">
+                        haproxy
+                    </a>
+               
+            
+               
+                    <a href="/tags/harbor" title="harbor">
+                        harbor
+                    </a>
+               
+            
+               
+                    <a href="/tags/helm" title="helm">
+                        helm
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/https" title="https">
+                        https
+                    </a>
+               
+            
+               
+                    <a href="/tags/hugo" title="hugo">
+                        hugo
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/ingress" title="ingress">
+                        ingress
+                    </a>
+               
+            
+               
+                    <a href="/tags/ingress-nginx" title="ingress-nginx">
+                        ingress-nginx
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/iptables" title="iptables">
+                        iptables
+                    </a>
+               
+            
+               
+                    <a href="/tags/ipvs" title="ipvs">
+                        ipvs
+                    </a>
+               
+            
+               
+                    <a href="/tags/istio" title="istio">
+                        istio
+                    </a>
+               
+            
+               
+                    <a href="/tags/java" title="java">
+                        java
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/jenkins" title="jenkins">
+                        jenkins
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/k8s" title="k8s">
+                        k8s
+                    </a>
+               
+            
+               
+                    <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                        k8s技术圈
+                    </a>
+               
+            
+               
+                    <a href="/tags/kafka" title="kafka">
+                        kafka
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/kibana" title="kibana">
+                        kibana
+                    </a>
+               
+            
+               
+                    <a href="/tags/kind" title="kind">
+                        kind
+                    </a>
+               
+            
+               
+                    <a href="/tags/kong" title="kong">
+                        kong
+                    </a>
+               
+            
+               
+                    <a href="/tags/kubeadm" title="kubeadm">
+                        kubeadm
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/kubelet" title="kubelet">
+                        kubelet
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/kubernetes" title="kubernetes">
+                        kubernetes
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/kustomize" title="kustomize">
+                        kustomize
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/loki" title="loki">
+                        loki
+                    </a>
+               
+            
+               
+                    <a href="/tags/mac" title="mac">
+                        mac
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/microservice" title="microservice">
+                        microservice
+                    </a>
+               
+            
+               
+                    <a href="/tags/monitor" title="monitor">
+                        monitor
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/netfilter" title="netfilter">
+                        netfilter
+                    </a>
+               
+            
+               
+                    <a href="/tags/nfs" title="nfs">
+                        nfs
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/nginx" title="nginx">
+                        nginx
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/operator" title="operator">
+                        operator
+                    </a>
+               
+            
+               
+                    <a href="/tags/ops" title="ops">
+                        ops
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/pipeline" title="pipeline">
+                        pipeline
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/pod" title="pod">
+                        pod
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/prometheus" title="prometheus">
+                        prometheus
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/pv" title="pv">
+                        pv
+                    </a>
+               
+            
+               
+                    <a href="/tags/pvc" title="pvc">
+                        pvc
+                    </a>
+               
+            
+               
+                    <a href="/tags/pycharm" title="pycharm">
+                        pycharm
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/python" title="python">
+                        python
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/rbac" title="rbac">
+                        rbac
+                    </a>
+               
+            
+               
+                    <a href="/tags/react" title="react">
+                        react
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/scheduler" title="scheduler">
+                        scheduler
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/security" title="security">
+                        security
+                    </a>
+               
+            
+               
+                    <a href="/tags/service" title="service">
+                        service
+                    </a>
+               
+            
+               
+                    <a href="/tags/service-api" title="service-api">
+                        service-api
+                    </a>
+               
+            
+               
+                    <a href="/tags/service-mesh" title="service-mesh">
+                        service-mesh
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/slave" title="slave">
+                        slave
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/storageclass" title="storageclass">
+                        storageclass
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/tcpdump" title="tcpdump">
+                        tcpdump
+                    </a>
+               
+            
+               
+                    <a href="/tags/tdd" title="tdd">
+                        tdd
+                    </a>
+               
+            
+               
+                    <a href="/tags/tekton" title="tekton">
+                        tekton
+                    </a>
+               
+            
+               
+                    <a href="/tags/tips" title="tips">
+                        tips
+                    </a>
+               
+            
+               
+                    <a href="/tags/traefik" title="traefik">
+                        traefik
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/vault" title="vault">
+                        vault
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/vscode" title="vscode">
+                        vscode
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/webpack" title="webpack">
+                        webpack
+                    </a>
+               
+            
+               
+                    <a href="/tags/websocket" title="websocket">
+                        websocket
+                    </a>
+               
+            
+               
+            
+               
+                    <a href="/tags/wsl" title="wsl">
+                        wsl
+                    </a>
+               
+            
+               
+                    <a href="/tags/yaml" title="yaml">
+                        yaml
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                        微服务
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                        知识星球
+                    </a>
+               
+            
+               
+            
+               
+            
+               
+            
+               
+            
+               
+                    <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                        课程
+                    </a>
+               
+            
+               
+                    <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                        调度
+                    </a>
+               
+            
+               
+                    <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                        阿里云
+                    </a>
+               
+            
+               
+            
+               
+            
+        </div>
+    </section>
+    
+
+    
+	
+    <section class="visible-md visible-lg">
+	<hr><h5><a href="/top/about">关于我</a></h5>
+        <div class="short-about">
+            
+            <a href="/top/about">
+               <img src="/img/zhaohuabing.jpg" alt="avatar" style="cursor: pointer" />
+            </a>
+            
+            
+           
+           <ul class="list-inline">
+               
+               
+               <li>
+                   <a href="img/wechat_qrcode.jpg">
+                       <span class="fa-stack fa-lg">
+                           <i class="fas fa-circle fa-stack-2x"></i>
+                           <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                       </span>
+                   </a>
+               </li>
+               
+               
+               
+               
+               <li>
+                   <a target="_blank" href="img/wechat_qrcode.jpg">
+                       <span class="fa-stack fa-lg">
+                           <i class="fas fa-circle fa-stack-2x"></i>
+                           <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                       </span>
+                   </a>
+               </li>
+               
+               
+               
+               <li>
+                   <a target="_blank" href="https://github.com/xiaobingchan">
+                       <span class="fa-stack fa-lg">
+                           <i class="fas fa-circle fa-stack-2x"></i>
+                           <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                       </span>
+                   </a>
+               </li>
+               
+               
+               
+               
+               <li>
+                   <a target="_blank" href="img/alipay.jpg">
+                       <span class="fa-stack fa-lg">
+                           <i class="fas fa-circle fa-stack-2x"></i>
+                           <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                       </span>
+                   </a>
+               </li>
+               
+               
+               
+            
+            
+               
+               
+               
+               
+                </ul>
+            </div>
+    </section>
+	
+    
+    
+
+    
+    
+</div>
+
+	</div>
+</div>
+
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

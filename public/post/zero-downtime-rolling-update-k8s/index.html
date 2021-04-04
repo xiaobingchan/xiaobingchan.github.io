@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Kubernetes 零宕机滚动更新" />
+    <meta property="og:title" content="Kubernetes 零宕机滚动更新" />
+    <meta property="twitter:title" content="Kubernetes 零宕机滚动更新" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Kubernetes 零宕机滚动更新-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/zero-downtime-rolling-update-k8s/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/rolling-update" title="rolling-update">
+                            rolling-update
+                        </a>
+                        
+                    </div>
+                    <h1>Kubernetes 零宕机滚动更新</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Tuesday, February 11, 2020
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#滚动更新">滚动更新</a></li>
+        <li><a href="#可用性检测">可用性检测</a></li>
+        <li><a href="#原因分析">原因分析</a></li>
+        <li><a href="#零宕机">零宕机</a></li>
+        <li><a href="#总结">总结</a></li>
+        <li><a href="#参考文档">参考文档</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>软件世界的发展比以往任何时候都快，为了保持竞争力需要尽快推出新的软件版本，而又不影响在线得用户。许多企业已将工作负载迁移到了 Kubernetes 集群，Kubernetes 集群本身就考虑到了一些生产环境的实践，但是要让 Kubernetes 实现真正的零停机不中断或丢失请求，我们还需要做一些额外的操作才行。</p>
+<h2 id="滚动更新">滚动更新</h2>
+<p>默认情况下，Kubernetes 的 Deployment 是具有滚动更新的策略来进行 Pod 更新的，该策略可以在任何时间点更新应用的时候保证某些实例依然可以正常运行来防止应用 down 掉，当新部署的 Pod 启动并可以处理流量之后，才会去杀掉旧的 Pod。</p>
+<p>在使用过程中我们还可以指定 Kubernetes 在更新期间如何处理多个副本的切换方式，比如我们有一个3副本的应用，在更新的过程中是否应该立即创建这3个新的 Pod 并等待他们全部启动，或者杀掉一个之外的所有旧的 Pod，或者还是要一个一个的 Pod 进行替换？下面示例是使用默认的滚动更新升级策略的一个 Deployment 定义，在更新过程中最多可以有一个超过副本数的容器（maxSurge），并且在更新过程中没有不可用的容器。</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: zero-downtime
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: zero-downtime
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">3</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: zero-downtime
+  <span style="color:#ff79c6">strategy</span>:
+    <span style="color:#ff79c6">type</span>: RollingUpdate
+    <span style="color:#ff79c6">rollingUpdate</span>:
+      <span style="color:#ff79c6">maxSurge</span>: <span style="color:#bd93f9">1</span>
+      <span style="color:#ff79c6">maxUnavailable</span>: <span style="color:#bd93f9">0</span>
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#6272a4"># with image nginx</span>
+    <span style="color:#6272a4"># ...</span>
+</code></pre></div><p>上面的 <code>zero-downtime</code> 这个应用使用 nginx 这个镜像创建3个副本，该 Deployment 执行滚动更新的方式：首先创建一个新版本的 Pod，等待 Pod 启动并准备就绪，然后删除一个旧的 Pod，然后继续下一个新的 Pod，直到所有副本都已替换完成。为了让 Kubernetes 知道我们的 Pod 何时可以准备处理流量请求了，我们还需要配置上 liveness 和 readiness 探针。下面展示的就是<code>新旧</code> Pod 替换的输出信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                            READY   STATUS              RESTARTS   AGE
+zero-downtime-d449b5cc4-k8b27   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-n2lc4   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-sdw8b   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+...
+
+zero-downtime-d449b5cc4-k8b27   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-n2lc4   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-sdw8b   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d569474d4-q9khv   0/1     ContainerCreating   <span style="color:#bd93f9">0</span>          12s
+...
+
+zero-downtime-d449b5cc4-n2lc4   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-sdw8b   1/1     Running             <span style="color:#bd93f9">0</span>          3m9s
+zero-downtime-d449b5cc4-k8b27   1/1     Terminating         <span style="color:#bd93f9">0</span>          3m29s
+zero-downtime-d569474d4-q9khv   1/1     Running             <span style="color:#bd93f9">0</span>          1m
+...
+
+zero-downtime-d449b5cc4-n2lc4   1/1     Running             <span style="color:#bd93f9">0</span>          5m
+zero-downtime-d449b5cc4-sdw8b   1/1     Running             <span style="color:#bd93f9">0</span>          5m
+zero-downtime-d569474d4-q9khv   1/1     Running             <span style="color:#bd93f9">0</span>          1m
+zero-downtime-d569474d4-2c7qz   0/1     ContainerCreating   <span style="color:#bd93f9">0</span>          10s
+...
+
+...
+
+zero-downtime-d569474d4-2c7qz   1/1     Running             <span style="color:#bd93f9">0</span>          40s
+zero-downtime-d569474d4-mxbs4   1/1     Running             <span style="color:#bd93f9">0</span>          13s
+zero-downtime-d569474d4-q9khv   1/1     Running             <span style="color:#bd93f9">0</span>          67s
+</code></pre></div><h2 id="可用性检测">可用性检测</h2>
+<p>如果我们从旧版本到新版本进行滚动更新，只是简单的通过输出显示来判断哪些 Pod 是存活并准备就绪的，那么这个滚动更新的行为看上去肯定就是有效的，但是往往实际情况就是从旧版本到新版本的切换的过程并不总是十分顺畅的，应用程序很有可能会丢弃掉某些客户端的请求。</p>
+<p>为了测试是否存在请求被丢弃，特别是那些针对即将要退出服务的实例的请求，我们可以使用一些负载测试工具来连接我们的应用程序进行测试。我们需要关注的重点是所有的 HTTP 请求，包括 keep-alive 的 HTTP 连接是否都被正确处理了，所以我们这里可以使用 <a href="http://httpd.apache.org/docs/current/programs/ab.html">Apache Bench（AB Test）</a> 或者 <a href="https://fortio.org/">Fortio（Istio 测试工具）</a> 这样的测试工具来测试。</p>
+<p>我们使用多个线程以并发的方式去连接到正在运行的应用程序，我们关心的是响应的状态和失败的连接，而不是延迟或吞吐量之类的信息。我们这里使用 Fortio 这个测试工具，比如每秒 500 个请求和 8 个并发的 keep-alive 连接的测试命令如下所示(使用域名<code>zero.qikqiak.com</code>代理到上面的3个 Pod)：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ fortio load -a -c <span style="color:#bd93f9">8</span> -qps <span style="color:#bd93f9">500</span> -t 60s <span style="color:#f1fa8c">&#34;http://zero.qikqiak.com/&#34;</span>
+</code></pre></div><blockquote>
+<p>关于 fortio 的具体使用可以查看官方文档：<a href="https://github.com/fortio/fortio">https://github.com/fortio/fortio</a></p>
+</blockquote>
+<p>使用 <code>-a</code> 参数可以将测试报告保存为网页的形式，这样我们可以直接在浏览器中查看测试报告。如果我们在进行滚动更新应用的过程中启动测试，则可能会看到一些请求无法连接的情况：
+
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/fortio-zero-downtime-test1.png" alt="fortio-zero-downtime-test">
+
+</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Starting at <span style="color:#bd93f9">1000</span> qps with <span style="color:#bd93f9">8</span> thread<span style="color:#ff79c6">(</span>s<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">[</span>gomax 2<span style="color:#ff79c6">]</span> <span style="color:#ff79c6">for</span> 1m0s : <span style="color:#bd93f9">7500</span> calls each <span style="color:#ff79c6">(</span>total 60000<span style="color:#ff79c6">)</span>
+Ended after 1m0.006243654s : <span style="color:#bd93f9">5485</span> calls. <span style="color:#8be9fd;font-style:italic">qps</span><span style="color:#ff79c6">=</span>91.407
+Aggregated Sleep Time : count <span style="color:#bd93f9">5485</span> avg -17.626081 +/- <span style="color:#bd93f9">15</span> min -54.753398956 max 0.000709054 sum -96679.0518
+<span style="color:#ff79c6">[</span>...<span style="color:#ff79c6">]</span>
+Code <span style="color:#bd93f9">200</span> : <span style="color:#bd93f9">5463</span> <span style="color:#ff79c6">(</span>99.6 %<span style="color:#ff79c6">)</span>
+Code <span style="color:#bd93f9">502</span> : <span style="color:#bd93f9">20</span> <span style="color:#ff79c6">(</span>0.4 %<span style="color:#ff79c6">)</span>
+Response Header Sizes : count <span style="color:#bd93f9">5485</span> avg 213.14166 +/- 13.53 min <span style="color:#bd93f9">0</span> max <span style="color:#bd93f9">214</span> sum <span style="color:#bd93f9">1169082</span>
+Response Body/Total Sizes : count <span style="color:#bd93f9">5485</span> avg 823.18651 +/- 44.41 min <span style="color:#bd93f9">0</span> max <span style="color:#bd93f9">826</span> sum <span style="color:#bd93f9">4515178</span>
+<span style="color:#ff79c6">[</span>...<span style="color:#ff79c6">]</span>
+</code></pre></div><p>从上面的输出可以看出有部分请求处理失败了（502），我们可以运行几种通过不同方式连接到应用程序的测试场景，比如通过 Kubernetes Ingress 或者直接从集群内部通过 Service 进行连接。我们会看到在滚动更新过程中的行为可能会有所不同，具体的还是需要取决于测试的配置参数，和通过 Ingress 的连接相比，从集群内部连接到服务的客户端可能不会遇到那么多的失败连接。</p>
+<h2 id="原因分析">原因分析</h2>
+<p>现在的问题是需要弄明白当应用在滚动更新期间重新路由流量时，从旧的 Pod 实例到新的实例究竟会发生什么，首先让我们先看看 Kubernetes 是如何管理工作负载连接的。</p>
+<!-- raw HTML omitted -->
+<p>如果我们执行测试的客户端直接从集群内部连接到 zero-downtime 这个 Service，那么首先会通过 集群的 DNS 服务解析到 Service 的 ClusterIP，然后转发到 Service 后面的 Pod 实例，这是每个节点上面的 <code>kube-proxy</code> 通过更新 iptables 规则来实现的。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200212151246.png" alt="kubernetes kube-proxy">
+
+</p>
+<p>Kubernetes 会根据 Pods 的状态去更新 Endpoints 对象，这样就可以保证 Endpoints 中包含的都是准备好处理请求的 Pod。</p>
+<p>但是 Kubernetes Ingress 连接到实例的方式稍有不同，这就是为什么当客户端通过 Ingresss 连接到应用程序的时候，我们会在滚动更新过程中查看到不同的宕机行为。</p>
+<p>大部分 Ingress  Controller，比如 nginx-ingress、traefik 都是通过直接 watch Endpoints 对象来直接获取 Pod 的地址的，而不用通过 iptables 做一层转发了。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200212131555.png" alt="kubernetes ingress">
+
+</p>
+<p>无论我们如何连接到应用程序，Kubernetes 的目标都是在滚动更新的过程中最大程度地减少服务的中断。一旦新的 Pod 处于活动状态并准备就绪后，Kubernetes 就将会停止就的 Pod，从而将 Pod 的状态更新为 <code>“Terminating”</code>，然后从 Endpoints 对象中移除，并且发送一个 <code>SIGTERM</code> 信号给 Pod 的主进程。<code>SIGTERM</code> 信号就会让容器以正常的方式关闭，并且不接受任何新的连接。Pod 从 Endpoints 对象中被移除后，前面的负载均衡器就会将流量路由到其他（新的）Pod 中去。这个也是造成我们的应用可用性差距的主要原因，因为在负责均衡器注意到变更并更新其配置之前，终止信号就会去停用 Pod，而这个重新配置过程又是异步发生的，所以并不能保证正确的顺序，所以就可能导致很少的请求会被路由到终止的 Pod 上去。</p>
+<h2 id="零宕机">零宕机</h2>
+<p>那么如何增强我们的应用程序以实现真正的零宕机迁移呢？</p>
+<p>首先，要实现这个目标的先决条件是我们的容器要正确处理终止信号，在 <code>SIGTERM</code> 信号上实现优雅关闭。下一步需要添加 readiness 可读探针，来检查我们的应用程序是否已经准备好来处理流量了。</p>
+<p>可读探针只是我们平滑滚动更新的起点，为了解决 Pod 停止的时候不会阻塞并等到负载均衡器重新配置的问题，我们需要使用 <code>preStop</code> 这个生命周期的钩子，在容器终止之前调用该钩子。</p>
+<p>生命周期钩子函数是同步的，所以必须在将最终终止信号发送到容器之前完成，在我们的示例中，我们使用该钩子简单的等待，然后 <code>SIGTERM</code> 信号将停止应用程序进程。同时，Kubernetes 将从 Endpoints 对象中删除该 Pod，所以该 Pod 将会从我们的负载均衡器中排除，基本上来说我们的生命周期钩子函数等待的时间可以确保在应用程序停止之前重新配置负载均衡器。</p>
+<p>这里我们在 <code>zero-downtime</code> 这个 Deployment 中添加一个 <code>preStop</code> 钩子：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: zero-downtime
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: zero-downtime
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">replicas</span>: <span style="color:#bd93f9">3</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: zero-downtime
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: zero-downtime
+        <span style="color:#ff79c6">image</span>: nginx
+        <span style="color:#ff79c6">livenessProbe</span>:
+          <span style="color:#6272a4"># ...</span>
+        <span style="color:#ff79c6">readinessProbe</span>:
+          <span style="color:#6272a4"># ...</span>
+        <span style="color:#ff79c6">lifecycle</span>:
+          <span style="color:#ff79c6">preStop</span>:
+            <span style="color:#ff79c6">exec</span>:
+              <span style="color:#ff79c6">command</span>: [<span style="color:#f1fa8c">&#34;/bin/bash&#34;</span>, <span style="color:#f1fa8c">&#34;-c&#34;</span>, <span style="color:#f1fa8c">&#34;sleep 20&#34;</span>]
+  <span style="color:#ff79c6">strategy</span>:
+    <span style="color:#6272a4"># ...</span>
+</code></pre></div><p>我们这里使用 <code>preStop</code> 设置了一个 20s 的宽限期，Pod 在真正销毁前会先 sleep 等待 20s，这就相当于留了时间给 Endpoints 控制器和 kube-proxy 更新去 Endpoints 对象和转发规则，这段时间 Pod 虽然处于 Terminating 状态，即便在转发规则更新完全之前有请求被转发到这个 Terminating 的 Pod，依然可以被正常处理，因为它还在 sleep，没有被真正销毁。</p>
+<p>现在，当我们去查看滚动更新期间的 Pod 行为时，我们将看到正在终止的 Pod 处于 <code>Terminating</code> 状态，但是在等待时间结束之前不会关闭的，如果我们使用 <code>Fortio</code> 重新测试下，则会看到零失败请求的理想行为：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/fortio-zero-downtime-test2.png" alt="fortio zeor downtime test">
+
+</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">Starting at <span style="color:#bd93f9">1000</span> qps with <span style="color:#bd93f9">8</span> thread<span style="color:#ff79c6">(</span>s<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">[</span>gomax 2<span style="color:#ff79c6">]</span> <span style="color:#ff79c6">for</span> 1m0s : <span style="color:#bd93f9">7500</span> calls each <span style="color:#ff79c6">(</span>total 60000<span style="color:#ff79c6">)</span>
+Ended after 1m0.091439891s : <span style="color:#bd93f9">10015</span> calls. <span style="color:#8be9fd;font-style:italic">qps</span><span style="color:#ff79c6">=</span>166.66
+Aggregated Sleep Time : count <span style="color:#bd93f9">10015</span> avg -23.316213 +/- 14.52 min -50.161414028 max 0.001811225 sum -233511.876
+<span style="color:#ff79c6">[</span>...<span style="color:#ff79c6">]</span>
+Code <span style="color:#bd93f9">200</span> : <span style="color:#bd93f9">10015</span> <span style="color:#ff79c6">(</span>100.0 %<span style="color:#ff79c6">)</span>
+Response Header Sizes : count <span style="color:#bd93f9">10015</span> avg <span style="color:#bd93f9">214</span> +/- <span style="color:#bd93f9">0</span> min <span style="color:#bd93f9">214</span> max <span style="color:#bd93f9">214</span> sum <span style="color:#bd93f9">2143210</span>
+Response Body/Total Sizes : count <span style="color:#bd93f9">10015</span> avg <span style="color:#bd93f9">826</span> +/- <span style="color:#bd93f9">0</span> min <span style="color:#bd93f9">826</span> max <span style="color:#bd93f9">826</span> sum <span style="color:#bd93f9">8272390</span>
+Saved result to data/2020-02-12-162008_Fortio.json 
+All <span style="color:#ff79c6">done</span> <span style="color:#bd93f9">10015</span> calls 47.405 ms avg, 166.7 qps
+</code></pre></div><h2 id="总结">总结</h2>
+<p>Kubernetes 在考虑到生产就绪性方面已经做得很好了，但是为了在生产环境中运行我们的企业级应用，我们就必须了解 Kubernetes 是如何在后台运行的，以及我们的应用程序在启动和关闭期间的行为。而且上面的方式是只适用于短连接的，对于类似于 websocket 这种长连接应用需要做滚动更新的话目前还没有找到一个很好的解决方案，有的团队是将长连接转换成短连接来进行处理的，我这边还是在应用层面来做的支持，比如客户端增加重试机制，连接断掉以后会自动重新连接，大家如果有更好的办法也可以留言互相讨论下方案。</p>
+<h2 id="参考文档">参考文档</h2>
+<ul>
+<li><a href="https://blog.sebastian-daschner.com/entries/zero-downtime-updates-kubernetes">Zero-Downtime Rolling Updates With Kubernetes</a></li>
+<li><a href="https://freecontent.manning.com/handling-client-requests-properly-with-kubernetes/">Handling Client Requests Properly with Kubernetes</a></li>
+</ul>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/deploy-vscode-on-k8s/" data-toggle="tooltip" data-placement="top" title="在 Kubernetes 集群上部署 VSCode">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/github-cli-tool-usage/" data-toggle="tooltip" data-placement="top" title="GitHub CLI 命令行工具使用">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

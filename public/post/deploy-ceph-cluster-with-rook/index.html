@@ -1,0 +1,1557 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="使用 Rook 快速搭建 Ceph 集群" />
+    <meta property="og:title" content="使用 Rook 快速搭建 Ceph 集群" />
+    <meta property="twitter:title" content="使用 Rook 快速搭建 Ceph 集群" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>使用 Rook 快速搭建 Ceph 集群-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/deploy-ceph-cluster-with-rook/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/rook" title="rook">
+                            rook
+                        </a>
+                        
+                        <a class="tag" href="/tags/ceph" title="ceph">
+                            ceph
+                        </a>
+                        
+                    </div>
+                    <h1>使用 Rook 快速搭建 Ceph 集群</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Monday, November 11, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#部署-rook-operator">部署 Rook Operator</a></li>
+        <li><a href="#创建-rook-ceph-集群">创建 Rook Ceph 集群</a></li>
+        <li><a href="#存储">存储</a></li>
+        <li><a href="#ceph-dashboard">Ceph Dashboard</a></li>
+        <li><a href="#监控">监控</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="https://rook.io">Rook</a> 是一个开源的云原生存储编排工具，提供平台、框架和对各种存储解决方案的支持，以和云原生环境进行本地集成。</p>
+<p>Rook 将存储软件转变成自我管理、自我扩展和自我修复的存储服务，通过自动化部署、启动、配置、供应、扩展、升级、迁移、灾难恢复、监控和资源管理来实现。Rook 底层使用云原生容器管理、调度和编排平台提供的能力来提供这些功能。</p>
+<p>Rook 利用扩展功能将其深度集成到云原生环境中，并为调度、生命周期管理、资源管理、安全性、监控等提供了无缝的体验。有关 Rook 当前支持的存储解决方案的状态的更多详细信息，可以参考 <a href="https://github.com/rook/rook/blob/master/README.md#project-status">Rook 仓库</a> 的项目介绍。不过目前 Rook 已经很好地提供了对 <a href="https://ceph.io/">Ceph</a> 的支持，本文简单为大家介绍如何使用 Rook 来快速搭建 Ceph 集群。</p>
+<blockquote>
+<p>Ceph 是一种高度可扩展的分布式存储解决方案，用于具有多年生产部署的块存储，对象存储和共享文件系统。</p>
+</blockquote>
+<p>本文试验环境：</p>
+<ul>
+<li>Kubernetes: v1.16.2</li>
+<li>Docker：18.09.9</li>
+<li>Rook：release-1.1</li>
+</ul>
+<h2 id="部署-rook-operator">部署 Rook Operator</h2>
+<p>我们这里部署 <code>release-1.1</code> 版本的 Rook，点击查看部署使用的
+<a href="https://github.com/rook/rook/blob/release-1.1/cluster/examples/kubernetes/ceph">部署清单文件</a>。</p>
+<p>从上面链接中下载 common.yaml 与 operator.yaml 两个资源清单文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f common.yaml
+$ kubectl apply -f operator.yaml
+</code></pre></div><p>在继续操作之前，验证 <code>rook-ceph-operator</code> 是否处于“Running”状态：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pod -n rook-ceph
+</code></pre></div><h2 id="创建-rook-ceph-集群">创建 Rook Ceph 集群</h2>
+<p>现在 Rook Operator 处于 Running 状态，接下来我们就可以创建 Ceph 集群了。为了使集群在重启后不受影响，请确保设置的 <code>dataDirHostPath</code> 属性值为有效得主机路径。更多相关设置，可以查看<a href="https://rook.io/docs/rook/v1.1/ceph-cluster-crd.html">集群配置相关文档</a>。</p>
+<p>创建如下的资源清单文件：(cluster.yaml)</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: ceph.rook.io/v1
+<span style="color:#ff79c6">kind</span>: CephCluster
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: rook-ceph
+  <span style="color:#ff79c6">namespace</span>: rook-ceph
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">cephVersion</span>:
+    <span style="color:#6272a4"># 最新得 ceph 镜像, 可以查看 https://hub.docker.com/r/ceph/ceph/tags</span>
+    <span style="color:#ff79c6">image</span>: ceph/ceph:v14.2.4-20190917
+  <span style="color:#ff79c6">dataDirHostPath</span>: /data/rook  <span style="color:#6272a4"># 主机有效目录</span>
+  <span style="color:#ff79c6">mon</span>:
+    <span style="color:#ff79c6">count</span>: <span style="color:#bd93f9">3</span>
+  <span style="color:#ff79c6">dashboard</span>:
+    <span style="color:#ff79c6">enabled</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">storage</span>:
+    <span style="color:#ff79c6">useAllNodes</span>: <span style="color:#ff79c6">true</span>
+    <span style="color:#ff79c6">useAllDevices</span>: <span style="color:#ff79c6">false</span>
+    <span style="color:#6272a4"># 重要: Directories 应该只在预生产环境中使用</span>
+    <span style="color:#ff79c6">directories</span>:
+    - <span style="color:#ff79c6">path</span>: /var/lib/rook
+</code></pre></div><p>然后直接创建即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f cluster.yaml
+</code></pre></div><p>我们可以通过 kubectl 来查看 rook-ceph 命名空间下面的 Pod 状态，出现类似于如下的情况，证明已经全部运行了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods -n rook-ceph
+NAME                                            READY   STATUS      RESTARTS   AGE
+csi-cephfsplugin-cp5mc                          3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-cephfsplugin-fs9s5                          3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-cephfsplugin-provisioner-75c965db4f-b5wf4   4/4     Running     <span style="color:#bd93f9">0</span>          24m
+csi-cephfsplugin-provisioner-75c965db4f-zkrth   4/4     Running     <span style="color:#bd93f9">0</span>          24m
+csi-cephfsplugin-qvfpb                          3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-cephfsplugin-vgzl6                          3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-cj842                             3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-ksc24                             3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-provisioner-56cbc4d585-5dkzg      5/5     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-provisioner-56cbc4d585-xdqw9      5/5     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-s5kjc                             3/3     Running     <span style="color:#bd93f9">0</span>          24m
+csi-rbdplugin-z6bj2                             3/3     Running     <span style="color:#bd93f9">0</span>          24m
+rook-ceph-mgr-a-68977dd7ff-t9rmk                1/1     Running     <span style="color:#bd93f9">0</span>          17m
+rook-ceph-mon-a-84f4d48897-5lqtl                1/1     Running     <span style="color:#bd93f9">0</span>          22m
+rook-ceph-mon-b-5d4858f579-5z9ld                1/1     Running     <span style="color:#bd93f9">0</span>          19m
+rook-ceph-mon-c-8675b47cf7-82q8r                1/1     Running     <span style="color:#bd93f9">0</span>          19m
+rook-ceph-operator-587d765957-lrmsr             1/1     Running     <span style="color:#bd93f9">0</span>          152m
+rook-ceph-osd-1-856db94654-smdhp                1/1     Running     <span style="color:#bd93f9">0</span>          16m
+rook-ceph-osd-20-77d7f7787f-h2dkg               1/1     Running     <span style="color:#bd93f9">0</span>          8m50s
+rook-ceph-osd-prepare-ydzs-node1-qgmsc          0/1     Completed   <span style="color:#bd93f9">0</span>          5m2s
+rook-ceph-osd-prepare-ydzs-node2-h667n          0/1     Completed   <span style="color:#bd93f9">0</span>          4m59s
+rook-discover-bd8qh                             1/1     Running     <span style="color:#bd93f9">0</span>          139m
+rook-discover-bq6w8                             1/1     Running     <span style="color:#bd93f9">4</span>          85m
+rook-discover-c8qmz                             1/1     Running     <span style="color:#bd93f9">0</span>          116m
+rook-discover-ncjts                             1/1     Running     <span style="color:#bd93f9">0</span>          139m
+</code></pre></div><p>OSD Pod 的数量将取决于集群中的节点数量以及配置的设备和目录的数量。如果用上面我们的资源清单，则每个节点将创建一个 OSD。rook-ceph-agent 和 rook-discover 是否存在也是依赖于我们的配置的。</p>
+<h3 id="rook-工具箱">Rook 工具箱</h3>
+<p>要验证集群是否处于正常状态，我们可以使用 <a href="https://rook.io/docs/rook/v1.1/ceph-toolbox.html">Rook 工具箱</a> 来运行 <code>ceph status</code> 命令查看。</p>
+<p>Rook 工具箱是一个用于调试和测试 Rook 的常用工具容器，该工具基于 CentOS 镜像，所以可以使用 <code>yum</code> 来轻松安装更多的工具包。</p>
+<!-- raw HTML omitted -->
+<p>我们这里用 Deployment 控制器来部署 Rook 工具箱，部署的资源清单文件如下所示：（toolbox.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: rook-ceph-tools
+  <span style="color:#ff79c6">namespace</span>: rook-ceph
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: rook-ceph-tools
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: rook-ceph-tools
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: rook-ceph-tools
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">dnsPolicy</span>: ClusterFirstWithHostNet
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: rook-ceph-tools
+        <span style="color:#ff79c6">image</span>: rook/ceph:v1.1.0
+        <span style="color:#ff79c6">command</span>: [<span style="color:#f1fa8c">&#34;/tini&#34;</span>]
+        <span style="color:#ff79c6">args</span>: [<span style="color:#f1fa8c">&#34;-g&#34;</span>, <span style="color:#f1fa8c">&#34;--&#34;</span>, <span style="color:#f1fa8c">&#34;/usr/local/bin/toolbox.sh&#34;</span>]
+        <span style="color:#ff79c6">imagePullPolicy</span>: IfNotPresent
+        <span style="color:#ff79c6">env</span>:
+          - <span style="color:#ff79c6">name</span>: ROOK_ADMIN_SECRET
+            <span style="color:#ff79c6">valueFrom</span>:
+              <span style="color:#ff79c6">secretKeyRef</span>:
+                <span style="color:#ff79c6">name</span>: rook-ceph-mon
+                <span style="color:#ff79c6">key</span>: admin-secret
+        <span style="color:#ff79c6">securityContext</span>:
+          <span style="color:#ff79c6">privileged</span>: <span style="color:#ff79c6">true</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+          - <span style="color:#ff79c6">mountPath</span>: /dev
+            <span style="color:#ff79c6">name</span>: dev
+          - <span style="color:#ff79c6">mountPath</span>: /sys/bus
+            <span style="color:#ff79c6">name</span>: sysbus
+          - <span style="color:#ff79c6">mountPath</span>: /lib/modules
+            <span style="color:#ff79c6">name</span>: libmodules
+          - <span style="color:#ff79c6">name</span>: mon-endpoint-volume
+            <span style="color:#ff79c6">mountPath</span>: /etc/rook
+      <span style="color:#6272a4"># 如果设置 hostNetwork: false,  &#34;rbd map&#34; 命令会被 hang 住, 参考 https://github.com/rook/rook/issues/2021</span>
+      <span style="color:#ff79c6">hostNetwork</span>: <span style="color:#ff79c6">true</span>
+      <span style="color:#ff79c6">volumes</span>:
+        - <span style="color:#ff79c6">name</span>: dev
+          <span style="color:#ff79c6">hostPath</span>:
+            <span style="color:#ff79c6">path</span>: /dev
+        - <span style="color:#ff79c6">name</span>: sysbus
+          <span style="color:#ff79c6">hostPath</span>:
+            <span style="color:#ff79c6">path</span>: /sys/bus
+        - <span style="color:#ff79c6">name</span>: libmodules
+          <span style="color:#ff79c6">hostPath</span>:
+            <span style="color:#ff79c6">path</span>: /lib/modules
+        - <span style="color:#ff79c6">name</span>: mon-endpoint-volume
+          <span style="color:#ff79c6">configMap</span>:
+            <span style="color:#ff79c6">name</span>: rook-ceph-mon-endpoints
+            <span style="color:#ff79c6">items</span>:
+            - <span style="color:#ff79c6">key</span>: data
+              <span style="color:#ff79c6">path</span>: mon-endpoints
+</code></pre></div><p>然后直接运行这个 rook-ceph-tools pod：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f toolbox.yaml
+</code></pre></div><p>一旦 toolbox 的 Pod 运行成功后，我们就可以使用下面的命令进入到工具箱内部进行操作：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl -n rook-ceph <span style="color:#8be9fd;font-style:italic">exec</span> -it <span style="color:#ff79c6">$(</span>kubectl -n rook-ceph get pod -l <span style="color:#f1fa8c">&#34;app=rook-ceph-tools&#34;</span> -o <span style="color:#8be9fd;font-style:italic">jsonpath</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#ff79c6">)</span> bash
+</code></pre></div><p>工具箱中的所有可用工具命令均已准备就绪，可满足您的故障排除需求。例如：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">ceph status
+ceph osd status
+ceph df
+rados df
+</code></pre></div><p>比如现在我们要查看集群的状态，需要满足下面的条件才认为是健康的：</p>
+<ul>
+<li>所有 mons 应该达到法定数量</li>
+<li>mgr 应该是激活状态</li>
+<li>至少有一个 OSD 处于激活状态</li>
+<li>如果不是 HEALTH_OK 状态，则应该查看告警或者错误信息</li>
+</ul>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ceph status
+ceph status
+  cluster:
+    id:     dae083e6-8487-447b-b6ae-9eb321818439
+    health: HEALTH_OK
+
+  services:
+    mon: <span style="color:#bd93f9">3</span> daemons, quorum a,b,c <span style="color:#ff79c6">(</span>age 15m<span style="color:#ff79c6">)</span>
+    mgr: a<span style="color:#ff79c6">(</span>active, since 2m<span style="color:#ff79c6">)</span>
+    osd: <span style="color:#bd93f9">31</span> osds: <span style="color:#bd93f9">2</span> up <span style="color:#ff79c6">(</span>since 6m<span style="color:#ff79c6">)</span>, <span style="color:#bd93f9">2</span> in <span style="color:#ff79c6">(</span>since 6m<span style="color:#ff79c6">)</span>
+
+  data:
+    pools:   <span style="color:#bd93f9">0</span> pools, <span style="color:#bd93f9">0</span> pgs
+    objects: <span style="color:#bd93f9">0</span> objects, <span style="color:#bd93f9">0</span> B
+    usage:   <span style="color:#bd93f9">79</span> GiB used, <span style="color:#bd93f9">314</span> GiB / <span style="color:#bd93f9">393</span> GiB avail
+    pgs:
+</code></pre></div><p>如果群集运行不正常，可以查看 <a href="https://rook.io/docs/rook/v1.1/ceph-common-issues.html">Ceph 常见问题</a>以了解更多详细信息和可能的解决方案。</p>
+<h2 id="存储">存储</h2>
+<p>对于 Rook 暴露的三种存储类型可以查看对应的文档：</p>
+<ul>
+<li><a href="https://rook.io/docs/rook/v1.1/ceph-block.html">块存储</a>：创建一个 Pod 使用的块存储</li>
+<li><a href="https://rook.io/docs/rook/v1.1/ceph-object.html">对象存储</a>：创建一个在 Kubernetes 集群内部和外部都可以访问的对象存储</li>
+<li><a href="https://rook.io/docs/rook/v1.1/ceph-filesystem.html">共享文件系统</a>：创建要在多个 Pod 之间共享的文件系统</li>
+</ul>
+<h2 id="ceph-dashboard">Ceph Dashboard</h2>
+<p>Ceph 有一个 Dashboard 工具，我们可以在上面查看集群的状态，包括总体运行状态，mgr、osd 和其他 Ceph 进程的状态，查看池和 PG 状态，以及显示守护进程的日志等等。</p>
+<p>我们可以在上面的 cluster CRD 对象中开启 dashboard，设置<code>dashboard.enable=true</code>即可，这样 Rook Operator 就会启用 ceph-mgr dashboard 模块，并将创建一个 Kubernetes Service 来暴露该服务，将启用端口 7000 进行 https 访问，如果 Ceph 集群部署成功了，我们可以使用下面的命令来查看 Dashboard 的 Service：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get service -n rook-ceph
+NAME                         TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>          AGE
+rook-ceph-mgr                            ClusterIP   10.96.49.29     &lt;none&gt;        9283/TCP            23m
+rook-ceph-mgr-dashboard                  ClusterIP   10.109.8.98     &lt;none&gt;        7000/TCP            23m
+</code></pre></div><p>这里的 <code>rook-ceph-mgr</code> 服务用于报告 Prometheus metrics 指标数据的，而后面的的 <code>rook-ceph-mgr-dashboard</code> 服务就是我们的 Dashboard 服务，如果在集群内部我们可以通过 DNS 名称 <code>http://rook-ceph-mgr-dashboard.rook-ceph:7000</code> 或者 CluterIP <code>http://10.109.8.98:7000</code> 来进行访问，但是如果要在集群外部进行访问的话，我们就需要通过 Ingress 或者 NodePort 类型的 Service 来暴露了，为了方便测试我们这里创建一个新的 NodePort 类型的服务来访问 Dashboard，资源清单如下所示：（dashboard-external.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: rook-ceph-mgr-dashboard-external
+  <span style="color:#ff79c6">namespace</span>: rook-ceph
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: rook-ceph-mgr
+    <span style="color:#ff79c6">rook_cluster</span>: rook-ceph
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">name</span>: dashboard
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">7000</span>
+    <span style="color:#ff79c6">protocol</span>: TCP
+    <span style="color:#ff79c6">targetPort</span>: <span style="color:#bd93f9">7000</span>
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: rook-ceph-mgr
+    <span style="color:#ff79c6">rook_cluster</span>: rook-ceph
+  <span style="color:#ff79c6">type</span>: NodePort
+</code></pre></div><p>同样直接创建即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f dashboard-external.yaml
+</code></pre></div><p>创建完成后我们可以查看到新创建的 <code>rook-ceph-mgr-dashboard-external</code> 这个 Service 服务：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get service -n rook-ceph 
+NAME                                    TYPE        CLUSTER-IP       EXTERNAL-IP   PORT<span style="color:#ff79c6">(</span>S<span style="color:#ff79c6">)</span>          AGE
+rook-ceph-mgr                           ClusterIP   10.96.49.29     &lt;none&gt;        9283/TCP            23m
+rook-ceph-mgr-dashboard                 ClusterIP   10.109.8.98     &lt;none&gt;        7000/TCP            23m
+rook-ceph-mgr-dashboard-external        NodePort    10.98.8.0       &lt;none&gt;        7000:32381/TCP      3m30s
+</code></pre></div><p>现在我们需要通过 <code>http://&lt;NodeIp&gt;:32381</code> 就可以访问到 Dashboard 了。</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/ceph-dashboard-login.png" alt="ceph dashboard login">
+
+</p>
+<p>但是在访问的时候需要我们登录才能够访问，Rook 创建了一个默认的用户 admin，并在运行 Rook 的命名空间中生成了一个名为 <code>rook-ceph-dashboard-admin-password</code> 的 Secret，要获取密码，可以运行以下命令：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl -n rook-ceph get secret rook-ceph-dashboard-password -o <span style="color:#8be9fd;font-style:italic">jsonpath</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#34;{[&#39;data&#39;][&#39;password&#39;]}&#34;</span> | base64 --decode <span style="color:#ff79c6">&amp;&amp;</span> <span style="color:#8be9fd;font-style:italic">echo</span>
+xxxx（登录密码）
+</code></pre></div><p>用上面获得的密码和用户名 admin 就可以登录 Dashboard 了，在 Dashboard 上面可以查看到整个集群的状态：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/ceph-dashboard.png" alt="ceph dashboard">
+
+</p>
+<h3 id="配置-dashboard">配置 Dashboard</h3>
+<p>除此之外在使用上面的 CRD 创建 ceph 集群的时候我们还可以通过如下的配置来配置 Dashboard：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">dashboard</span>:
+    <span style="color:#ff79c6">urlPrefix</span>: /ceph-dashboard
+    <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">8443</span>
+    <span style="color:#ff79c6">ssl</span>: <span style="color:#ff79c6">true</span>
+</code></pre></div><ul>
+<li>
+<p><code>urlPrefix</code>：如果通过反向代理访问 Dashboard，则可能希望在 URL 前缀下来访问，要让 Dashboard 使用包含前缀的的链接，可以设置 <code>urlPrefix</code></p>
+</li>
+<li>
+<p><code>port</code>：可以使用端口设置将为 Dashboard 提供服务的端口从默认值修改为其他端口，K8S 服务暴露的端口也会相应的更新</p>
+</li>
+<li>
+<p><code>ssl</code>：通过设置 <code>ssl=false</code>，可以在不使用 SSL 的情况下为 Dashboard 提供服务</p>
+</li>
+</ul>
+<h3 id="开启-object-gateway-管理">开启 Object Gateway 管理</h3>
+<p>为了在 Dashboard 上面使用 Object Gateway 管理功能，你需要提供一个一个带有 <code>system</code> 标志的登录认证用户。如果没有这样的用户，可以使用下面的命令创建一个：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell"><span style="color:#6272a4"># 先进入 Rook 工具箱 Pod</span>
+$ kubectl -n rook-ceph <span style="color:#8be9fd;font-style:italic">exec</span> -it <span style="color:#ff79c6">$(</span>kubectl -n rook-ceph get pod -l <span style="color:#f1fa8c">&#34;app=rook-ceph-tools&#34;</span> -o <span style="color:#8be9fd;font-style:italic">jsonpath</span><span style="color:#ff79c6">=</span><span style="color:#f1fa8c">&#39;{.items[0].metadata.name}&#39;</span><span style="color:#ff79c6">)</span> bash
+<span style="color:#6272a4"># 创建用户</span>
+$ radosgw-admin user create --uid<span style="color:#ff79c6">=</span>myuser --display-name<span style="color:#ff79c6">=</span>test-user <span style="color:#f1fa8c">\
+</span><span style="color:#f1fa8c"></span>    --system
+<span style="color:#ff79c6">{</span>
+    <span style="color:#f1fa8c">&#34;user_id&#34;</span>: <span style="color:#f1fa8c">&#34;myuser&#34;</span>,
+    <span style="color:#f1fa8c">&#34;display_name&#34;</span>: <span style="color:#f1fa8c">&#34;test-user&#34;</span>,
+    <span style="color:#f1fa8c">&#34;email&#34;</span>: <span style="color:#f1fa8c">&#34;&#34;</span>,
+    <span style="color:#f1fa8c">&#34;suspended&#34;</span>: 0,
+    <span style="color:#f1fa8c">&#34;max_buckets&#34;</span>: 1000,
+    <span style="color:#f1fa8c">&#34;subusers&#34;</span>: <span style="color:#ff79c6">[]</span>,
+    <span style="color:#f1fa8c">&#34;keys&#34;</span>: <span style="color:#ff79c6">[</span>
+        <span style="color:#ff79c6">{</span>
+            <span style="color:#f1fa8c">&#34;user&#34;</span>: <span style="color:#f1fa8c">&#34;myuser&#34;</span>,
+            <span style="color:#f1fa8c">&#34;access_key&#34;</span>: <span style="color:#f1fa8c">&#34;&lt;记住ak这个值&gt;&#34;</span>,
+            <span style="color:#f1fa8c">&#34;secret_key&#34;</span>: <span style="color:#f1fa8c">&#34;&lt;记住sk这个值&gt;&#34;</span>
+        <span style="color:#ff79c6">}</span>
+    <span style="color:#ff79c6">]</span>,
+    ......
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>创建后会为当前用户生成一个 <code>access_key</code> 和 <code>secret_key</code> 这两个值，记住这两个值，下面需要使用到。</p>
+<p>然后执行下面的命令进行配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ ceph dashboard set-rgw-api-user-id myuser
+Option RGW_API_USER_ID updated
+$ ceph dashboard set-rgw-api-access-key &lt;access-key&gt;
+Option RGW_API_ACCESS_KEY updated
+$ ceph dashboard set-rgw-api-secret-key &lt;secret-key&gt;
+Option RGW_API_SECRET_KEY updated
+</code></pre></div><p>现在就可以访问 Object Gateway 的菜单了。</p>
+<h2 id="监控">监控</h2>
+<p>每个 Rook 群集都有一些内置的指标 collectors/exporters，用于使用 Prometheus 进行监控。要了解如何为 Rook 群集设置监控，可以按照<a href="https://rook.io/docs/rook/v1.1/ceph-monitoring.html">监控指南</a>中的步骤进行操作。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/course-11-promotion/" data-toggle="tooltip" data-placement="top" title="双11精品课程限时优惠活动">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/gloo-1.0-release/" data-toggle="tooltip" data-placement="top" title="Gloo 1.0 正式版发布">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

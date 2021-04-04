@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="使用 Tekton 创建 CI/CD 流水线（2/4）" />
+    <meta property="og:title" content="使用 Tekton 创建 CI/CD 流水线（2/4）" />
+    <meta property="twitter:title" content="使用 Tekton 创建 CI/CD 流水线（2/4）" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>使用 Tekton 创建 CI/CD 流水线（2/4）-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/create-ci-pipeline-with-tekton-2/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                    </div>
+                    <h1>使用 Tekton 创建 CI/CD 流水线（2/4）</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, May 8, 2020
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p><a href="/post/create-ci-pipeline-with-tekton-1/">在前面文章中</a>，我们在 Kubernetes 集群中安装了 Tekton，通过 Tekton 克隆 GitHub 代码仓库并执行了应用测试命令。接着前面的内容，本文我们将创建一个新的 Task 来构建一个 Docker 镜像并将其推送到 Docker Hub，最后，我们将这些任务组合成一个流水线。</p>
+<h3 id="docker-hub-配置">Docker Hub 配置</h3>
+<p>为了能够构建 Docker 镜像，一般来说我们需要使用 Docker 来进行，我们这里是容器，所以可以使用 Docker In Docker 模式，但是这种模式安全性不高，除了这种方式之外，我们还可以使用 Google 推出的 <a href="https://github.com/GoogleContainerTools/kaniko">Kaniko</a> 工具来进行构建，该工具可以在 Kubernetes 集群中构建 Docker 镜像而无需依赖 Docker 守护进程。</p>
+<p>使用 Kaniko 构建镜像和 Docker 命令基本上一致，所以我们可以提前设置下 Docker Hub 的登录凭证，方便后续将镜像推送到镜像仓库。登录凭证可以保存到 Kubernetes 的 Secret 资源对象中，创建一个名为 secret.yaml 的文件，内容如下所示:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Secret
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: docker-auth
+  <span style="color:#ff79c6">annotations</span>:
+    <span style="color:#ff79c6">tekton.dev/docker-0</span>: https://index.docker.io/v1/
+<span style="color:#ff79c6">type</span>: kubernetes.io/basic-auth
+<span style="color:#ff79c6">stringData</span>:
+    <span style="color:#ff79c6">username</span>: myusername
+    <span style="color:#ff79c6">password</span>: mypassword
+</code></pre></div><blockquote>
+<p>记得将 myusername 和 mypassword 替换成你的 Docker Hub 登录凭证。</p>
+</blockquote>
+<p>我们这里在 Secret 对象中添加了一个 <code>tekton.dev/docker-0</code> 的 annotation，该注解信息是用来告诉 Tekton 这些认证信息所属的 Docker 镜像仓库。</p>
+<p>然后创建一个 ServiceAccount 对象来使用上面的 <code>docker-auth</code> 这个 Secret 对象，创建一个名为 <code>serviceaccount.yaml</code> 的文件，内容如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ServiceAccount
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: build-sa
+<span style="color:#ff79c6">secrets</span>:
+- <span style="color:#ff79c6">name</span>: docker-auth
+</code></pre></div><p>然后直接创建上面两个资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f secret.yaml 
+secret/docker-auth created
+$ kubectl apply -f serviceaccount.yaml 
+serviceaccount/build-sa created
+</code></pre></div><p>创建完成后，我们就可以在运行 Tekton 的任务或者流水线的时候使用上面的 build-sa 这个 ServiceAccount 对象来进行 Docker Hub 的登录认证了。</p>
+<h3 id="创建镜像任务">创建镜像任务</h3>
+<p>现在我们创建一个 Task 任务来构建并推送 Docker 镜像，我们这里使用的示例应用 <a href="https://github.com/cnych/tekton-demo">https://github.com/cnych/tekton-demo</a> 中根目录下面已经包含了一个 Dockerfile 文件了，所以我们直接 Clone 代码就可以获得：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-Dockerfile" data-lang="Dockerfile"><span style="color:#ff79c6">FROM</span><span style="color:#f1fa8c"> golang:1.14-alpine</span>
+
+<span style="color:#ff79c6">WORKDIR</span><span style="color:#f1fa8c"> /go/src/app</span>
+<span style="color:#ff79c6">COPY</span> . .
+
+<span style="color:#ff79c6">RUN</span> go get -d -v ./...
+<span style="color:#ff79c6">RUN</span> go install -v ./...
+
+<span style="color:#ff79c6">CMD</span> [<span style="color:#f1fa8c">&#34;app&#34;</span>]
+</code></pre></div><p>创建一个名为 <code>task-build-push.yaml</code> 的文件，文件内容如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: tekton.dev/v1beta1
+<span style="color:#ff79c6">kind</span>: Task
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: build-and-push
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">resources</span>:
+    <span style="color:#ff79c6">inputs</span>:
+    - <span style="color:#ff79c6">name</span>: repo
+      <span style="color:#ff79c6">type</span>: git
+  <span style="color:#ff79c6">steps</span>:
+  - <span style="color:#ff79c6">name</span>: build-and-push
+    <span style="color:#ff79c6">image</span>: cnych/kaniko-executor:v0.22.0
+    <span style="color:#ff79c6">env</span>:
+    - <span style="color:#ff79c6">name</span>: DOCKER_CONFIG
+      <span style="color:#ff79c6">value</span>: /tekton/home/.docker
+    <span style="color:#ff79c6">command</span>:
+    - /kaniko/executor
+    - --dockerfile=Dockerfile
+    - --context=/workspace/repo
+    - --destination=cnych/tekton-test:latest
+</code></pre></div><p>和前文的任务类似，这里我们同样将 git 作为输入，也只定义了一个名为 <code>build-and-push</code> 的步骤，Kaniko 会在同一个命令中构建并推送，所以不需要多个步骤了，执行的命令就是 <code>/kaniko/executor</code>，通过 <code>--dockerfile</code> 指定 Dockerfile 路径，<code>--context</code> 指定构建上下文，我们这里当然就是项目的根目录了，然后 <code>--destination</code> 参数指定最终我们的镜像名称。其实 Tekton 也支持<a href="https://github.com/tektoncd/pipeline/blob/master/docs/pipelines.md#specifying-parameters">参数化</a>的形式，这样就可以避免我们这里直接写死了，不过由于我们都还是初学者，为了避免复杂，我们直接就直接硬编码了。</p>
+<p>此外我们定义了一个名为 <code>DOCKER_CONFIG</code> 的环境变量，这个变量是用于 Kaniko 去<a href="https://github.com/tektoncd/pipeline/pull/706">查找 Docker 认证信息</a>的。</p>
+<p>同样直接创建上面的资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f task-build-push.yaml 
+task.tekton.dev/build-and-push created
+</code></pre></div><p>创建了 Task 任务过后，要想真正去执行这个任务，我们就需要创建一个对应的 TaskRun 资源对象，当然通过 kubectl 或者 tkn 都是可以的，在第一部分文章中我们就已经演示过了。</p>
+<h3 id="执行任务">执行任务</h3>
+<p>和前面一样，现在我们来创建一个 TaskRun 对象来触发任务，不同之处在于我们需要指定 Task 时需要的 ServiceAccount 对象。创建一个名为 <code>taskrun-build-push.yaml</code> 的文件，内容如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: tekton.dev/v1beta1
+<span style="color:#ff79c6">kind</span>: TaskRun
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: build-and-push
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">serviceAccountName</span>: build-sa
+  <span style="color:#ff79c6">taskRef</span>:
+    <span style="color:#ff79c6">name</span>: build-and-push
+  <span style="color:#ff79c6">resources</span>:
+    <span style="color:#ff79c6">inputs</span>:
+    - <span style="color:#ff79c6">name</span>: repo
+      <span style="color:#ff79c6">resourceRef</span>:
+        <span style="color:#ff79c6">name</span>: cnych-tekton-example
+</code></pre></div><p>注意这里我们通过 <code>serviceAccountName</code> 属性指定了 Docker 认证信息的 ServiceAccount 对象，然后通过 <code>taskRef</code> 引用我们的任务，以及下面的 <code>resourceRef</code> 关联第一部分我们声明的输入资源。</p>
+<p>然后直接创建这个资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f taskrun-build-push.yaml 
+taskrun.tekton.dev/build-and-push created
+</code></pre></div><p>创建完成后就会触发任务执行了，我们可以通过查看 Pod 对象状态来了解进度：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods 
+NAME                             READY   STATUS      RESTARTS   AGE
+build-and-push-pod-pv6mv         0/2     Init:0/2    <span style="color:#bd93f9">0</span>          32s
+$ kubectl get taskrun
+NAME             SUCCEEDED   REASON      STARTTIME   COMPLETIONTIME
+build-and-push   Unknown     Pending     108s
+</code></pre></div><p>现在任务执行的 Pod 还在初始化容器阶段，我们可以看到 TaskRun 的状态处于 <code>Pending</code>，隔一会儿正常构建就会成功了，我们可以查看构建任务的 Pod 日志信息：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl get pods
+NAME                             READY   STATUS      RESTARTS   AGE
+build-and-push-pod-pv6mv         0/2     Completed   <span style="color:#bd93f9">0</span>          16m
+$  kubectl logs -f build-and-push-pod-pv6mv --all-containers
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588907241.1187525,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;creds-init/main.go:44&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Credentials initialized.&#34;</span><span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588907420.917656,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;git/git.go:136&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Successfully cloned https://github.com/cnych/tekton-demo @ f840e0c390be9a1a6edad76abbde64e882047f05 (grafted, HEAD, origin/master) in path /workspace/repo&#34;</span><span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588907421.0128217,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;git/git.go:177&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Successfully initialized and updated submodules in path /workspace/repo&#34;</span><span style="color:#ff79c6">}</span>
+INFO<span style="color:#ff79c6">[</span>0010<span style="color:#ff79c6">]</span> Retrieving image manifest golang:1.14-alpine
+INFO<span style="color:#ff79c6">[</span>0016<span style="color:#ff79c6">]</span> Retrieving image manifest golang:1.14-alpine
+INFO<span style="color:#ff79c6">[</span>0020<span style="color:#ff79c6">]</span> Built cross stage deps: map<span style="color:#ff79c6">[]</span>
+INFO<span style="color:#ff79c6">[</span>0020<span style="color:#ff79c6">]</span> Retrieving image manifest golang:1.14-alpine
+INFO<span style="color:#ff79c6">[</span>0023<span style="color:#ff79c6">]</span> Retrieving image manifest golang:1.14-alpine
+INFO<span style="color:#ff79c6">[</span>0029<span style="color:#ff79c6">]</span> Executing <span style="color:#bd93f9">0</span> build triggers
+INFO<span style="color:#ff79c6">[</span>0029<span style="color:#ff79c6">]</span> Unpacking rootfs as cmd COPY . . requires it.
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> WORKDIR /go/src/app
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> cmd: workdir
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Changed working directory to /go/src/app
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Creating directory /go/src/app
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">1</span> paths
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Taking snapshot of files...
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> COPY . .
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">56</span> paths
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Taking snapshot of files...
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> RUN go get -d -v ./...
+INFO<span style="color:#ff79c6">[</span>0259<span style="color:#ff79c6">]</span> Taking snapshot of full filesystem...
+INFO<span style="color:#ff79c6">[</span>0265<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">11667</span> paths
+INFO<span style="color:#ff79c6">[</span>0272<span style="color:#ff79c6">]</span> cmd: /bin/sh
+INFO<span style="color:#ff79c6">[</span>0272<span style="color:#ff79c6">]</span> args: <span style="color:#ff79c6">[</span>-c go get -d -v ./...<span style="color:#ff79c6">]</span>
+INFO<span style="color:#ff79c6">[</span>0272<span style="color:#ff79c6">]</span> Running: <span style="color:#ff79c6">[</span>/bin/sh -c go get -d -v ./...<span style="color:#ff79c6">]</span>
+INFO<span style="color:#ff79c6">[</span>0272<span style="color:#ff79c6">]</span> Taking snapshot of full filesystem...
+INFO<span style="color:#ff79c6">[</span>0275<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">11667</span> paths
+INFO<span style="color:#ff79c6">[</span>0280<span style="color:#ff79c6">]</span> RUN go install -v ./...
+INFO<span style="color:#ff79c6">[</span>0280<span style="color:#ff79c6">]</span> cmd: /bin/sh
+INFO<span style="color:#ff79c6">[</span>0280<span style="color:#ff79c6">]</span> args: <span style="color:#ff79c6">[</span>-c go install -v ./...<span style="color:#ff79c6">]</span>
+INFO<span style="color:#ff79c6">[</span>0280<span style="color:#ff79c6">]</span> Running: <span style="color:#ff79c6">[</span>/bin/sh -c go install -v ./...<span style="color:#ff79c6">]</span>
+app
+INFO<span style="color:#ff79c6">[</span>0281<span style="color:#ff79c6">]</span> Taking snapshot of full filesystem...
+INFO<span style="color:#ff79c6">[</span>0284<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">11666</span> paths
+INFO<span style="color:#ff79c6">[</span>0288<span style="color:#ff79c6">]</span> CMD <span style="color:#ff79c6">[</span><span style="color:#f1fa8c">&#34;app&#34;</span><span style="color:#ff79c6">]</span>
+$ kubectl get taskrun
+NAME             SUCCEEDED   REASON      STARTTIME   COMPLETIONTIME
+build-and-push   True        Succeeded   15m         2m24s
+</code></pre></div><p>我们可以看到 TaskRun 任务已经执行成功了。 这个时候其实我们可以在 Docker Hub 上找到我们的镜像了，当然也可以直接使用这个镜像进行测试：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200508112033.png" alt="">
+
+</p>
+<h3 id="创建流水线">创建流水线</h3>
+<p>到这里前面我们的两个任务 test 和 build-and-push 都已经完成了，我们还可以创建一个流水线来将这两个任务组织起来，首先运行 test 任务，如果通过了再执行后面的 build-and-push 这个任务。</p>
+<p>创建一个名为 <code>pipeline.yaml</code> 的文件，内容如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: tekton.dev/v1beta1
+<span style="color:#ff79c6">kind</span>: Pipeline
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: test-build-push
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">resources</span>:
+  - <span style="color:#ff79c6">name</span>: repo
+    <span style="color:#ff79c6">type</span>: git
+  <span style="color:#ff79c6">tasks</span>:
+  <span style="color:#6272a4"># 运行应用测试</span>
+  - <span style="color:#ff79c6">name</span>: test
+    <span style="color:#ff79c6">taskRef</span>:
+      <span style="color:#ff79c6">name</span>: test
+    <span style="color:#ff79c6">resources</span>:
+      <span style="color:#ff79c6">inputs</span>:
+      - <span style="color:#ff79c6">name</span>: repo      <span style="color:#6272a4"># Task 输入名称 </span>
+        <span style="color:#ff79c6">resource</span>: repo  <span style="color:#6272a4"># Pipeline 资源名称</span>
+  <span style="color:#6272a4"># 构建并推送 Docker 镜像</span>
+  - <span style="color:#ff79c6">name</span>: build-and-push
+    <span style="color:#ff79c6">taskRef</span>:
+      <span style="color:#ff79c6">name</span>: build-and-push
+    <span style="color:#ff79c6">runAfter</span>:
+    - test              <span style="color:#6272a4"># 测试任务执行之后</span>
+    <span style="color:#ff79c6">resources</span>:
+      <span style="color:#ff79c6">inputs</span>:
+      - <span style="color:#ff79c6">name</span>: repo      <span style="color:#6272a4"># Task 输入名称 </span>
+        <span style="color:#ff79c6">resource</span>: repo  <span style="color:#6272a4"># Pipeline 资源名称</span>
+</code></pre></div><p>首先我们需要定义流水线需要哪些资源，可以是输入或者输出的资源，在这里我们只有一个输入，那就是命名为 repo 的应用程序源码的 GitHub 仓库。接下来定义任务，每个任务都通过 <code>taskRef</code> 进行引用，并传递任务需要的输入参数。</p>
+<p>同样直接创建这个资源对象即可：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f pipeline.yaml 
+pipeline.tekton.dev/test-build-push created
+</code></pre></div><p>前面我们提到过和通过创建 TaskRun 去触发 Task 任务类似，我们可以通过创建一个 PipelineRun 对象来运行流水线，当然同样可以用 kubectl 或者 Tekton CLI 工具来完成。</p>
+<p>这里我们创建一个名为 <code>pipelinerun.yaml</code> 的 PipelineRun 对象来运行流水线，文件内容如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: tekton.dev/v1beta1
+<span style="color:#ff79c6">kind</span>: PipelineRun
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: test-build-push-run
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">serviceAccountName</span>: build-sa
+  <span style="color:#ff79c6">pipelineRef</span>:
+    <span style="color:#ff79c6">name</span>: test-build-push
+  <span style="color:#ff79c6">resources</span>:
+  - <span style="color:#ff79c6">name</span>: repo
+    <span style="color:#ff79c6">resourceRef</span>:
+      <span style="color:#ff79c6">name</span>: cnych-tekton-example
+</code></pre></div><p>定义方式和 TaskRun 几乎一样，通过 <code>serviceAccountName</code> 属性指定 ServiceAccount 对象，<code>pipelineRef</code> 关联流水线对象。同样直接创建这个资源，创建后就会触发我们的流水线任务了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f pipelinerun.yaml 
+pipelinerun.tekton.dev/test-build-push-run created
+$ kubectl get pods | grep test-build-push-run
+test-build-push-run-build-and-push-xl7wp-pod-hdnbl   0/2     Completed   <span style="color:#bd93f9">0</span>          5m27s
+test-build-push-run-test-4s6qh-pod-tkwzk             0/2     Completed   <span style="color:#bd93f9">0</span>          6m5s
+$ kubectl logs -f test-build-push-run-build-and-push-xl7wp-pod-hdnbl --all-containers
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588908934.442572,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;git/git.go:136&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Successfully cloned https://github.com/cnych/tekton-demo @ f840e0c390be9a1a6edad76abbde64e882047f05 (grafted, HEAD, origin/master) in path /workspace/repo&#34;</span><span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588908934.577377,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;git/git.go:177&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Successfully initialized and updated submodules in path /workspace/repo&#34;</span><span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">{</span><span style="color:#f1fa8c">&#34;level&#34;</span>:<span style="color:#f1fa8c">&#34;info&#34;</span>,<span style="color:#f1fa8c">&#34;ts&#34;</span>:1588908927.469531,<span style="color:#f1fa8c">&#34;caller&#34;</span>:<span style="color:#f1fa8c">&#34;creds-init/main.go:44&#34;</span>,<span style="color:#f1fa8c">&#34;msg&#34;</span>:<span style="color:#f1fa8c">&#34;Credentials initialized.&#34;</span><span style="color:#ff79c6">}</span>
+INFO<span style="color:#ff79c6">[</span>0004<span style="color:#ff79c6">]</span> Retrieving image manifest golang:1.14-alpine
+......
+app
+INFO<span style="color:#ff79c6">[</span>0281<span style="color:#ff79c6">]</span> Taking snapshot of full filesystem...
+INFO<span style="color:#ff79c6">[</span>0287<span style="color:#ff79c6">]</span> Resolving <span style="color:#bd93f9">11666</span> paths
+INFO<span style="color:#ff79c6">[</span>0291<span style="color:#ff79c6">]</span> CMD <span style="color:#ff79c6">[</span><span style="color:#f1fa8c">&#34;app&#34;</span><span style="color:#ff79c6">]</span>
+$ kubectl get taskrun |grep test-build-push-run
+test-build-push-run-build-and-push-xl7wp   True        Succeeded   6m21s       65s
+test-build-push-run-test-4s6qh             True        Succeeded   6m58s       6m21s
+</code></pre></div><p>到这里证明我们的流水线执行成功了。</p>
+<h3 id="总结">总结</h3>
+<p>在前文中，我们将 Tekton 安装在 Kubernetes 集群上，定义了一个 Task，并通过 YAML 清单和 Tekton CLI 创建 TaskRun 对其进行了测试。在这一部分中，我们创建了由两个任务组成的 Tektok 流水线，第一个任务是从 GitHub 克隆代码并运行应用程序测试，第二个任务是构建一个 Docker 镜像并将其推送到Docker Hub 上。到这里我们就完成了使用 Tekton 创建 CI/CD 流水线的一个简单示例，关于 Tekton 更多的使用可以查看官方文档学习。</p>
+<p>参考资料：</p>
+<ul>
+<li><a href="https://tekton.dev/">tekton.dev</a></li>
+<li><a href="https://www.arthurkoziel.com/creating-ci-pipelines-with-tekton-part-1/">Creating CI Pipelines with Tekton 1</a></li>
+<li><a href="https://www.arthurkoziel.com/creating-ci-pipelines-with-tekton-part-2/">Creating CI Pipelines with Tekton 2</a></li>
+</ul>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/create-ci-pipeline-with-tekton-1/" data-toggle="tooltip" data-placement="top" title="使用 Tekton 创建 CI/CD 流水线（1/4）">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/visualize-kubernetes-app/" data-toggle="tooltip" data-placement="top" title="可视化创建 Kubernetes 微服务应用">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

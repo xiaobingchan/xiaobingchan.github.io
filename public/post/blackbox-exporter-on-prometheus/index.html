@@ -1,0 +1,1503 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Prometheus 黑盒监控" />
+    <meta property="og:title" content="Prometheus 黑盒监控" />
+    <meta property="twitter:title" content="Prometheus 黑盒监控" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Prometheus 黑盒监控-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/blackbox-exporter-on-prometheus/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        <a class="tag" href="/tags/blackbox" title="blackbox">
+                            blackbox
+                        </a>
+                        
+                    </div>
+                    <h1>Prometheus 黑盒监控</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, December 13, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents"></nav>
+                
+                <p>前面我们主要介绍了 Prometheus 下如何进行白盒监控，我们监控主机的资源用量、容器的运行状态、数据库中间件的运行数据、自动发现 Kubernetes 集群中的资源等等，这些都是支持业务和服务的基础设施，通过白盒能够了解其内部的实际运行状态，通过对监控指标的观察能够预判可能出现的问题，从而对潜在的不确定因素进行优化。而从完整的监控逻辑的角度，除了大量的应用白盒监控以外，还应该添加适当的 <code>Blackbox（黑盒）</code>监控，黑盒监控即以用户的身份测试服务的外部可见性，常见的黑盒监控包括<code>HTTP 探针</code>、<code>TCP 探针</code> 等用于检测站点或者服务的可访问性，以及访问效率等。</p>
+<p>黑盒监控相较于白盒监控最大的不同在于黑盒监控是以故障为导向当故障发生时，黑盒监控能快速发现故障，而白盒监控则侧重于主动发现或者预测潜在的问题。一个完善的监控目标是要能够从白盒的角度发现潜在问题，能够在黑盒的角度快速发现已经发生的问题。</p>
+<p><a href="https://github.com/prometheus/blackbox_exporter">Blackbox Exporter</a> 是 Prometheus 社区提供的官方黑盒监控解决方案，其允许用户通过：<code>HTTP</code>、<code>HTTPS</code>、<code>DNS</code>、<code>TCP</code> 以及 <code>ICMP</code> 的方式对网络进行探测。</p>
+<p>同样首先需要在 Kubernetes 集群中运行 <code>blackbox-exporter</code> 服务，同样通过一个 ConfigMap 资源对象来为 Blackbox 提供配置，如下所示：（prome-blackbox.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ConfigMap
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: blackbox-config
+  <span style="color:#ff79c6">namespace</span>: kube-mon
+<span style="color:#ff79c6">data</span>:
+  <span style="color:#ff79c6">blackbox.yml</span>: |-<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    modules:
+</span><span style="color:#f1fa8c">      http_2xx:  # http 检测模块  Blockbox-Exporter 中所有的探针均是以 Module 的信息进行配置
+</span><span style="color:#f1fa8c">        prober: http
+</span><span style="color:#f1fa8c">        timeout: 10s
+</span><span style="color:#f1fa8c">        http:
+</span><span style="color:#f1fa8c">          valid_http_versions: [&#34;HTTP/1.1&#34;, &#34;HTTP/2&#34;]   
+</span><span style="color:#f1fa8c">          valid_status_codes: [200]  # 这里最好作一个返回状态码，在grafana作图时，有明示---陈刚注释。
+</span><span style="color:#f1fa8c">          method: GET
+</span><span style="color:#f1fa8c">          preferred_ip_protocol: &#34;ip4&#34;
+</span><span style="color:#f1fa8c">      http_post_2xx: # http post 监测模块
+</span><span style="color:#f1fa8c">        prober: http
+</span><span style="color:#f1fa8c">        timeout: 10s
+</span><span style="color:#f1fa8c">        http:
+</span><span style="color:#f1fa8c">          valid_http_versions: [&#34;HTTP/1.1&#34;, &#34;HTTP/2&#34;]
+</span><span style="color:#f1fa8c">          method: POST
+</span><span style="color:#f1fa8c">          preferred_ip_protocol: &#34;ip4&#34;
+</span><span style="color:#f1fa8c">      tcp_connect:  # TCP 检测模块
+</span><span style="color:#f1fa8c">        prober: tcp
+</span><span style="color:#f1fa8c">        timeout: 10s
+</span><span style="color:#f1fa8c">      dns:  # DNS 检测模块
+</span><span style="color:#f1fa8c">        prober: dns
+</span><span style="color:#f1fa8c">        dns:
+</span><span style="color:#f1fa8c">          transport_protocol: &#34;tcp&#34;  # 默认是 udp
+</span><span style="color:#f1fa8c">          preferred_ip_protocol: &#34;ip4&#34;  # 默认是 ip6
+</span><span style="color:#f1fa8c">          query_name: &#34;kubernetes.default.svc.cluster.local&#34;</span>    
+---
+<span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: blackbox
+  <span style="color:#ff79c6">namespace</span>: kube-mon
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: blackbox
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: blackbox
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">image</span>: prom/blackbox-exporter:v0.16.0
+        <span style="color:#ff79c6">name</span>: blackbox
+        <span style="color:#ff79c6">args</span>:
+        - --config.file=/etc/blackbox_exporter/blackbox.yml <span style="color:#6272a4"># ConfigMap 中的配置文件</span>
+        - --log.level=error  <span style="color:#6272a4"># 错误级别控制</span>
+        <span style="color:#ff79c6">ports</span>:
+        - <span style="color:#ff79c6">containerPort</span>: <span style="color:#bd93f9">9115</span>
+        <span style="color:#ff79c6">volumeMounts</span>:
+        - <span style="color:#ff79c6">name</span>: config
+          <span style="color:#ff79c6">mountPath</span>: /etc/blackbox_exporter
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: config
+        <span style="color:#ff79c6">configMap</span>:
+          <span style="color:#ff79c6">name</span>: blackbox-config
+---
+<span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: Service
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: blackbox
+  <span style="color:#ff79c6">namespace</span>: kube-mon
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">app</span>: blackbox
+  <span style="color:#ff79c6">ports</span>:
+  - <span style="color:#ff79c6">port</span>: <span style="color:#bd93f9">9115</span>
+    <span style="color:#ff79c6">targetPort</span>: <span style="color:#bd93f9">9115</span>
+</code></pre></div><p>直接创建上面的资源清单：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f content/monitor/manifests/install/prome-blackbox.yaml 
+configmap/blackbox-config created
+deployment.apps/blackbox created
+service/blackbox created
+</code></pre></div><p>然后需要在 Prometheus 的配置文件中加入对 <code>BlackBox</code> 的抓取设置，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ConfigMap
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: prometheus-config
+  <span style="color:#ff79c6">namespace</span>: kube-mon
+<span style="color:#ff79c6">data</span>:
+  <span style="color:#ff79c6">prometheus.yml</span>: |<span style="color:#f1fa8c">
+</span><span style="color:#f1fa8c">    global:
+</span><span style="color:#f1fa8c">      scrape_interval: 15s
+</span><span style="color:#f1fa8c">      scrape_timeout: 15s
+</span><span style="color:#f1fa8c">    scrape_configs:
+</span><span style="color:#f1fa8c">    - job_name: &#39;prometheus&#39;
+</span><span style="color:#f1fa8c">      static_configs:
+</span><span style="color:#f1fa8c">      - targets: [&#39;localhost:9090&#39;]
+</span><span style="color:#f1fa8c">      
+</span><span style="color:#f1fa8c">    - job_name: &#34;kubernetes-service-dns&#34;
+</span><span style="color:#f1fa8c">      metrics_path: /probe # 不是 metrics，是 probe
+</span><span style="color:#f1fa8c">      params:
+</span><span style="color:#f1fa8c">        module: [dns] # 使用 DNS 模块
+</span><span style="color:#f1fa8c">      static_configs:
+</span><span style="color:#f1fa8c">      - targets:
+</span><span style="color:#f1fa8c">        - kube-dns.kube-system:53  # 不要省略端口号
+</span><span style="color:#f1fa8c">      relabel_configs:
+</span><span style="color:#f1fa8c">      - source_labels: [__address__]
+</span><span style="color:#f1fa8c">        target_label: __param_target
+</span><span style="color:#f1fa8c">      - source_labels: [__param_target]
+</span><span style="color:#f1fa8c">        target_label: instance
+</span><span style="color:#f1fa8c">      - target_label: __address__
+</span><span style="color:#f1fa8c">        replacement: blackbox:9115  # 服务地址，和上面的 Service 定义保持一致</span>    
+</code></pre></div><p>首先获取 targets 实例的 <code>__address__</code> 值写进 <code>__param_target</code>，<code>__param_&lt;name&gt;</code> 形式的标签里的 name 和它的值会被添加到发送到黑盒的 http 的 header 的 params 当作键值，例如 <code>__param_module</code> 对应 <code>params</code> 里的<code>module</code>。然后获取 <code>__param_target</code> 的值，并覆写到 <code>instance</code> 标签中，覆写 Target 实例的 <code>__address__</code> 标签值为 <code>BlockBox Exporter</code> 实例的访问地址，向 <code>blackbox:9115</code> 发送请求获取实例的 metrics 信息。然后更新配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f prometheus-cm.yaml
+configmap/prometheus-config configured
+<span style="color:#6272a4"># 隔一会儿执行 reload 操作</span>
+$ curl -X POST <span style="color:#f1fa8c">&#34;http://10.244.3.174:9090/-/reload&#34;</span>  <span style="color:#6272a4"># promethues pod ip</span>
+</code></pre></div><p>打开 Prometheus 的 Target 页面，就会看到 上面定义的 kubernetes-service-dns 任务了：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/monitor/prometheus-webui-blackbox-dns.png" alt="prometheus blackbox dns">
+
+</p>
+<p>回到 Graph 页面，可以使用 <code>probe_success{job=&quot;kubernetes-service-dns&quot;}</code> 来查看检测结果，这样就实现了对 DNS 的黑盒监控。</p>
+<!-- raw HTML omitted -->
+<p>除了 DNS 的配置外，上面我们还配置了一个 <code>http_2xx</code> 的模块，也就是 HTTP 探针，HTTP 探针是进行黑盒监控时最常用的探针之一，通过 HTTP 探针能够对网站或者 HTTP 服务建立有效的监控，包括其本身的可用性，以及用户体验相关的如响应时间等等。除了能够在服务出现异常的时候及时报警，还能帮助系统管理员分析和优化网站体验。这里我们可以使用他来对 http 服务进行检测。</p>
+<p>因为前面已经给 Blackbox 配置了 <code>http_2xx</code> 模块，所以这里只需要在 Prometheus 中加入抓取任务，这里我们可以结合前面的 Prometheus 的服务发现功能来做黑盒监控，对于 Service 和 Ingress 类型的服务发现，用来进行黑盒监控是非常合适的，配置如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#ff79c6">job_name</span>: <span style="color:#f1fa8c">&#39;kubernetes-http-services&#39;</span>
+  <span style="color:#ff79c6">metrics_path</span>: /probe
+  <span style="color:#ff79c6">params</span>:
+    <span style="color:#ff79c6">module</span>: [http_2xx]  <span style="color:#6272a4"># 使用定义的http模块</span>
+  <span style="color:#ff79c6">kubernetes_sd_configs</span>:
+  - <span style="color:#ff79c6">role</span>: service  <span style="color:#6272a4"># service 类型的服务发现</span>
+  <span style="color:#ff79c6">relabel_configs</span>:
+  <span style="color:#6272a4"># 只有service的annotation中配置了 prometheus.io/http_probe=true 的才进行发现</span>
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_service_annotation_prometheus_io_http_probe]
+    <span style="color:#ff79c6">action</span>: keep
+    <span style="color:#ff79c6">regex</span>: <span style="color:#ff79c6">true</span>
+  - <span style="color:#ff79c6">source_labels</span>: [__address__]
+    <span style="color:#ff79c6">target_label</span>: __param_target
+  - <span style="color:#ff79c6">target_label</span>: __address__
+    <span style="color:#ff79c6">replacement</span>: blackbox:9115
+  - <span style="color:#ff79c6">source_labels</span>: [__param_target]
+    <span style="color:#ff79c6">target_label</span>: instance
+  - <span style="color:#ff79c6">action</span>: labelmap
+    <span style="color:#ff79c6">regex</span>: __meta_kubernetes_service_label_(.+)
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_namespace]
+    <span style="color:#ff79c6">target_label</span>: kubernetes_namespace
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_service_name]
+    <span style="color:#ff79c6">target_label</span>: kubernetes_name
+
+- <span style="color:#ff79c6">job_name</span>: <span style="color:#f1fa8c">&#39;kubernetes-ingresses&#39;</span>
+  <span style="color:#ff79c6">metrics_path</span>: /probe
+  <span style="color:#ff79c6">params</span>:
+    <span style="color:#ff79c6">module</span>: [http_2xx]  <span style="color:#6272a4"># 使用定义的http模块</span>
+  <span style="color:#ff79c6">kubernetes_sd_configs</span>:
+  - <span style="color:#ff79c6">role</span>: ingress  <span style="color:#6272a4"># ingress 类型的服务发现</span>
+  <span style="color:#ff79c6">relabel_configs</span>:
+  <span style="color:#6272a4"># 只有ingress的annotation中配置了 prometheus.io/http_probe=true的才进行发现</span>
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_ingress_annotation_prometheus_io_http_probe]
+    <span style="color:#ff79c6">action</span>: keep
+    <span style="color:#ff79c6">regex</span>: <span style="color:#ff79c6">true</span>
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_ingress_scheme,__address__,__meta_kubernetes_ingress_path]
+    <span style="color:#ff79c6">regex</span>: (.+);(.+);(.+)
+    <span style="color:#ff79c6">replacement</span>: ${1}://${2}${3}
+    <span style="color:#ff79c6">target_label</span>: __param_target
+  - <span style="color:#ff79c6">target_label</span>: __address__
+    <span style="color:#ff79c6">replacement</span>: blackbox:9115
+  - <span style="color:#ff79c6">source_labels</span>: [__param_target]
+    <span style="color:#ff79c6">target_label</span>: instance
+  - <span style="color:#ff79c6">action</span>: labelmap
+    <span style="color:#ff79c6">regex</span>: __meta_kubernetes_ingress_label_(.+)
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_namespace]
+    <span style="color:#ff79c6">target_label</span>: kubernetes_namespace
+  - <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_ingress_name]
+    <span style="color:#ff79c6">target_label</span>: kubernetes_name
+</code></pre></div><p>我们结合前面的服务发现功能，通过过滤 <code>prometheus.io/http_probe=true</code> 的 Service 和 Ingress 才进行 HTTP 探针类型的黑盒监控，其他配置和上面配置 dns 监控的时候是一致的。然后更新配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f prometheus-cm.yaml
+configmap/prometheus-config configured
+<span style="color:#6272a4"># 隔一会儿执行reload操作</span>
+$ curl -X POST <span style="color:#f1fa8c">&#34;http://10.244.3.174:9090/-/reload&#34;</span>
+</code></pre></div><p>打开 Prometheus 的 Target 页面，就会看到 上面定义的两个任务了：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/monitor/prometheus-webui-blackbox-service-ingress.png" alt="prometheus blackbox service ingress">
+
+</p>
+<p>但是现在还没有任何数据，这是因为上面是匹配 <code>__meta_kubernetes_ingress_annotation_prometheus_io_http_probe</code> 这个元信息，所以如果我们需要让这两个任务发现的话需要在 Service 或者 Ingress 中配置对应的 annotation：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">annotation</span>:
+  <span style="color:#ff79c6">prometheus.io/http-probe</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+</code></pre></div><p>比如在我们自己的一个 Ingress 对象中添加上面这个 annotation：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$  kubectl get ingress fe-trait-ingress -o yaml
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    ......
+    prometheus.io/http-probe: <span style="color:#f1fa8c">&#34;true&#34;</span>  <span style="color:#6272a4"># 用于黑盒监控</span>
+......
+spec:
+  rules:
+  - host: todo.qikqiak.com
+    http:
+      paths:
+      - backend:
+          serviceName: fe
+          servicePort: <span style="color:#bd93f9">3000</span>
+        path: /app<span style="color:#ff79c6">(</span>/|$<span style="color:#ff79c6">)(</span>.*<span style="color:#ff79c6">)</span>
+status:
+  loadBalancer: <span style="color:#ff79c6">{}</span>
+</code></pre></div><p>这个时候我们查看到 Ingress 这个任务下面已经有抓取任务了：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/monitor/prometheus-webui-blackbox-ingress.png" alt="prometheus blackbox ingress">
+
+</p>
+<p>比如现在我们可以使用 <code>probe_duration_seconds</code> 来检查监控结果：</p>
+<p>
+  <img src="https://www.qikqiak.com/k8strain/assets/img/monitor/prometheus-webui-blackbox-ingress-query.png" alt="prometheus blackbox ingress query">
+
+</p>
+<p>对于 Service 是一样的，当然如果你需要对监控的路径、端口这些做控制，我们可以自己在 relabel_configs 中去做相应的配置，比如我们想对 Service 的黑盒做自定义配置，可以想下面这样配置：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">- <span style="color:#ff79c6">source_labels</span>: [__meta_kubernetes_service_name, __meta_kubernetes_namespace, __meta_kubernetes_service_annotation_prometheus_io_http_probe_port, __meta_kubernetes_service_annotation_prometheus_io_http_probe_path]
+  <span style="color:#ff79c6">action</span>: replace
+  <span style="color:#ff79c6">target_label</span>: __param_target
+  <span style="color:#ff79c6">regex</span>: (.+);(.+);(.+);(.+)
+  <span style="color:#ff79c6">replacement</span>: $1.$2:$3$4
+</code></pre></div><p>这样我们就需要在 Service 中配置这样的 annotation 了：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">annotation</span>:
+  <span style="color:#ff79c6">prometheus.io/http-probe</span>: <span style="color:#f1fa8c">&#34;true&#34;</span>
+  <span style="color:#ff79c6">prometheus.io/http-probe-port</span>: <span style="color:#f1fa8c">&#34;8080&#34;</span>
+  <span style="color:#ff79c6">prometheus.io/http-probe-path</span>: <span style="color:#f1fa8c">&#34;/healthz&#34;</span>
+</code></pre></div><p>这样我们就完成了 HTTP 探针的黑盒监控，除此之外，我们还可以配置 TCP 的监控，上面我们已经配置了这个模块，大家可以自己尝试去配置下。</p>
+<p>除了支持对 HTT P协议进行网络探测以外，Blackbox 还支持对 TCP、DNS、ICMP 等其他网络协议，感兴趣的读者可以从 Blackbox 的 <a href="https://github.com/prometheus/blackbox_exporter">Github 项目</a>中获取更多使用信息。</p>
+<p>Prometheus 配置文件可以参考官方仓库：<a href="https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml">https://github.com/prometheus/prometheus/blob/master/documentation/examples/prometheus-kubernetes.yml</a></p>
+<p>Blackbox 的配置文件可以参考官方参考：<a href="https://github.com/prometheus/blackbox_exporter/blob/master/example.yml">https://github.com/prometheus/blackbox_exporter/blob/master/example.yml</a></p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/what-is-new-in-k8s-1.17/" data-toggle="tooltip" data-placement="top" title="Kubernetes 1.17 有什么新特性？">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/recording-rules-on-prometheus/" data-toggle="tooltip" data-placement="top" title="Prometheus 记录规则的使用">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

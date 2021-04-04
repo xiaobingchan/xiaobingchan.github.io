@@ -1,0 +1,1522 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="Groovy 简明教程" />
+    <meta property="og:title" content="Groovy 简明教程" />
+    <meta property="twitter:title" content="Groovy 简明教程" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>Groovy 简明教程-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/groovy-simple-tutorial/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/groovy" title="Groovy">
+                            Groovy
+                        </a>
+                        
+                        <a class="tag" href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        <a class="tag" href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        <a class="tag" href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                    </div>
+                    <h1>Groovy 简明教程</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Monday, May 13, 2019
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents">
+  <ul>
+    <li>
+      <ul>
+        <li><a href="#什么是-groovy">什么是 Groovy</a></li>
+        <li><a href="#环境搭建">环境搭建</a></li>
+        <li><a href="#基本语法">基本语法</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>
+                
+                <p>最近一直有很多同学提到不会写 Jenkins Pipeline 脚本，我都是直接摔一个 Jenkins 官方文档给他们，但是当我自己仔细去查看资料的时候发现并非如此简单，无论是声明式还是脚本式的 Pipeline 都依赖了 Groovy 脚本，所以如果要很好的掌握 Pipeline 脚本的用法，我们非常有必要去了解下 Groovy 语言。</p>
+<h2 id="什么是-groovy">什么是 Groovy</h2>
+<p>Groovy 是跑在 JVM 中的另外一种语言，我们可以用 Groovy 在 Java 平台上进行编程，使用方式基本与使用 Java 代码的方式相同，所以如果你熟悉 Java 代码的话基本上不用花很多精力就可以掌握 Groovy 了，它的语法与 Java 语言的语法很相似，而且完成同样的功能基本上所需要的 Groovy 代码量会比 Java 的代码量少。</p>
+<p>官方网站：<a href="https://groovy.apache.org">https://groovy.apache.org</a></p>
+<h2 id="环境搭建">环境搭建</h2>
+<p>要安装 Groovy 环境非常简单，前往官网网站下载对应的平台安装包一键安装即可：<a href="https://groovy.apache.org/download.html">https://groovy.apache.org/download.html</a>，我这里使用的是 Mac，当然也可以使用比较方便的 Homebrew 工具来进行一键安装：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ brew install groovy
+</code></pre></div><p>可以使用下面的命令查看 groovy 是否安装成功：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy -v
+Groovy Version: 2.5.6 JVM: 1.8.0_05 Vendor: Oracle Corporation OS: Mac OS X
+
+</code></pre></div><h2 id="基本语法">基本语法</h2>
+<h3 id="运行方法">运行方法</h3>
+<p>使用编辑器（vscode）新建一个 Groovy 文件 hello.groovy，文件内容如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#6272a4">// 使用 println 打印信息到 stdout
+</span><span style="color:#6272a4"></span>        <span style="color:#6272a4">/*除了上面的注释方法外，这里没也是注释信息哦*/</span>
+        println <span style="color:#f1fa8c">&#39;Hello World&#39;</span>
+        println <span style="color:#f1fa8c">&#34;Hello World&#34;</span><span style="color:#ff79c6">;</span>
+   <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><blockquote>
+<p>如果你对 Java 代码较熟悉的话，可以看到上面的 Groovy 是非常类似的。</p>
+</blockquote>
+<p>然后可以使用 groovy 命令运行上面的程序：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+Hello World
+Hello World
+</code></pre></div><p>从输出结果可以看出了 Groovy 里面支持<code>单引号</code>和<code>双引号</code>两种方式，注释支持<code>//</code>和<code>/**/</code>两种方式，而且不以分号“;”结尾也可以，但是我们还是推荐都带上分号保持代码的一致性。</p>
+<h3 id="标识符">标识符</h3>
+<p><code>标识符</code>被用来定义变量，函数或其他用户定义的变量。标识符以<strong>字母、美元或下划线</strong>开头，不能以数字开头。以下是有效标识符的一些例子 ：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd">def</span> employeename 
+<span style="color:#8be9fd">def</span> student1 
+<span style="color:#8be9fd">def</span> student_name
+</code></pre></div><blockquote>
+<p>其中，<code>def</code>是在 Groovy 中用来定义标识符的关键字。</p>
+</blockquote>
+<p>如下代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        String x <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Hello&#34;</span><span style="color:#ff79c6">;</span>
+        println<span style="color:#ff79c6">(</span>x<span style="color:#ff79c6">);</span>
+        <span style="color:#8be9fd">def</span> _Name <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;优点知识&#34;</span><span style="color:#ff79c6">;</span>
+        println<span style="color:#ff79c6">(</span>_Name<span style="color:#ff79c6">);</span>
+        println <span style="color:#f1fa8c">&#34;Hello World&#34;</span><span style="color:#ff79c6">;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+Hello
+优点知识
+Hello World
+</code></pre></div><h3 id="数据类型">数据类型</h3>
+<p>上述例子中我们定义了一个字符串 x 和一个标识符 _Name。当然除了字符串之外，Groovy 也支持有符号整数、浮点数、字符等：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        String str <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#34;Hello&#34;</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 字符串
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">int</span> x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 整数
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">long</span> y <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">100L</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 长整型
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">float</span> a <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10.56f</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 32位浮点数 
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">double</span> b <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10.5e40</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 64位浮点数
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">char</span> c <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">&#39;A&#39;</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 字符
+</span><span style="color:#6272a4"></span>        Boolean l <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">true</span><span style="color:#ff79c6">;</span>  <span style="color:#6272a4">// 布尔值，可以是true或false。
+</span><span style="color:#6272a4"></span>        println<span style="color:#ff79c6">(</span>str<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>x<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>y<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>a<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>b<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>c<span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span>l<span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+Hello
+<span style="color:#bd93f9">5</span>
+<span style="color:#bd93f9">100</span>
+10.56
+1.05E41
+A
+<span style="color:#8be9fd;font-style:italic">true</span>
+</code></pre></div><h3 id="打印变量">打印变量</h3>
+<p>上面用 def 关键字来定义变量，当然也可以用一个确定的数据类型来声明一个变量，我们可以用下面的几种方式来打印变量：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#6272a4">// 初始化两个变量
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">int</span> x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span><span style="color:#ff79c6">;</span> 
+        <span style="color:#8be9fd">int</span> X <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">6</span><span style="color:#ff79c6">;</span> 
+        
+        <span style="color:#6272a4">// 打印变量值
+</span><span style="color:#6272a4"></span>        println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;x = &#34;</span> <span style="color:#ff79c6">+</span> x <span style="color:#ff79c6">+</span> <span style="color:#f1fa8c">&#34; and X = &#34;</span> <span style="color:#ff79c6">+</span> X<span style="color:#ff79c6">);</span>  
+        println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;x = ${x} and X = ${X}&#34;</span><span style="color:#ff79c6">);</span>
+        println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#39;x = ${x} and X = ${X}&#39;</span><span style="color:#ff79c6">);</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+<span style="color:#8be9fd;font-style:italic">x</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span> and <span style="color:#8be9fd;font-style:italic">X</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">6</span>
+<span style="color:#8be9fd;font-style:italic">x</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span> and <span style="color:#8be9fd;font-style:italic">X</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">6</span>
+<span style="color:#8be9fd;font-style:italic">x</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">x</span><span style="color:#f1fa8c">}</span> and <span style="color:#8be9fd;font-style:italic">X</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">X</span><span style="color:#f1fa8c">}</span>
+</code></pre></div><p>从这里我们可以看出 Groovy 在单引号的字符串里面是不支持插值的，这点非常重要，很多同学在使用 Pipeline 脚本的时候经常会混淆。除此之外，还支持三引号：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+    <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+        <span style="color:#6272a4">// 初始化两个变量
+</span><span style="color:#6272a4"></span>        <span style="color:#8be9fd">int</span> x <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span><span style="color:#ff79c6">;</span> 
+        <span style="color:#8be9fd">int</span> X <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">6</span><span style="color:#ff79c6">;</span> 
+
+println <span style="color:#f1fa8c">&#34;&#34;&#34;
+</span><span style="color:#f1fa8c">x = ${x}
+</span><span style="color:#f1fa8c">X = ${X}
+</span><span style="color:#f1fa8c">&#34;&#34;&#34;</span>
+
+println <span style="color:#f1fa8c">&#39;&#39;&#39;
+</span><span style="color:#f1fa8c">x = ${x}
+</span><span style="color:#f1fa8c">X = ${X}
+</span><span style="color:#f1fa8c">&#39;&#39;&#39;</span>
+    <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+<span style="color:#8be9fd;font-style:italic">x</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">5</span>
+<span style="color:#8be9fd;font-style:italic">X</span> <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">6</span>
+
+<span style="color:#8be9fd;font-style:italic">x</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">x</span><span style="color:#f1fa8c">}</span>
+<span style="color:#8be9fd;font-style:italic">X</span> <span style="color:#ff79c6">=</span> <span style="color:#f1fa8c">${</span><span style="color:#8be9fd;font-style:italic">X</span><span style="color:#f1fa8c">}</span>
+</code></pre></div><p>可以看出 Groovy 里面三引号支持双引号和单引号两种方式，但是单引号同样不支持插值，要记住。</p>
+<h3 id="函数">函数</h3>
+<p>Groovy 中的函数是使用返回类型或使用 def 关键字定义的，函数可以接收任意数量的参数，定义参数时，不必显式定义类型，可以添加修饰符，如 public，private 和 protected，默认情况下，如果未提供可见性修饰符，则该方法为 public，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">def</span> <span style="color:#50fa7b">PrintHello</span><span style="color:#ff79c6">()</span> <span style="color:#ff79c6">{</span>
+      println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;This is a print hello function in groovy&#34;</span><span style="color:#ff79c6">);</span>
+   <span style="color:#ff79c6">}</span> 
+
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">int</span> <span style="color:#50fa7b">sum</span><span style="color:#ff79c6">(</span><span style="color:#8be9fd">int</span> a<span style="color:#ff79c6">,</span> <span style="color:#8be9fd">int</span> b<span style="color:#ff79c6">,</span> <span style="color:#8be9fd">int</span> c <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">10</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      <span style="color:#8be9fd">int</span> d <span style="color:#ff79c6">=</span> a<span style="color:#ff79c6">+</span>b<span style="color:#ff79c6">+</span>c<span style="color:#ff79c6">;</span>
+      <span style="color:#ff79c6">return</span> d<span style="color:#ff79c6">;</span>
+   <span style="color:#ff79c6">}</span>  
+	
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      PrintHello<span style="color:#ff79c6">();</span>
+      println<span style="color:#ff79c6">(</span>sum<span style="color:#ff79c6">(</span><span style="color:#bd93f9">5</span><span style="color:#ff79c6">,</span> <span style="color:#bd93f9">50</span><span style="color:#ff79c6">));</span>
+   <span style="color:#ff79c6">}</span> 
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+This is a print hello <span style="color:#ff79c6">function</span> in groovy
+<span style="color:#bd93f9">65</span>
+</code></pre></div><h3 id="条件语句">条件语句</h3>
+<p>在我们日常工作中条件判断语句是必不可少的，即使在 Jenkins Pipeline 脚本中也会经常遇到，Groovy 里面的条件语句和其他语言基本一致，使用 if/else 判断：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span> 
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span> 
+      <span style="color:#6272a4">// 初始化变量值
+</span><span style="color:#6272a4"></span>      <span style="color:#8be9fd">int</span> a <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">2</span>
+		
+      <span style="color:#6272a4">// 条件判断
+</span><span style="color:#6272a4"></span>      <span style="color:#ff79c6">if</span> <span style="color:#ff79c6">(</span>a <span style="color:#ff79c6">&lt;</span> <span style="color:#bd93f9">100</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span> 
+         <span style="color:#6272a4">// 如果a&lt;100打印下面这句话
+</span><span style="color:#6272a4"></span>         println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;The value is less than 100&#34;</span><span style="color:#ff79c6">);</span> 
+      <span style="color:#ff79c6">}</span> <span style="color:#ff79c6">else</span> <span style="color:#ff79c6">{</span> 
+         <span style="color:#6272a4">// 如果a&gt;=100打印下面这句话
+</span><span style="color:#6272a4"></span>         println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;The value is greater than 100&#34;</span><span style="color:#ff79c6">);</span> 
+      <span style="color:#ff79c6">}</span> 
+   <span style="color:#ff79c6">}</span> 
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+The value is less than <span style="color:#bd93f9">100</span>
+</code></pre></div><h3 id="循环语句">循环语句</h3>
+<p>除了条件判断语句之外，循环语句也是非常重要的，Groovy 中可以使用三种方式来进行循环：<code>while、for语句、for-in语句</code>，如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+      <span style="color:#8be9fd">int</span> count <span style="color:#ff79c6">=</span> <span style="color:#bd93f9">0</span><span style="color:#ff79c6">;</span>
+      println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;while循环语句：&#34;</span><span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">while</span><span style="color:#ff79c6">(</span>count<span style="color:#ff79c6">&lt;</span><span style="color:#bd93f9">5</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+         println<span style="color:#ff79c6">(</span>count<span style="color:#ff79c6">);</span>
+         count<span style="color:#ff79c6">++;</span>
+      <span style="color:#ff79c6">}</span>
+
+      println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;for循环语句：&#34;</span><span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span><span style="color:#8be9fd">int</span> i<span style="color:#ff79c6">=</span><span style="color:#bd93f9">0</span><span style="color:#ff79c6">;</span>i<span style="color:#ff79c6">&lt;</span><span style="color:#bd93f9">5</span><span style="color:#ff79c6">;</span>i<span style="color:#ff79c6">++)</span> <span style="color:#ff79c6">{</span>
+	     println<span style="color:#ff79c6">(</span>i<span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">}</span>
+
+      println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;for-in循环语句：&#34;</span><span style="color:#ff79c6">);</span>
+      <span style="color:#8be9fd">int</span><span style="color:#ff79c6">[]</span> array <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">[</span><span style="color:#bd93f9">0</span><span style="color:#ff79c6">,</span><span style="color:#bd93f9">1</span><span style="color:#ff79c6">,</span><span style="color:#bd93f9">2</span><span style="color:#ff79c6">,</span><span style="color:#bd93f9">3</span><span style="color:#ff79c6">];</span> 
+      <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span><span style="color:#8be9fd">int</span> i <span style="color:#ff79c6">in</span> array<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span> 
+         println<span style="color:#ff79c6">(</span>i<span style="color:#ff79c6">);</span> 
+      <span style="color:#ff79c6">}</span> 
+
+      println<span style="color:#ff79c6">(</span><span style="color:#f1fa8c">&#34;for-in循环范围：&#34;</span><span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span><span style="color:#8be9fd">int</span> i <span style="color:#ff79c6">in</span> <span style="color:#bd93f9">1</span><span style="color:#ff79c6">..</span><span style="color:#bd93f9">5</span><span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+         println<span style="color:#ff79c6">(</span>i<span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">}</span>
+   <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+while循环语句：
+<span style="color:#bd93f9">0</span>
+<span style="color:#bd93f9">1</span>
+<span style="color:#bd93f9">2</span>
+<span style="color:#bd93f9">3</span>
+<span style="color:#bd93f9">4</span>
+for循环语句：
+<span style="color:#bd93f9">0</span>
+<span style="color:#bd93f9">1</span>
+<span style="color:#bd93f9">2</span>
+<span style="color:#bd93f9">3</span>
+<span style="color:#bd93f9">4</span>
+<span style="color:#ff79c6">for</span>-in循环语句：
+<span style="color:#bd93f9">0</span>
+<span style="color:#bd93f9">1</span>
+<span style="color:#bd93f9">2</span>
+<span style="color:#bd93f9">3</span>
+<span style="color:#ff79c6">for</span>-in循环范围：
+<span style="color:#bd93f9">1</span>
+<span style="color:#bd93f9">2</span>
+<span style="color:#bd93f9">3</span>
+<span style="color:#bd93f9">4</span>
+<span style="color:#bd93f9">5</span>
+</code></pre></div><p>上面是常用的三种循环方式，其中一个比较特殊的地方是我们可以用<code>..</code>来定义一个数据范围，比如<code>1:5</code>表示1到5的数组。</p>
+<p>另外我们还可以使用<code>for-in</code>来循环 Map，Map（字典）是我们在编写程序的过程中会镜像使用到的数据结构，大部分的编程语言都是使用<code>{}</code>来定义 Map，而在 Groovy 中有点不一样的地方，是使用<code>[]</code>来定义的 Map，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-groovy" data-lang="groovy"><span style="color:#8be9fd;font-style:italic">class</span> <span style="color:#50fa7b">Example</span> <span style="color:#ff79c6">{</span>
+   <span style="color:#8be9fd;font-style:italic">static</span> <span style="color:#8be9fd">void</span> <span style="color:#50fa7b">main</span><span style="color:#ff79c6">(</span>String<span style="color:#ff79c6">[]</span> args<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+       <span style="color:#6272a4">// 定义一个Map
+</span><span style="color:#6272a4"></span>      <span style="color:#8be9fd">def</span> ageMap <span style="color:#ff79c6">=</span> <span style="color:#ff79c6">[</span><span style="color:#f1fa8c">&#34;Ken&#34;</span> <span style="color:#ff79c6">:</span> <span style="color:#bd93f9">21</span><span style="color:#ff79c6">,</span> <span style="color:#f1fa8c">&#34;John&#34;</span> <span style="color:#ff79c6">:</span> <span style="color:#bd93f9">25</span><span style="color:#ff79c6">,</span> <span style="color:#f1fa8c">&#34;Sally&#34;</span> <span style="color:#ff79c6">:</span> <span style="color:#bd93f9">22</span><span style="color:#ff79c6">];</span>
+		
+      <span style="color:#ff79c6">for</span><span style="color:#ff79c6">(</span>am <span style="color:#ff79c6">in</span> ageMap<span style="color:#ff79c6">)</span> <span style="color:#ff79c6">{</span>
+         println<span style="color:#ff79c6">(</span>am<span style="color:#ff79c6">);</span>
+      <span style="color:#ff79c6">}</span>
+   <span style="color:#ff79c6">}</span>
+<span style="color:#ff79c6">}</span>
+</code></pre></div><p>运行结果如下：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ groovy hello.groovy
+<span style="color:#8be9fd;font-style:italic">Ken</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">21</span>
+<span style="color:#8be9fd;font-style:italic">John</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">25</span>
+<span style="color:#8be9fd;font-style:italic">Sally</span><span style="color:#ff79c6">=</span><span style="color:#bd93f9">22</span>
+</code></pre></div><p>除了上面这些最基本的特性外，Groovy 还支持很多其他的特性，比如异常处理、面向对象设计、正则表达式、泛型、闭包等等，由于我们这里只是为了让大家对 Jenkins Pipeline 的脚本有一个基本的认识，更深层次的用法很少会涉及到，大家如果感兴趣的可以去查阅官方文档了解更多信息。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/complete-cicd-demonstrate-2/" data-toggle="tooltip" data-placement="top" title="基于 Jenkins、Gitlab、Harbor、Helm 和 Kubernetes 的 CI/CD(二)">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/kubelet-sync-node-status/" data-toggle="tooltip" data-placement="top" title="Kubelet 状态更新机制">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>

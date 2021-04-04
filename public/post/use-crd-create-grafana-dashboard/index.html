@@ -1,0 +1,1473 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    
+    <meta property="og:site_name" content="青年夏日IT">
+    <meta property="og:type" content="article">
+
+    
+    <meta property="og:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg">
+    <meta property="twitter:image" content="https://qnxr.xyz/img/home-bg-jeep.jpg" />
+    
+
+    
+    <meta name="title" content="用 Kubernetes 资源对象创建 Grafana Dashboard" />
+    <meta property="og:title" content="用 Kubernetes 资源对象创建 Grafana Dashboard" />
+    <meta property="twitter:title" content="用 Kubernetes 资源对象创建 Grafana Dashboard" />
+    
+
+    
+    <meta name="description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。">
+    <meta property="og:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    <meta property="twitter:description" content="青年夏日，程序员, 开源爱好者，生活探险家 | 这里是 青年夏日 的博客，与你一起发现更大的世界。" />
+    
+
+    
+    <meta property="twitter:card" content="summary" />
+    
+    
+
+    <meta name="keyword"  content="青年夏日, 博客, 个人网站, 互联网, Web, 云原生, PaaS, Istio, Kubernetes, 微服务, Microservice">
+    <link rel="shortcut icon" href="/img/favicon.ico">
+
+    <title>用 Kubernetes 资源对象创建 Grafana Dashboard-青年夏日IT</title>
+
+    <link rel="canonical" href="/post/use-crd-create-grafana-dashboard/">
+
+    <link rel="stylesheet" href="/css/iDisqus.min.css"/>
+
+    
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+
+    
+    <link rel="stylesheet" href="/css/hux-blog.min.css">
+
+    
+    <link rel="stylesheet" href="/css/zanshang.css">
+
+    
+    <link href="//cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet" type="text/css">
+
+    
+    
+
+    
+    
+    <script src="/js/jquery.min.js"></script>
+
+    
+    <script src="/js/bootstrap.min.js"></script>
+
+    
+    <script src="/js/hux-blog.min.js"></script>
+
+    
+    
+
+</head>
+
+
+
+<nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+    <div class="container-fluid">
+        
+        <div class="navbar-header page-scroll">
+            <button type="button" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">青年夏日IT</a>
+        </div>
+
+        
+        
+        <div id="huxblog_navbar">
+            <div class="navbar-collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="/">Home</a>
+                    </li>
+                    
+                        
+                        <li>
+                            <a href="/categories/life">life</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/note">note</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tech">tech</a>
+                        </li>
+                        
+                        <li>
+                            <a href="/categories/tips">tips</a>
+                        </li>
+                        
+                    
+                    
+		    
+                        <li><a href="/top/books/">BOOKS</a></li>
+                    
+                        <li><a href="/top/about/">ABOUT</a></li>
+                    
+
+                    
+		    <li>
+                        <a href="/search">SEARCH <img src="/img/search.png" height="15" style="cursor: pointer;" alt="Search"></a>
+		    </li>
+                    
+                </ul>
+            </div>
+        </div>
+        
+    </div>
+    
+</nav>
+<script>
+    
+    
+    
+    var $body   = document.body;
+    var $toggle = document.querySelector('.navbar-toggle');
+    var $navbar = document.querySelector('#huxblog_navbar');
+    var $collapse = document.querySelector('.navbar-collapse');
+
+    $toggle.addEventListener('click', handleMagic)
+    function handleMagic(e){
+        if ($navbar.className.indexOf('in') > 0) {
+        
+            $navbar.className = " ";
+            
+            setTimeout(function(){
+                
+                if($navbar.className.indexOf('in') < 0) {
+                    $collapse.style.height = "0px"
+                }
+            },400)
+        }else{
+        
+            $collapse.style.height = "auto"
+            $navbar.className += " in";
+        }
+    }
+</script>
+
+
+
+
+<style type="text/css">
+    header.intro-header {
+        background-image: url('/img/home-bg-jeep.jpg')
+    }
+</style>
+<header class="intro-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <div class="post-heading">
+                    <div class="tags">
+                        
+                        <a class="tag" href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        <a class="tag" href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        <a class="tag" href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        <a class="tag" href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                    </div>
+                    <h1>用 Kubernetes 资源对象创建 Grafana Dashboard</h1>
+                    <h2 class="subheading"></h2>
+                    <span class="meta">
+                        Posted by 
+                        
+                                青年夏日IT
+                         
+                        on 
+                        Friday, March 27, 2020
+                        
+                        
+                        
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</header>
+
+
+
+
+<article>
+    <div class="container">
+        <div class="row">
+
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                post-container">
+
+                
+                <header>
+                    <h2>TOC</h2>
+                </header>
+                <nav id="TableOfContents"></nav>
+                
+                <p>我们在使用 Grafana Dashboard 来展示我们的监控图表的时候，很多时候我们都是去找别人已经做好的 Dashboard 拿过来改一改，但是这样也造成了很多使用 Grafana 的人员压根不知道如何去自定义一个 Dashboard，虽然这并不是很困难。这里我们介绍一个比较新颖（骚）的工具：<a href="https://github.com/K-Phoen/dark">DARK</a>，全称 <code>Dashboards As Resources in Kubernetes.</code>，意思就是通过 Kubernetes 的资源对象来定义 Grafana Dashboard，实现原理也很简单，也就是通过 CRD 来定义 Dashboard，然后通过和 Grafana 的 API Token 进行交互实现 Dashboard 的 CRUD。</p>
+<p>下面我们来看下如何使用 <code>DARK</code> 定义 Grafana Dashboard。首先 Clone 项目代码：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ git clone https://github.com/K-Phoen/dark.git
+</code></pre></div><p>然后安装 CRD 资源：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f k8s/crd.yaml
+</code></pre></div><p>然后通过 Secret 对象创建 Grafana 的 API KEYS，在 Grafana 主界面中，选择左侧的配置菜单 -&gt; <code>API Keys</code> 创建 API Keys，选择 <code>Editor</code> 的角色：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200327113133.png" alt="api keys">
+
+</p>
+<p>创建完成后会弹出一个对话框显示对应的 <code>API Keys</code>，使用这个 KEY 来创建一个对应的 Secret 对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml">$ kubectl create secret generic dark-tokens --from-literal=grafana=&lt;替换成APIKEY&gt;
+</code></pre></div><p>然后修改 <code>k8s/cluster-role.yaml</code> 文件，如下所示：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: v1
+<span style="color:#ff79c6">kind</span>: ServiceAccount
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dark
+---
+<span style="color:#ff79c6">kind</span>: ClusterRole
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dashboards-viewer
+<span style="color:#ff79c6">rules</span>:
+- <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;k8s.kevingomez.fr&#34;</span>]
+  <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;grafanadashboards&#34;</span>]
+  <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;get&#34;</span>, <span style="color:#f1fa8c">&#34;watch&#34;</span>, <span style="color:#f1fa8c">&#34;list&#34;</span>]
+- <span style="color:#ff79c6">apiGroups</span>: [<span style="color:#f1fa8c">&#34;&#34;</span>]
+  <span style="color:#ff79c6">resources</span>: [<span style="color:#f1fa8c">&#34;events&#34;</span>]
+  <span style="color:#ff79c6">verbs</span>: [<span style="color:#f1fa8c">&#34;create&#34;</span>, <span style="color:#f1fa8c">&#34;patch&#34;</span>]
+---
+<span style="color:#ff79c6">apiVersion</span>: rbac.authorization.k8s.io/v1
+<span style="color:#ff79c6">kind</span>: ClusterRoleBinding
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dashboards-viewer-cluster
+<span style="color:#ff79c6">subjects</span>:
+  - <span style="color:#ff79c6">kind</span>: ServiceAccount
+    <span style="color:#ff79c6">name</span>: dark
+    <span style="color:#ff79c6">namespace</span>: default
+<span style="color:#ff79c6">roleRef</span>:
+  <span style="color:#ff79c6">kind</span>: ClusterRole
+  <span style="color:#ff79c6">name</span>: dashboards-viewer
+  <span style="color:#ff79c6">apiGroup</span>: rbac.authorization.k8s.io
+</code></pre></div><p>然后创建上面的资源对象：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f k8s/cluster-role.yaml
+</code></pre></div><p>修改 <code>k8s/deployment.yaml</code> 文件，将 <code>GRAFANA_HOST</code> 环境变量修改成自己的 Grafana 的地址，由于我这里 Grafana 也安装在 Kubernetes 集群中的，所以直接用 DNS 形式配置，然后加上上面创建的 <code>dark</code> 这个 ServiceAccount：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: apps/v1
+<span style="color:#ff79c6">kind</span>: Deployment
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: dark
+  <span style="color:#ff79c6">labels</span>:
+    <span style="color:#ff79c6">app</span>: dark
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">selector</span>:
+    <span style="color:#ff79c6">matchLabels</span>:
+      <span style="color:#ff79c6">app</span>: dark
+  <span style="color:#ff79c6">template</span>:
+    <span style="color:#ff79c6">metadata</span>:
+      <span style="color:#ff79c6">labels</span>:
+        <span style="color:#ff79c6">app</span>: dark
+    <span style="color:#ff79c6">spec</span>:
+      <span style="color:#ff79c6">volumes</span>:
+      - <span style="color:#ff79c6">name</span>: dark-tokens
+        <span style="color:#ff79c6">secret</span>:
+          <span style="color:#ff79c6">secretName</span>: dark-tokens
+      <span style="color:#ff79c6">serviceAccountName</span>: dark
+      <span style="color:#ff79c6">containers</span>:
+      - <span style="color:#ff79c6">name</span>: dark
+        <span style="color:#ff79c6">image</span>: kphoen/dark:latest
+        <span style="color:#ff79c6">env</span>:
+        - <span style="color:#ff79c6">name</span>: GRAFANA_HOST
+          <span style="color:#ff79c6">value</span>: http://grafana.kube-mon:3000
+        - <span style="color:#ff79c6">name</span>: GRAFANA_TOKEN
+          <span style="color:#ff79c6">valueFrom</span>:
+            <span style="color:#ff79c6">secretKeyRef</span>:
+              <span style="color:#ff79c6">key</span>: grafana
+              <span style="color:#ff79c6">name</span>: dark-tokens
+</code></pre></div><p>修改完成后直接创建上面的 Controller：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f k8s/deployment.yaml
+$ kubectl get pods -l <span style="color:#8be9fd;font-style:italic">app</span><span style="color:#ff79c6">=</span>dark
+NAME                    READY   STATUS    RESTARTS   AGE
+dark-6bd956b8d6-755p2   1/1     Running   <span style="color:#bd93f9">0</span>          36m
+</code></pre></div><p>现在 Controller 定义好过后，实际上我们就可以去通过 CRD 对象来定义 Grafana Dashboard 了，如下所示定义了一个 <code>GrafanaDashboard</code> 对象，在对象中我们完全就可以根据自己的需求去定义内容了，比如定义 <code>annotations</code>、<code>variables</code>、<code>graph</code>、<code>table</code> 都可以，当然最重要的还是数据源要正确，以及查询语句：（example-dashboards.yaml）</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-yaml" data-lang="yaml"><span style="color:#ff79c6">apiVersion</span>: k8s.kevingomez.fr/v1
+<span style="color:#ff79c6">kind</span>: GrafanaDashboard
+<span style="color:#ff79c6">metadata</span>:
+  <span style="color:#ff79c6">name</span>: example-dashboard
+<span style="color:#ff79c6">folder</span>: <span style="color:#f1fa8c">&#34;Test folder&#34;</span>
+<span style="color:#ff79c6">spec</span>:
+  <span style="color:#ff79c6">title</span>: Awesome dashboard
+  <span style="color:#ff79c6">editable</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">shared_crosshair</span>: <span style="color:#ff79c6">true</span>
+  <span style="color:#ff79c6">tags</span>: [generated, yaml]
+  <span style="color:#ff79c6">auto_refresh</span>: 10s
+  <span style="color:#ff79c6">tags_annotations</span>:
+    - <span style="color:#ff79c6">name</span>: Deployments
+      <span style="color:#ff79c6">datasource</span>: <span style="color:#f1fa8c">&#34;Prometheus&#34;</span>
+      <span style="color:#ff79c6">color</span>: <span style="color:#f1fa8c">&#34;#5794F2&#34;</span>
+      <span style="color:#ff79c6">tags</span>: [<span style="color:#f1fa8c">&#34;deploy&#34;</span>, <span style="color:#f1fa8c">&#34;production&#34;</span>]
+  <span style="color:#ff79c6">variables</span>:
+    - <span style="color:#ff79c6">interval</span>:
+        <span style="color:#ff79c6">name</span>: interval
+        <span style="color:#ff79c6">label</span>: Interval
+        <span style="color:#ff79c6">values</span>: [<span style="color:#f1fa8c">&#34;30s&#34;</span>, <span style="color:#f1fa8c">&#34;1m&#34;</span>, <span style="color:#f1fa8c">&#34;5m&#34;</span>, <span style="color:#f1fa8c">&#34;10m&#34;</span>, <span style="color:#f1fa8c">&#34;30m&#34;</span>, <span style="color:#f1fa8c">&#34;1h&#34;</span>, <span style="color:#f1fa8c">&#34;6h&#34;</span>, <span style="color:#f1fa8c">&#34;12h&#34;</span>]
+    - <span style="color:#ff79c6">query</span>:
+        <span style="color:#ff79c6">name</span>: status
+        <span style="color:#ff79c6">label</span>: HTTP status
+        <span style="color:#ff79c6">datasource</span>: Prometheus
+        <span style="color:#ff79c6">request</span>: <span style="color:#f1fa8c">&#34;label_values(prometheus_http_requests_total, code)&#34;</span>
+    - <span style="color:#ff79c6">const</span>:
+        <span style="color:#ff79c6">name</span>: percentile
+        <span style="color:#ff79c6">label</span>: Percentile
+        <span style="color:#ff79c6">default</span>: <span style="color:#bd93f9">80</span>
+        <span style="color:#ff79c6">values_map</span>:
+          <span style="color:#ff79c6">50th</span>: <span style="color:#f1fa8c">&#34;50&#34;</span>
+          <span style="color:#ff79c6">75th</span>: <span style="color:#f1fa8c">&#34;75&#34;</span>
+          <span style="color:#ff79c6">80th</span>: <span style="color:#f1fa8c">&#34;80&#34;</span>
+          <span style="color:#ff79c6">85th</span>: <span style="color:#f1fa8c">&#34;85&#34;</span>
+          <span style="color:#ff79c6">90th</span>: <span style="color:#f1fa8c">&#34;90&#34;</span>
+          <span style="color:#ff79c6">95th</span>: <span style="color:#f1fa8c">&#34;95&#34;</span>
+          <span style="color:#ff79c6">99th</span>: <span style="color:#f1fa8c">&#34;99&#34;</span>
+    - <span style="color:#ff79c6">custom</span>:
+        <span style="color:#ff79c6">name</span>: vX
+        <span style="color:#ff79c6">default</span>: v2
+        <span style="color:#ff79c6">values_map</span>:
+          <span style="color:#ff79c6">v1</span>: v1
+          <span style="color:#ff79c6">v2</span>: v2
+  <span style="color:#ff79c6">rows</span>:
+    - <span style="color:#ff79c6">name</span>: Prometheus
+      <span style="color:#ff79c6">panels</span>:
+        - <span style="color:#ff79c6">graph</span>:
+            <span style="color:#ff79c6">title</span>: HTTP Rate
+            <span style="color:#ff79c6">height</span>: 400px
+            <span style="color:#ff79c6">datasource</span>: Prometheus
+            <span style="color:#ff79c6">targets</span>:
+              - <span style="color:#ff79c6">prometheus</span>:
+                  <span style="color:#ff79c6">query</span>: <span style="color:#f1fa8c">&#34;rate(promhttp_metric_handler_requests_total[$interval])&#34;</span>
+                  <span style="color:#ff79c6">legend</span>: <span style="color:#f1fa8c">&#34;{{handler}} - {{ code }}&#34;</span>
+        - <span style="color:#ff79c6">graph</span>:
+            <span style="color:#ff79c6">title</span>: Heap allocations
+            <span style="color:#ff79c6">height</span>: 400px
+            <span style="color:#ff79c6">datasource</span>: Prometheus
+            <span style="color:#ff79c6">targets</span>:
+              - <span style="color:#ff79c6">prometheus</span>:
+                  <span style="color:#ff79c6">query</span>: <span style="color:#f1fa8c">&#34;go_memstats_heap_alloc_bytes&#34;</span>
+                  <span style="color:#ff79c6">legend</span>: <span style="color:#f1fa8c">&#34;{{job}}&#34;</span>
+                  <span style="color:#ff79c6">ref</span>: A
+        - <span style="color:#ff79c6">table</span>:
+            <span style="color:#ff79c6">title</span>: Threads
+            <span style="color:#ff79c6">datasource</span>: Prometheus
+            <span style="color:#ff79c6">targets</span>:
+              - <span style="color:#ff79c6">prometheus</span>:
+                  <span style="color:#ff79c6">query</span>: <span style="color:#f1fa8c">&#34;go_threads&#34;</span>
+            <span style="color:#ff79c6">hidden_columns</span>: [<span style="color:#f1fa8c">&#34;Time&#34;</span>]
+            <span style="color:#ff79c6">time_series_aggregations</span>:
+              - <span style="color:#ff79c6">label</span>: AVG
+                <span style="color:#ff79c6">type</span>: avg
+              - <span style="color:#ff79c6">label</span>: Current
+                <span style="color:#ff79c6">type</span>: current
+        - <span style="color:#ff79c6">single_stat</span>:
+            <span style="color:#ff79c6">title</span>: Heap Allocations
+            <span style="color:#ff79c6">datasource</span>: Prometheus
+            <span style="color:#ff79c6">targets</span>:
+              - <span style="color:#ff79c6">prometheus</span>:
+                  <span style="color:#ff79c6">query</span>: <span style="color:#f1fa8c">&#39;go_memstats_heap_alloc_bytes{job=&#34;prometheus&#34;}&#39;</span>
+            <span style="color:#ff79c6">unit</span>: bytes
+            <span style="color:#ff79c6">thresholds</span>: [<span style="color:#f1fa8c">&#34;26000000&#34;</span>, <span style="color:#f1fa8c">&#34;28000000&#34;</span>]
+            <span style="color:#ff79c6">color</span>: [<span style="color:#f1fa8c">&#34;value&#34;</span>]
+    - <span style="color:#ff79c6">name</span>: <span style="color:#f1fa8c">&#34;Some text, because it might be useful&#34;</span>
+      <span style="color:#ff79c6">panels</span>:
+        - <span style="color:#ff79c6">text</span>:
+            <span style="color:#ff79c6">title</span>: Some awesome text?
+            <span style="color:#ff79c6">markdown</span>: <span style="color:#f1fa8c">&#34;Markdown syntax help: [commonmark.org/help](https://commonmark.org/help/)\n${percentile}&#34;</span>
+        - <span style="color:#ff79c6">text</span>:
+            <span style="color:#ff79c6">title</span>: Some awesome html?
+            <span style="color:#ff79c6">html</span>: <span style="color:#f1fa8c">&#34;Some &lt;b&gt;awesome&lt;/b&gt; html?&#34;</span>
+</code></pre></div><p>同样直接创建上面的示例文件：</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#282a36;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-shell" data-lang="shell">$ kubectl apply -f example-dashboards.yaml
+$ kubectl get dashboards
+NAME                AGE
+example-dashboard   35m
+$ kubectl logs -f dark-6bd956b8d6-755p2
+W0327 11:10:24.356194       <span style="color:#bd93f9">1</span> client_config.go:543<span style="color:#ff79c6">]</span> Neither --kubeconfig nor --master was specified.  Using the inClusterConfig.  This might not work.
+I0327 11:10:24.360886       <span style="color:#bd93f9">1</span> controller.go:87<span style="color:#ff79c6">]</span> Setting up event handlers
+I0327 11:10:24.362305       <span style="color:#bd93f9">1</span> controller.go:118<span style="color:#ff79c6">]</span> Starting dark-controller
+I0327 11:10:24.362341       <span style="color:#bd93f9">1</span> controller.go:121<span style="color:#ff79c6">]</span> Waiting <span style="color:#ff79c6">for</span> informer caches to sync
+I0327 11:10:24.462733       <span style="color:#bd93f9">1</span> controller.go:126<span style="color:#ff79c6">]</span> Starting workers
+I0327 11:10:24.462820       <span style="color:#bd93f9">1</span> controller.go:132<span style="color:#ff79c6">]</span> Started workers
+I0327 11:13:22.641706       <span style="color:#bd93f9">1</span> controller.go:197<span style="color:#ff79c6">]</span> Successfully synced <span style="color:#f1fa8c">&#39;default/example-dashboard&#39;</span>
+I0327 11:13:22.643061       <span style="color:#bd93f9">1</span> event.go:278<span style="color:#ff79c6">]</span> Event<span style="color:#ff79c6">(</span>v1.ObjectReference<span style="color:#ff79c6">{</span>Kind:<span style="color:#f1fa8c">&#34;GrafanaDashboard&#34;</span>, Namespace:<span style="color:#f1fa8c">&#34;default&#34;</span>, Name:<span style="color:#f1fa8c">&#34;example-dashboard&#34;</span>, UID:<span style="color:#f1fa8c">&#34;efc6f96f-c7fc-40b5-8b8f-831a95b0a042&#34;</span>, APIVersion:<span style="color:#f1fa8c">&#34;k8s.kevingomez.fr/v1&#34;</span>, ResourceVersion:<span style="color:#f1fa8c">&#34;48490732&#34;</span>, FieldPath:<span style="color:#f1fa8c">&#34;&#34;</span><span style="color:#ff79c6">})</span>: type: <span style="color:#f1fa8c">&#39;Normal&#39;</span> reason: <span style="color:#f1fa8c">&#39;Synced&#39;</span> GrafanaDashboard synced successfully
+</code></pre></div><p>在 Controller 中也可以看到对应的日志信息，资源对象创建成功以后，现在去 Grafana 页面上查看可以看到已经新增了一个 <code>Test folder</code> 的文件夹以及 <code>Awesome dashboard</code>：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200327115100.png" alt="">
+
+</p>
+<p>查看 Dashboard 就可以看到和上面 CRD 中定义的各种图表信息了：</p>
+<p>
+  <img src="https://bxdc-static.oss-cn-beijing.aliyuncs.com/images/20200327115434.png" alt="grafana dashboard">
+
+</p>
+<p>这样我们就使用 Kubernetes 资源对象去定义了 Grafana Dashboard 了，这种方式比直接在页面上去手动配置显然要更优雅，也符合 <code>everything as code</code> 的思想🤯。</p>
+<!-- raw HTML omitted -->
+
+                
+                
+<div class="entry-shang text-center">
+    
+	    <p> 「如果这篇文章对你有用,请随意打赏」</p>
+	
+	<button class="zs show-zs btn btn-bred">赞赏支持</button>
+</div>
+<div class="zs-modal-bg"></div>
+<div class="zs-modal-box">
+	<div class="zs-modal-head">
+		<button type="button" class="close">×</button>
+		<span class="author"><a href="https://qnxr.xyz"><img src="/img/favicon.png" />青年夏日IT</a></span>
+        
+	        <p class="tip"><i></i><span>如果这篇文章对你有用,请随意打赏</span></p>
+		
+ 
+	</div>
+	<div class="zs-modal-body">
+		<div class="zs-modal-btns">
+			<button class="btn btn-blink" data-num="2">2元</button>
+			<button class="btn btn-blink" data-num="5">5元</button>
+			<button class="btn btn-blink" data-num="10">10元</button>
+			<button class="btn btn-blink" data-num="50">50元</button>
+			<button class="btn btn-blink" data-num="100">100元</button>
+			<button class="btn btn-blink" data-num="1">任意金额</button>
+		</div>
+		<div class="zs-modal-pay">
+			<button class="btn btn-bred" id="pay-text">2元</button>
+			<p>使用<span id="pay-type">微信</span>扫描二维码完成支付</p>
+			<img src="/img/reward/wechat-2.png"  id="pay-image"/>
+		</div>
+	</div>
+	<div class="zs-modal-footer">
+		<label><input type="radio" name="zs-type" value="wechat" class="zs-type" checked="checked"><span ><span class="zs-wechat"><img src="/img/reward/wechat-btn.png"/></span></label>
+		<label><input type="radio" name="zs-type" value="alipay" class="zs-type" class="zs-alipay"><img src="/img/reward/alipay-btn.png"/></span></label>
+	</div>
+</div>
+<script type="text/javascript" src="/js/reward.js"></script>
+
+                
+
+                <hr>
+                <ul class="pager">
+                    
+                    <li class="previous">
+                        <a href="/post/alertmanager-when-alert/" data-toggle="tooltip" data-placement="top" title="AlertManager 何时报警">&larr;
+                            Previous Post</a>
+                    </li>
+                    
+                    
+                    <li class="next">
+                        <a href="/post/ingress-nginx-how-to-work/" data-toggle="tooltip" data-placement="top" title="ingress-nginx 控制器工作原理[译]">Next
+                            Post &rarr;</a>
+                    </li>
+                    
+                </ul>
+
+                
+<div id="disqus-comment"></div>
+
+
+
+            </div>
+            
+            <div class="
+                col-lg-11 col-lg-offset-1
+                col-md-10 col-md-offset-1
+                sidebar-container">
+
+                
+                
+                <section>
+                    <hr class="hidden-sm hidden-xs">
+                    <h5><a href="/tags/">标签</a></h5>
+                    <div class="tags">
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/affinity" title="affinity">
+                            affinity
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/alertmanager" title="alertmanager">
+                            alertmanager
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/argo" title="argo">
+                            argo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/cd" title="cd">
+                            cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ci" title="ci">
+                            ci
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ci/cd" title="ci/cd">
+                            ci/cd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/configmap" title="configmap">
+                            configmap
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/coredns" title="coredns">
+                            coredns
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/dashboard" title="dashboard">
+                            dashboard
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/deployment" title="deployment">
+                            deployment
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/devops" title="devops">
+                            devops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/django" title="django">
+                            django
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/docker" title="docker">
+                            docker
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/dockerfile" title="dockerfile">
+                            dockerfile
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/drone" title="drone">
+                            drone
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/efk" title="efk">
+                            efk
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elastic" title="elastic">
+                            elastic
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/elasticsearch" title="elasticsearch">
+                            elasticsearch
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/envoy" title="envoy">
+                            envoy
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/flask" title="flask">
+                            flask
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/fluentd" title="fluentd">
+                            fluentd
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/github" title="github">
+                            github
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/gitlab" title="gitlab">
+                            gitlab
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/gitops" title="gitops">
+                            gitops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/goland" title="goland">
+                            goland
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/golang" title="golang">
+                            golang
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/grafana" title="grafana">
+                            grafana
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/haproxy" title="haproxy">
+                            haproxy
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/harbor" title="harbor">
+                            harbor
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/helm" title="helm">
+                            helm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/https" title="https">
+                            https
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/hugo" title="hugo">
+                            hugo
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/ingress" title="ingress">
+                            ingress
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ingress-nginx" title="ingress-nginx">
+                            ingress-nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/iptables" title="iptables">
+                            iptables
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ipvs" title="ipvs">
+                            ipvs
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/istio" title="istio">
+                            istio
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/java" title="java">
+                            java
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/jenkins" title="jenkins">
+                            jenkins
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/k8s" title="k8s">
+                            k8s
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/k8s%E6%8A%80%E6%9C%AF%E5%9C%88" title="k8s技术圈">
+                            k8s技术圈
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kafka" title="kafka">
+                            kafka
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kibana" title="kibana">
+                            kibana
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kind" title="kind">
+                            kind
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kong" title="kong">
+                            kong
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/kubeadm" title="kubeadm">
+                            kubeadm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubelet" title="kubelet">
+                            kubelet
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kubernetes" title="kubernetes">
+                            kubernetes
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/kustomize" title="kustomize">
+                            kustomize
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/loki" title="loki">
+                            loki
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/mac" title="mac">
+                            mac
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/microservice" title="microservice">
+                            microservice
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/monitor" title="monitor">
+                            monitor
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/netfilter" title="netfilter">
+                            netfilter
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/nfs" title="nfs">
+                            nfs
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/nginx" title="nginx">
+                            nginx
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/operator" title="operator">
+                            operator
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/ops" title="ops">
+                            ops
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pipeline" title="pipeline">
+                            pipeline
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pod" title="pod">
+                            pod
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/prometheus" title="prometheus">
+                            prometheus
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/pv" title="pv">
+                            pv
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pvc" title="pvc">
+                            pvc
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/pycharm" title="pycharm">
+                            pycharm
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/python" title="python">
+                            python
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/rbac" title="rbac">
+                            rbac
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/react" title="react">
+                            react
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/scheduler" title="scheduler">
+                            scheduler
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/security" title="security">
+                            security
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service" title="service">
+                            service
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-api" title="service-api">
+                            service-api
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/service-mesh" title="service-mesh">
+                            service-mesh
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/slave" title="slave">
+                            slave
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/storageclass" title="storageclass">
+                            storageclass
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/tcpdump" title="tcpdump">
+                            tcpdump
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tdd" title="tdd">
+                            tdd
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tekton" title="tekton">
+                            tekton
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/tips" title="tips">
+                            tips
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/traefik" title="traefik">
+                            traefik
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vault" title="vault">
+                            vault
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/vscode" title="vscode">
+                            vscode
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/webpack" title="webpack">
+                            webpack
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/websocket" title="websocket">
+                            websocket
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/wsl" title="wsl">
+                            wsl
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/yaml" title="yaml">
+                            yaml
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E5%BE%AE%E6%9C%8D%E5%8A%A1" title="微服务">
+                            微服务
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E7%9F%A5%E8%AF%86%E6%98%9F%E7%90%83" title="知识星球">
+                            知识星球
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        <a href="/tags/%E8%AF%BE%E7%A8%8B" title="课程">
+                            课程
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E8%B0%83%E5%BA%A6" title="调度">
+                            调度
+                        </a>
+                        
+                        
+                        
+                        <a href="/tags/%E9%98%BF%E9%87%8C%E4%BA%91" title="阿里云">
+                            阿里云
+                        </a>
+                        
+                        
+                        
+                        
+                        
+                        
+                    </div>
+                </section>
+                
+
+                
+                
+            </div>
+        </div>
+    </div>
+</article>
+
+
+
+
+<footer>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+                <ul class="list-inline text-center">
+                   
+                    
+                    <li>
+                        <a href="mailto:1290851757@qq.com">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fas fa-envelope fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+                    
+                    <li>
+                        <a href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+                    
+                    
+                    
+
+                    
+                    <li>
+                        <a target="_blank" href="img/wechat_qrcode.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-facebook fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+
+		    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="https://github.com/xiaobingchan">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    <li>
+                        <a target="_blank" href="img/alipay.jpg">
+                            <span class="fa-stack fa-lg">
+                                <i class="fas fa-circle fa-stack-2x"></i>
+                                <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                            </span>
+                        </a>
+                    </li>
+		    
+                    
+                    
+                    
+                    
+                    
+            
+            
+            
+                </ul>
+		<p class="copyright text-muted">
+                    Copyright &copy; 青年夏日IT 2021
+                    <br>
+                    <a href="https://themes.gohugo.io/hugo-theme-cleanwhite"></a><a href="http://qnxr.xyz">青年夏日IT版权所有</a> |
+                    <iframe
+                        style="margin-left: 2px; margin-bottom:-5px;"
+                        frameborder="0" scrolling="0" width="100px" height="20px"
+                        src="https://ghbtns.com/github-btn.html?user=xiaobingchan&repo=xiaobingchan.github.io&type=star&count=true" >
+                    </iframe>
+                </p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+
+
+
+<script>
+    function async(u, c) {
+      var d = document, t = 'script',
+          o = d.createElement(t),
+          s = d.getElementsByTagName(t)[0];
+      o.src = u;
+      if (c) { o.addEventListener('load', function (e) { c(null, e); }, false); }
+      s.parentNode.insertBefore(o, s);
+    }
+</script>
+
+
+
+
+
+
+<script>
+    
+    if($('#tag_cloud').length !== 0){
+        async("/js/jquery.tagcloud.js",function(){
+            $.fn.tagcloud.defaults = {
+                
+                color: {start: '#bbbbee', end: '#0085a1'},
+            };
+            $('#tag_cloud a').tagcloud();
+        })
+    }
+</script>
+
+
+<script>
+    async("https://cdnjs.cloudflare.com/ajax/libs/fastclick/1.0.6/fastclick.js", function(){
+        var $nav = document.querySelector("nav");
+        if($nav) FastClick.attach($nav);
+    })
+</script>
+
+
+
+
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-150373352-1', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+
+</body>
+</html>
